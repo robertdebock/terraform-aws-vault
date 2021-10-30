@@ -1,0 +1,62 @@
+---
+on:
+  - push
+
+jobs:
+  terraform:
+    name: terraform
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: eu-central-1
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - name: default
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: generate ssh keys
+        run: |
+          cd ./examples/${{ matrix.config.name }}
+          ssh-keygen -f id_rsa -q -N ""
+      - name: terraform init
+        uses: robertdebock/terraform-action@1.1.2
+        with:
+          directory: ./examples/${{ matrix.config.name }}
+      - name: terraform validate
+        uses: robertdebock/terraform-action@1.1.2
+        with:
+          action: validate
+          directory: ./examples/${{ matrix.config.name }}
+      - name: terraform plan
+        uses: robertdebock/terraform-action@1.1.2
+        with:
+          action: plan
+          directory: ./examples/${{ matrix.config.name }}
+      - name: terraform apply
+        uses: robertdebock/terraform-action@1.1.2
+        with:
+          action: apply
+          directory: ./examples/${{ matrix.config.name }}
+        env:
+          TF_CLI_ARGS: "-input=false -auto-approve"
+      - name: terraform destroy
+        uses: robertdebock/terraform-action@1.1.2
+        with:
+          action: destroy
+          directory: ./examples/${{ matrix.config.name }}
+        env:
+          TF_CLI_ARGS: "-input=false -auto-approve"
+        if: ${{ always() }}
+      # Workaround for an [issue](https://github.com/hashicorp/terraform-provider-aws/issues/21460).
+      - name: terraform destroy second time
+        uses: robertdebock/terraform-action@1.1.2
+        with:
+          action: destroy
+          directory: ./examples/${{ matrix.config.name }}
+        env:
+          TF_CLI_ARGS: "-input=false -auto-approve"
+        if: ${{ always() }}
