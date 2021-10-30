@@ -8,6 +8,27 @@ This code spins up a opensource HashiCorp Vault cluster:
 - With a load balancer.
 - A bastion host.
 
+## Overview
+
+```text
+                 +--- lb --------+
+       +-------> | type: network |
+       |         +---------------+
+       |
+       |         +--- lb_target_group ---+
+       |   +---> | port: 8200            |  <-----------------------+
+       |   |     +-----------------------+                          |
+       |   |                                                        |
+       |   |    +--- listener ---+   +--- autoscaling_group ---+    |
+       +---+--- | port: 8200     |   |                         | ---+
+                +----------------+   +-------------------------+
+                                                   |
+                                                   V      
+                                     +--- launch_configuration ---+
+                                     |                            |
+                                     +----------------------------+
+```
+
 These variables can be used.
 
 - `name` - default: `"vault"`.
