@@ -66,6 +66,12 @@ The `name` is used in nearly any resource.
 
 Changes to the `name` cause the current cluster to be destroyed and a new cluster to be deployed.
 
+## vault_version
+
+This determines the version of Vault to install. Pick a version from [this](https://releases.hashicorp.com/vault/) list.
+
+When changing this value, please also change the `launch_configuration_version`.
+
 ## size
 
 The `size` variable makes is a little simpler to pick a size for the Vault cluster. For example `small` is the smallest size as recommended in the HashiCorp Vault reference architecture.
@@ -112,6 +118,8 @@ Changes requiring a version bump:
 
 - modifications to `user_data.sh.tpl` (which end up in changes to `user_data.sh`).
 - `size` changes.
+- `vault_version` changes.
+- `key_filename` changes.
 - `key_filename` changes.
 
  Note; you can go up (`1` -> `2`) or down (`23` -> `7`), either way, a new launch configuration will be created.
