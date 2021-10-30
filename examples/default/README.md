@@ -23,5 +23,3 @@ ssh ec2-user@BASTION_HOST
 ssh VAULT_HOST
 vault operator init
 ```
-
-From now on, Vault will be stared, and automatically unsealed.

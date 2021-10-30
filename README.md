@@ -51,6 +51,15 @@ vault operator init
 
 This generates recovery tokens and a root key, keep them safe and secure.
 
+You can turn on auto-cleanup of dead raft peers:
+
+```shell
+vault login ROOT_TOKEN
+vault operator raft autopilot set-config \
+  -min-quorum=3 \
+  -cleanup-dead-servers=true
+```
+
 ## name
 
 The `name` is used in nearly any resource.
