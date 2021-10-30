@@ -124,6 +124,20 @@ Changes requiring a version bump:
 
  Note; you can go up (`1` -> `2`) or down (`23` -> `7`), either way, a new launch configuration will be created.
 
+## Backup & restore
+
+To create a backup, log in to a Vault node, use `vault login` and run:
+
+```shell
+vault operator raft snapshot save /vault/data/raft/snapshots/raft-$(date +'%d-%m-%Y-%H:%M').snap
+```
+
+To restore a snapshot, run:
+
+```shell
+vault operator raft snapshot restore FILE
+```
+
 ## Cost
 
 To understand the cost for this service, you can use cost.modules.tf:
