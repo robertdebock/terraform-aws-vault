@@ -247,17 +247,18 @@ resource "aws_lb_listener" "default" {
 
 # Create an auto scaling group.
 resource "aws_autoscaling_group" "default" {
-  name                  = var.name
-  desired_capacity      = var.amount
-  min_size              = var.amount - 1
-  max_size              = var.amount + 2
-  health_check_type     = "EC2"
-  placement_group       = aws_placement_group.default.id
-  max_instance_lifetime = var.max_instance_lifetime
-  vpc_zone_identifier   = tolist(aws_subnet.default[*].id)
-  target_group_arns     = tolist(aws_lb_target_group.default[*].arn)
-  launch_configuration  = aws_launch_configuration.default.name
-  enabled_metrics       = ["GroupDesiredCapacity", "GroupInServiceCapacity", "GroupPendingCapacity", "GroupMinSize", "GroupMaxSize", "GroupInServiceInstances", "GroupPendingInstances", "GroupStandbyInstances", "GroupStandbyCapacity", "GroupTerminatingCapacity", "GroupTerminatingInstances", "GroupTotalCapacity", "GroupTotalInstances"]
+  name                      = var.name
+  desired_capacity          = var.amount
+  min_size                  = var.amount
+  max_size                  = var.amount
+  health_check_type         = "EC2"
+  default_cooldown          = 180
+  placement_group           = aws_placement_group.default.id
+  max_instance_lifetime     = var.max_instance_lifetime
+  vpc_zone_identifier       = tolist(aws_subnet.default[*].id)
+  target_group_arns         = tolist(aws_lb_target_group.default[*].arn)
+  launch_configuration      = aws_launch_configuration.default.name
+  enabled_metrics           = ["GroupDesiredCapacity", "GroupInServiceCapacity", "GroupPendingCapacity", "GroupMinSize", "GroupMaxSize", "GroupInServiceInstances", "GroupPendingInstances", "GroupStandbyInstances", "GroupStandbyCapacity", "GroupTerminatingCapacity", "GroupTerminatingInstances", "GroupTotalCapacity", "GroupTotalInstances"]
   tag {
     key                 = "name"
     value               = var.name
