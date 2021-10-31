@@ -252,7 +252,6 @@ resource "aws_autoscaling_group" "default" {
   min_size                  = var.amount
   max_size                  = var.amount
   health_check_type         = "EC2"
-  default_cooldown          = 180
   placement_group           = aws_placement_group.default.id
   max_instance_lifetime     = var.max_instance_lifetime
   vpc_zone_identifier       = tolist(aws_subnet.default[*].id)

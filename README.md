@@ -59,8 +59,11 @@ You can turn on auto-cleanup of dead raft peers:
 vault login ROOT_TOKEN
 vault operator raft autopilot set-config \
   -min-quorum=3 \
-  -cleanup-dead-servers=true
+  -cleanup-dead-servers=true \
+  -dead-server-last-contact-threshold=120
 ```
+
+The value of `dead-server-last-contact-threshold` has a relation to the `autoscaling_group.default.cooldown` (default: `300`); `dead-server-last-contact-threshold` must be lower than the `autoscaling_group.default.cooldown` period to allow the old node to be removed, so consensus can be achieved.
 
 ## Variables
 
