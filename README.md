@@ -99,21 +99,7 @@ The `size`: `development` should be considered non-production:
 
 ### amount
 
-The `amount` of machines that make up the cluster can be changed, but there are some considerations:
-
-- If the amount increases from a number lower than the amount of availability zones (typically: `3`); a new load balancer will be created, because new subnets will be created and mapped to the load balancer. The table below tries to explain the behaviour for different scenarios.
-
-| Original value | New value    | Result                |
-|----------------|--------------|-----------------------|
-| `1`            | `3` and up   | New load balancer.    |
-| `3` and up     | `5` and up   | No new load balancer. |
-| `3`            | `1`          | New load balancer.    |
-| `5`            | `3`          | No new load balancer. |
-
-As a general advice:
-
-- Use a minimum of `3` and a maximum of `5`.
-- Going down results in dead peers. (`vault opertator raft list-peers`.) Remove them by logging into a Vault instance and running `vault operator raft remove-peer PEER_TO_REMOVE`.
+The `amount` of machines that make up the cluster can be changed. Use `3` or `5`.
 
 ### max_instance_lifetime
 
