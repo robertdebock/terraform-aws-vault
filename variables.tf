@@ -48,8 +48,8 @@ variable "amount" {
   type        = number
   default     = 3
   validation {
-    condition     = var.amount % 2 == 1
-    error_message = "Please use an odd number for amount, like 1, 3 or 5."
+    condition     = var.amount % 2 == 1 && var.amount >= 3 && var.amount <= 5
+    error_message = "Please use an odd number for amount, like 3 or 5."
   }
 }
 
