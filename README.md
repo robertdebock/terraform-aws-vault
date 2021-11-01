@@ -105,19 +105,23 @@ The `amount` of machines that make up the cluster can be changed. Use `3` or `5`
 
 ### vpc_id
 
-If you have an existing VPC, you can deploy this Vault installation in that VPC by setting this variable. The default is `""`, which means this code will create (and manage) a VPC for you.
+If you have an existing VPC, you can deploy this Vault installation in that VPC by setting this variable. The default is `""`, which means this code will create (and manage) a VPC (and all it's dependecies) for you.
+
+Things that will be deployed when not specifying a VPC:
+
+- `aws_vpc`
+- `aws_internet_gateway`
+- `aws_route_table`
+- `aws_route`
+- `aws_subnet`
+- `aws_route_table_association`
+
+When you do provide a value for the variable `vpc_id`, it should have:
+
+- A subnet for all availability zones.
+- An internet gateway and all routing to the internet setup.
 
 You can't change this value after a deployment is done without loosing service.
-
-When setting this value, also set the `internet_gateway_id`.
-
-### internet_gateway_id
-
-If you have an existing Internet Gateway, you can deploy this Vault installation using that Internet Gateway by setting this variable. The default is `""`, which means this code will create (and manage) an Internet Gateway for you.
-
-You can't change this value after a deployment is done without loosing service.
-
-This value can only be set when `vpc_id` is set.
 
 ### max_instance_lifetime
 
