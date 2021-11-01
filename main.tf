@@ -338,7 +338,7 @@ resource "aws_security_group_rule" "bastion-internet" {
 # Create the bastion host.
 resource "aws_instance" "bastion" {
   ami                         = data.aws_ami.default.id
-  subnet_id                   = local.aws_subnet_ids[0]
+  subnet_id                   = tolist(local.aws_subnet_ids)[0]
   instance_type               = "t3.micro"
   vpc_security_group_ids      = [aws_security_group.bastion.id]
   key_name                    = aws_key_pair.default.id
