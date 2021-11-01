@@ -115,7 +115,7 @@ resource "aws_route_table" "default" {
   vpc_id = local.vpc_id
 }
 
-data "aws_route_table" "default" {
+data "aws_route_tables" "default" {
   # Lookup the routing table when a VPC has been provided.
   count  = var.vpc_id == "" ? 0 : 1
   vpc_id = local.vpc_id
@@ -140,7 +140,7 @@ resource "aws_subnet" "default" {
   tags              = var.tags
 }
 
-data "aws_subnet" "default" {
+data "aws_subnet_ids" "default" {
   count  = var.vpc_id == "" ? 0 : 1
   vpc_id = local.vpc_id
 }

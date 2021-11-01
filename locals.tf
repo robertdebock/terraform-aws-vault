@@ -19,8 +19,8 @@ locals {
   internet_gateway_id = try(aws_internet_gateway.default[0].id, data.aws_internet_gateway.default[0].id)
 
   # Set the `local.aws_route_table_id` based on either the resource object or the data object, whichever is set.
-  aws_route_table_id = try(aws_route_table.default[0].id, data.aws_route_table.default[0].id)
+  aws_route_table_id = try(aws_route_table.default[0].id, data.aws_route_tables.default[0].id)
 
   # Set the `aws_subnet_id` based on either the resource object or the data object, whichever is set.
-  aws_subnet_ids = try(aws_subnet.default[*].id, data.aws_subnet.default[*].id)
+  aws_subnet_ids = try(data.aws_subnet_ids.default[0].id, aws_subnet.default[*].id)
 }
