@@ -40,6 +40,8 @@ These variables can be used.
 - `tags` - default `{owner = "unset"}`.
 - `max_instance_lifetime` - default `86400`. (1 day)
 - `launch_configuration_version` - default `1`.
+- `vpc_id` - default `""`.
+- `internet_gateway_id` - default `""`.
 
 There are some more variables in `variables.tf`.
 
@@ -104,6 +106,12 @@ The `amount` of machines that make up the cluster can be changed. Use `3` or `5`
 ### vpc_id
 
 If you have an existing VPC, you can deploy this Vault installation in that VPC by setting this variable. The default is `""`, which means this code will create (and manage) a VPC for you.
+
+You can't change this value after a deployment is done without loosing service.
+
+### internet_gateway_id
+
+If you have an existing Internet Gateway, you can deploy this Vault installation using that Internet Gateway by setting this variable. The default is `""`, which means this code will create (and manage) an Internet Gateway for you.
 
 You can't change this value after a deployment is done without loosing service.
 

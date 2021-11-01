@@ -59,6 +59,12 @@ variable "vpc_id" {
   default     = ""
 }
 
+variable "internet_gateway_id" {
+  description = "The Internet Gateway to use. Fill this value to use an existing Internet Gateway, otherwise one will be created."
+  type        = string
+  default     = ""
+}
+
 variable "aws_vpc_cidr_block_start" {
   description = "The first two octets of the VPC cidr."
   type        = string

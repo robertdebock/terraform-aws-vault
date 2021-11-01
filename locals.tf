@@ -14,4 +14,8 @@ locals {
 
   # Set the `local.vpc_id` based on either the resource object or the data object, whichever is set.
   vpc_id =  try(aws_vpc.default[0].id, data.aws_vpc.default[0].id)
+
+  # Set the `local.internet_gateway_id` based on either the resource object or the data object, whichever is set.
+  internet_gateway_id =  try(aws_internet_gateway.default[0].id, data.aws_internet_gateway.default[0].id)
+
 }
