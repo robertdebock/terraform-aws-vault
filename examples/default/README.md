@@ -14,12 +14,3 @@ test -f id_rsa.pub || ssh-keygen -f id_rsa
 ```shell
 terraform apply
 ```
-
-You will see the IP address of the bastion-host, connect to that machine, jump to a Vault machine and initialize Vault.
-
-```shell
-ssh-add id_rsa
-ssh ec2-user@BASTION_HOST
-ssh VAULT_HOST
-vault operator init
-```
