@@ -264,7 +264,6 @@ resource "aws_lb_target_group" "default" {
   tags     = var.tags
   health_check {
     protocol = "HTTP"
-    # port     = "traffic-port"
     path = "/v1/sys/health"
   }
 }
