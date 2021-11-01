@@ -5,5 +5,3 @@ terraform.tfstate
 terraform.tfstate.backup
 id_rsa
 id_rsa.pub
-user_data.sh
-files/*
