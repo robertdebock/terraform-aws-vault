@@ -95,8 +95,6 @@ Changing this value after the cluster has been deployed has effect after:
 - The `max_instance_lifetime` has passed and a instance is replaced.
 - Manually triggering an instance refresh in the AWS console.
 
-Replacing instances will keep old Vault peers. (`vault opertator raft list-peers`.)
-
 The `size`: `development` should be considered non-production:
 
 - It's smaller than the HashiCorp Vault reference architecture recommends.
