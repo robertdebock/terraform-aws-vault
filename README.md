@@ -41,7 +41,6 @@ These variables can be used.
 - `max_instance_lifetime` - default `86400`. (1 day)
 - `launch_configuration_version` - default `1`.
 - `vpc_id` - default `""`.
-- `internet_gateway_id` - default `""`.
 
 There are some more variables in `variables.tf`.
 
@@ -55,7 +54,7 @@ vault operator init
 
 This generates recovery tokens and a root key, keep them safe and secure.
 
-You must turn on auto-cleanup of dead raft peers in order to keep a majority of the Vault nodes healthy during scaling activities.
+You must turn on auto-cleanup of dead raft peers in order to remove dead nodes and keep a majority of the Vault nodes healthy during scaling activities.
 
 ```shell
 vault login ROOT_TOKEN
@@ -75,13 +74,18 @@ Some more details about the variables below.
 
 The `name` is used in nearly any resource.
 
-Changes to the `name` cause the current cluster to be destroyed and a new cluster to be deployed.
+You can't change this value after a deployment is done, without loosing service.
 
 ### vault_version
 
 This determines the version of Vault to install. Pick a version from [this](https://releases.hashicorp.com/vault/) list. The first Vault version packaged into an RPM was `1.2.7`.
 
 When changing this value, please also change the `launch_configuration_version`.
+
+Changing this value after the cluster has been deployed has effect after:
+
+- The `max_instance_lifetime` has passed and a instance is replaced.
+- Manually triggering an instance refresh in the AWS console.
 
 ### size
 
@@ -103,9 +107,11 @@ The `size`: `development` should be considered non-production:
 
 The `amount` of machines that make up the cluster can be changed. Use `3` or `5`.
 
+Changes to the `amount` variable have immediate effect, without refreshing the instances.
+
 ### vpc_id
 
-If you have an existing VPC, you can deploy this Vault installation in that VPC by setting this variable. The default is `""`, which means this code will create (and manage) a VPC (and all it's dependecies) for you.
+If you have an existing VPC, you can deploy this Vault installation in that VPC by setting this variable. The default is `""`, which means this code will create (and manage) a VPC (and all it's dependencies) for you.
 
 Things that will be deployed when not specifying a VPC:
 
@@ -121,7 +127,7 @@ When you do provide a value for the variable `vpc_id`, it should have:
 - A subnet for all availability zones.
 - An internet gateway and all routing to the internet setup.
 
-You can't change this value after a deployment is done without loosing service.
+You can't change this value after a deployment is done, without loosing service.
 
 ### max_instance_lifetime
 
@@ -136,7 +142,6 @@ Changes requiring a version bump:
 - modifications to `user_data.sh.tpl` (which end up in changes to `user_data.sh`).
 - `size` changes.
 - `vault_version` changes.
-- `key_filename` changes.
 - `key_filename` changes.
 
  Note; you can go up (`1` -> `2`) or down (`23` -> `7`), either way, a new launch configuration will be created.
