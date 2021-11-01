@@ -120,7 +120,8 @@ data "aws_route_table" "default" {
 
 # Add an internet route to the internet gateway.
 resource "aws_route" "default" {
-  # TODO: This optional, relates to aws_internet_gateway and aws_route_table
+  # Only add a route when no internet_gateway_id has been provided.
+  count                  = var.internet_gateway_id == "" ? 1 : 0
   route_table_id         = local.aws_route_table_id
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = local.internet_gateway_id
@@ -128,7 +129,7 @@ resource "aws_route" "default" {
 
 # Create the same amount of subnets as the amount of instances.
 resource "aws_subnet" "default" {
-  # TODO: This is optional.
+  # TODO: This is optional, relates to vpc_id
   count             = min(length(data.aws_availability_zones.default.names), var.amount)
   vpc_id            = local.vpc_id
   cidr_block        = "${var.aws_vpc_cidr_block_start}.${count.index}.0/24"
