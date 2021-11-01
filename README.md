@@ -109,11 +109,15 @@ If you have an existing VPC, you can deploy this Vault installation in that VPC 
 
 You can't change this value after a deployment is done without loosing service.
 
+When setting this value, also set the `internet_gateway_id`.
+
 ### internet_gateway_id
 
 If you have an existing Internet Gateway, you can deploy this Vault installation using that Internet Gateway by setting this variable. The default is `""`, which means this code will create (and manage) an Internet Gateway for you.
 
 You can't change this value after a deployment is done without loosing service.
+
+This value can only be set when `vpc_id` is set.
 
 ### max_instance_lifetime
 

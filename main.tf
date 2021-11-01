@@ -107,14 +107,21 @@ data "aws_internet_gateway" "default" {
 
 # Create a routing table for the internet gateway.
 resource "aws_route_table" "default" {
-  # TODO: This optional, relates to aws_internet_gateway
+  # Make the routing table when an Internet Gateway needs to be created.
+  count  = var.internet_gateway_id == "" ? 1 : 0
+  vpc_id = local.vpc_id
+}
+
+data "aws_route_table" "default" {
+  # Lookup the routing table when an existing Internet Gateway is used.
+  count  = var.internet_gateway_id == "" ? 0 : 1
   vpc_id = local.vpc_id
 }
 
 # Add an internet route to the internet gateway.
 resource "aws_route" "default" {
   # TODO: This optional, relates to aws_internet_gateway and aws_route_table
-  route_table_id         = aws_route_table.default.id
+  route_table_id         = local.aws_route_table_id
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = local.internet_gateway_id
 }
@@ -134,7 +141,7 @@ resource "aws_route_table_association" "default" {
   # TODO: This is optional.
   count = min(length(data.aws_availability_zones.default.names), var.amount)
   subnet_id      = aws_subnet.default[count.index].id
-  route_table_id = aws_route_table.default.id
+  route_table_id = local.aws_route_table_id
 }
 
 # Find availability_zones in this region.
