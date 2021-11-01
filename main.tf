@@ -147,7 +147,7 @@ data "aws_subnet" "default" {
 
 # Associate the subnet to the routing table.
 resource "aws_route_table_association" "default" {
-  count = var.vpc_id == "" ? min(length(data.aws_availability_zones.default.names), var.amount) : 0
+  count          = var.vpc_id == "" ? min(length(data.aws_availability_zones.default.names), var.amount) : 0
   subnet_id      = local.aws_subnet_ids[count.index]
   route_table_id = local.aws_route_table_id
 }
@@ -265,7 +265,7 @@ resource "aws_lb_target_group" "default" {
   health_check {
     protocol = "HTTP"
     # port     = "traffic-port"
-    path     = "/v1/sys/health"
+    path = "/v1/sys/health"
   }
 }
 
@@ -283,17 +283,17 @@ resource "aws_lb_listener" "default" {
 
 # Create an auto scaling group.
 resource "aws_autoscaling_group" "default" {
-  name                      = var.name
-  desired_capacity          = var.amount
-  min_size                  = var.amount - 1
-  max_size                  = var.amount + 1
-  health_check_type         = "EC2"
-  placement_group           = aws_placement_group.default.id
-  max_instance_lifetime     = var.max_instance_lifetime
-  vpc_zone_identifier       = tolist(local.aws_subnet_ids)
-  target_group_arns         = tolist(aws_lb_target_group.default[*].arn)
-  launch_configuration      = aws_launch_configuration.default.name
-  enabled_metrics           = ["GroupDesiredCapacity", "GroupInServiceCapacity", "GroupPendingCapacity", "GroupMinSize", "GroupMaxSize", "GroupInServiceInstances", "GroupPendingInstances", "GroupStandbyInstances", "GroupStandbyCapacity", "GroupTerminatingCapacity", "GroupTerminatingInstances", "GroupTotalCapacity", "GroupTotalInstances"]
+  name                  = var.name
+  desired_capacity      = var.amount
+  min_size              = var.amount - 1
+  max_size              = var.amount + 1
+  health_check_type     = "EC2"
+  placement_group       = aws_placement_group.default.id
+  max_instance_lifetime = var.max_instance_lifetime
+  vpc_zone_identifier   = tolist(local.aws_subnet_ids)
+  target_group_arns     = tolist(aws_lb_target_group.default[*].arn)
+  launch_configuration  = aws_launch_configuration.default.name
+  enabled_metrics       = ["GroupDesiredCapacity", "GroupInServiceCapacity", "GroupPendingCapacity", "GroupMinSize", "GroupMaxSize", "GroupInServiceInstances", "GroupPendingInstances", "GroupStandbyInstances", "GroupStandbyCapacity", "GroupTerminatingCapacity", "GroupTerminatingInstances", "GroupTotalCapacity", "GroupTotalInstances"]
   tag {
     key                 = "name"
     value               = var.name

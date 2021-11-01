@@ -68,7 +68,7 @@ variable "aws_vpc_cidr_block_start" {
 variable "tags" {
   description = "Tags to add to resources."
   type        = map(string)
-  default     = {
+  default = {
     owner = "unset"
   }
 }

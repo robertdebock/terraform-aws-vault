@@ -4,6 +4,6 @@ module "vault" {
   launch_configuration_version = 1
   size                         = "development"
   tags = {
-    owner    = "robertdebock"
+    owner = "robertdebock"
   }
 }
