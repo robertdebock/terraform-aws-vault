@@ -127,21 +127,26 @@ resource "aws_route" "default" {
   gateway_id             = local.internet_gateway_id
 }
 
-# Create the same amount of subnets as the amount of instances.
+# Create the same amount of subnets as the amount of instances when we create the vpc.
 resource "aws_subnet" "default" {
-  # TODO: This is optional, relates to vpc_id
-  count             = min(length(data.aws_availability_zones.default.names), var.amount)
+  # Only make an aws_subnet when the vpc has been generated.
+  count             = var.vpc_id == "" ? min(length(data.aws_availability_zones.default.names), var.amount) : 0
   vpc_id            = local.vpc_id
   cidr_block        = "${var.aws_vpc_cidr_block_start}.${count.index}.0/24"
   availability_zone = data.aws_availability_zones.default.names[count.index]
   tags              = var.tags
 }
 
+data "aws_subnet" "default" {
+  count  = var.vpc_id == "" ? 0 : 1
+  vpc_id = local.vpc_id
+}
+
 # Associate the subnet to the routing table.
 resource "aws_route_table_association" "default" {
   # TODO: This is optional.
   count = min(length(data.aws_availability_zones.default.names), var.amount)
-  subnet_id      = aws_subnet.default[count.index].id
+  subnet_id      = local.aws_subnet_ids[count.index]
   route_table_id = local.aws_route_table_id
 }
 
@@ -244,7 +249,7 @@ resource "aws_placement_group" "default" {
 resource "aws_lb" "default" {
   name               = var.name
   load_balancer_type = "network"
-  subnets            = aws_subnet.default.*.id
+  subnets            = local.aws_subnet_ids
   tags               = var.tags
 }
 
@@ -283,7 +288,7 @@ resource "aws_autoscaling_group" "default" {
   health_check_type         = "EC2"
   placement_group           = aws_placement_group.default.id
   max_instance_lifetime     = var.max_instance_lifetime
-  vpc_zone_identifier       = tolist(aws_subnet.default[*].id)
+  vpc_zone_identifier       = tolist(local.aws_subnet_ids)
   target_group_arns         = tolist(aws_lb_target_group.default[*].arn)
   launch_configuration      = aws_launch_configuration.default.name
   enabled_metrics           = ["GroupDesiredCapacity", "GroupInServiceCapacity", "GroupPendingCapacity", "GroupMinSize", "GroupMaxSize", "GroupInServiceInstances", "GroupPendingInstances", "GroupStandbyInstances", "GroupStandbyCapacity", "GroupTerminatingCapacity", "GroupTerminatingInstances", "GroupTotalCapacity", "GroupTotalInstances"]
@@ -332,7 +337,7 @@ resource "aws_security_group_rule" "bastion-internet" {
 # Create the bastion host.
 resource "aws_instance" "bastion" {
   ami                         = data.aws_ami.default.id
-  subnet_id                   = aws_subnet.default[0].id
+  subnet_id                   = local.aws_subnet_ids[0]
   instance_type               = "t3.micro"
   vpc_security_group_ids      = [aws_security_group.bastion.id]
   key_name                    = aws_key_pair.default.id
