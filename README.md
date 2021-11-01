@@ -32,6 +32,7 @@ This code spins up a opensource HashiCorp Vault cluster:
 These variables can be used.
 
 - `name` - default: `"vault"`.
+- `vault_version` - default `"1.8.4"`.
 - `key_filename` - default: `"id_rsa.pub"`.
 - `region` - default: `"eu-central-1"`.
 - `size` - default: `"small"`.
