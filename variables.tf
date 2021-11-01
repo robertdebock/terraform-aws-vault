@@ -53,6 +53,12 @@ variable "amount" {
   }
 }
 
+variable "vpc_id" {
+  description = "The VPC identifier to deploy in. Fill this value when you want the Vault installation to be done in an existing VPC."
+  type        = string
+  default     = ""
+}
+
 variable "aws_vpc_cidr_block_start" {
   description = "The first two octets of the VPC cidr."
   type        = string

@@ -9,5 +9,9 @@ locals {
   }
   instance_type = local._instance_type[var.size]
 
+  # Form the cidr_block based on a variable.
   cidr_block = "${var.aws_vpc_cidr_block_start}.0.0/16"
+
+  # Set the `local.vpc_id` based on either the resource object or the data object, whichever is set.
+  vpc_id =  try(aws_vpc.default[0].id, data.aws_vpc.default[0].id)
 }

@@ -76,21 +76,30 @@ resource "local_file" "default" {
   directory_permission = "0755"
 }
 
-# Create one VPC.
+# Create a VPC.
 resource "aws_vpc" "default" {
+  # Make a VPC when var.vpc_id is not set.
+  count      = var.vpc_id == "" ? 1 : 0
   cidr_block = local.cidr_block
   tags       = var.tags
 }
 
+# Lookup a VPC.
+data "aws_vpc" "default" {
+  # Lookup a VPC when var.vpc_id is set.
+  count = var.vpc_id == "" ? 0 : 1
+  id    = var.vpc_id
+}
+
 # Create an internet gateway.
 resource "aws_internet_gateway" "default" {
-  vpc_id = aws_vpc.default.id
+  vpc_id = local.vpc_id
   tags   = var.tags
 }
 
 # Create a routing table for the internet gateway.
 resource "aws_route_table" "default" {
-  vpc_id = aws_vpc.default.id
+  vpc_id = local.vpc_id
 }
 
 # Add an internet route to the internet gateway.
@@ -103,7 +112,7 @@ resource "aws_route" "default" {
 # Create the same amount of subnets as the amount of instances.
 resource "aws_subnet" "default" {
   count             = min(length(data.aws_availability_zones.default.names), var.amount)
-  vpc_id            = aws_vpc.default.id
+  vpc_id            = local.vpc_id
   cidr_block        = "${var.aws_vpc_cidr_block_start}.${count.index}.0/24"
   availability_zone = data.aws_availability_zones.default.names[count.index]
   tags              = var.tags
@@ -141,7 +150,7 @@ data "aws_ami" "default" {
 # Create a security group.
 resource "aws_security_group" "default" {
   name   = var.name
-  vpc_id = aws_vpc.default.id
+  vpc_id = local.vpc_id
   tags   = var.tags
 }
 
@@ -161,7 +170,7 @@ resource "aws_security_group_rule" "vaultreplication" {
   from_port         = 8201
   to_port           = 8201
   protocol          = "TCP"
-  cidr_blocks       = [aws_vpc.default.cidr_block]
+  cidr_blocks       = [local.cidr_block]
   security_group_id = aws_security_group.default.id
 }
 
@@ -172,7 +181,7 @@ resource "aws_security_group_rule" "ssh" {
   from_port         = 22
   to_port           = 22
   protocol          = "TCP"
-  cidr_blocks       = [aws_vpc.default.cidr_block]
+  cidr_blocks       = [local.cidr_block]
   security_group_id = aws_security_group.default.id
 }
 
@@ -224,7 +233,7 @@ resource "aws_lb_target_group" "default" {
   name     = var.name
   port     = 8200
   protocol = "TCP"
-  vpc_id   = aws_vpc.default.id
+  vpc_id   = local.vpc_id
   tags     = var.tags
   health_check {
     protocol = "HTTP"
@@ -274,7 +283,7 @@ resource "aws_autoscaling_group" "default" {
 # Create one security group in the single VPC.
 resource "aws_security_group" "bastion" {
   name   = "${var.name}-bastion"
-  vpc_id = aws_vpc.default.id
+  vpc_id = local.vpc_id
   tags   = var.tags
 }
 
