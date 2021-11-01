@@ -101,6 +101,10 @@ The `size`: `development` should be considered non-production:
 
 The `amount` of machines that make up the cluster can be changed. Use `3` or `5`.
 
+### vpc_id
+
+If you have an existing VPC, you can deploy this Vault installation in that VPC by setting this variable. The default is `""`, which means this code will create (and manage) a VPC for you.
+
 ### max_instance_lifetime
 
 Instance of the autoscale group will be destroyed and recreated after this value in seconds. This ensures you are using a "new" instance every time and you are not required to patch the instances, they will be recreated instead with the most recent image.
