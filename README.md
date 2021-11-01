@@ -1,6 +1,6 @@
 # HashiCorp Vault on AWS
 
-This code spins up a opensource HashiCorp Vault cluster:
+This code spins up an opensource HashiCorp Vault cluster:
 
 - Spread over availability zones.
 - Using automatic unsealing.
