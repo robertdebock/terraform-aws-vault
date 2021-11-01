@@ -60,7 +60,7 @@ variable "vpc_id" {
 }
 
 variable "aws_vpc_cidr_block_start" {
-  description = "The first two octets of the VPC cidr. Only required when `vpc_id` is set to '""'."
+  description = "The first two octets of the VPC cidr. Only required when `vpc_id` is set to \"\"."
   type        = string
   default     = "172.16"
 }
