@@ -43,7 +43,7 @@ These variables can be used.
 
 There are some more variables in `variables.tf`.
 
-## deployment
+## Deployment
 
 After spinning up a Vault cluster for the fist time, login to one of the Vault cluster members and initialize Vault:
 
@@ -53,7 +53,7 @@ vault operator init
 
 This generates recovery tokens and a root key, keep them safe and secure.
 
-You can turn on auto-cleanup of dead raft peers:
+You must turn on auto-cleanup of dead raft peers in order to keep a majority of the Vault nodes healthy during scaling activities.
 
 ```shell
 vault login ROOT_TOKEN
@@ -77,7 +77,7 @@ Changes to the `name` cause the current cluster to be destroyed and a new cluste
 
 ### vault_version
 
-This determines the version of Vault to install. Pick a version from [this](https://releases.hashicorp.com/vault/) list.
+This determines the version of Vault to install. Pick a version from [this](https://releases.hashicorp.com/vault/) list. The first Vault version packaged into an RPM was `1.2.7`.
 
 When changing this value, please also change the `launch_configuration_version`.
 
@@ -105,6 +105,8 @@ The `amount` of machines that make up the cluster can be changed. Use `3` or `5`
 
 If you have an existing VPC, you can deploy this Vault installation in that VPC by setting this variable. The default is `""`, which means this code will create (and manage) a VPC for you.
 
+You can't change this value after a deployment is done without loosing service.
+
 ### max_instance_lifetime
 
 Instance of the autoscale group will be destroyed and recreated after this value in seconds. This ensures you are using a "new" instance every time and you are not required to patch the instances, they will be recreated instead with the most recent image.
@@ -122,6 +124,8 @@ Changes requiring a version bump:
 - `key_filename` changes.
 
  Note; you can go up (`1` -> `2`) or down (`23` -> `7`), either way, a new launch configuration will be created.
+
+ After updating this value; either wait for the `max_instance_lifetime` to expire or manually schedule an instance refresh of the AWS Scaling Group.
 
 ## Backup & restore
 
