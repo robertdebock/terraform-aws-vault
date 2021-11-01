@@ -43,8 +43,6 @@ These variables can be used.
 - `launch_configuration_version` - default `1`.
 - `vpc_id` - default `""`.
 
-There are some more variables in `variables.tf`.
-
 ## Deployment
 
 After spinning up a Vault cluster for the fist time, login to one of the Vault cluster members and initialize Vault:
