@@ -93,35 +93,38 @@ data "aws_vpc" "default" {
 
 # Create an internet gateway.
 resource "aws_internet_gateway" "default" {
-  # Create an interent gateway when var.internet_gateway_id is not set.
-  count  = var.internet_gateway_id == "" ? 1 : 0
+  # Create an internet gateway when a VPC has been created.
+  count  = var.vpc_id == "" ? 1 : 0
   vpc_id = local.vpc_id
   tags   = var.tags
 }
 
 data "aws_internet_gateway" "default" {
-  # Lookup an internet gateway when var.internet_gateway_id is set.
-  count               = var.internet_gateway_id == "" ? 0 : 1
-  internet_gateway_id = var.internet_gateway_id
+  # Lookup an internet gateway when a VPC has been provided.
+  count = var.vpc_id == "" ? 0 : 1
+  filter {
+    name   = "attachment.vpc-id"
+    values = [local.vpc_id]
+  }
 }
 
 # Create a routing table for the internet gateway.
 resource "aws_route_table" "default" {
-  # Make the routing table when an Internet Gateway needs to be created.
-  count  = var.internet_gateway_id == "" ? 1 : 0
+  # Make the routing table when a VPC has been created.
+  count  = var.vpc_id == "" ? 1 : 0
   vpc_id = local.vpc_id
 }
 
 data "aws_route_table" "default" {
-  # Lookup the routing table when an existing Internet Gateway is used.
-  count  = var.internet_gateway_id == "" ? 0 : 1
+  # Lookup the routing table when a VPC has been provided.
+  count  = var.vpc_id == "" ? 0 : 1
   vpc_id = local.vpc_id
 }
 
 # Add an internet route to the internet gateway.
 resource "aws_route" "default" {
-  # Only add a route when no internet_gateway_id has been provided.
-  count                  = var.internet_gateway_id == "" ? 1 : 0
+  # Only add a route when a VPC has been created.
+  count                  = var.vpc_id == "" ? 1 : 0
   route_table_id         = local.aws_route_table_id
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = local.internet_gateway_id
@@ -144,8 +147,7 @@ data "aws_subnet" "default" {
 
 # Associate the subnet to the routing table.
 resource "aws_route_table_association" "default" {
-  # TODO: This is optional.
-  count = min(length(data.aws_availability_zones.default.names), var.amount)
+  count = var.vpc_id == "" ? min(length(data.aws_availability_zones.default.names), var.amount) : 0
   subnet_id      = local.aws_subnet_ids[count.index]
   route_table_id = local.aws_route_table_id
 }
