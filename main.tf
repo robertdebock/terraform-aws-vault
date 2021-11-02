@@ -204,7 +204,8 @@ resource "aws_security_group_rule" "vaultapi" {
   to_port     = 8200
   protocol    = "TCP"
   # TODO: Initially use "0.0.0.0/0", next deployments use "[local.cidr_block]".
-  cidr_blocks       = [local.cidr_block]
+  cidr_blocks       = ["0.0.0.0/0"]
+  #cidr_blocks       = [local.cidr_block]
   security_group_id = aws_security_group.default.id
 }
 
