@@ -70,9 +70,9 @@ resource "local_file" "default" {
       name          = var.name
       vault_version = var.vault_version
       random_string = random_string.default.result
-      tls_ca        = file(var.tls_ca_filename)
-      tls_cert      = file(var.tls_cert_filename)
-      tls_key       = file(var.tls_key_filename)
+      tls_ca        = try(file(var.tls_ca_filename), "UNSET CA")
+      tls_cert      = try(file(var.tls_cert_filename), "UNSET CERT")
+      tls_key       = try(file(var.tls_key_filename), "UNSET KEY")
     }
   )
   filename             = "${path.module}/user_data.sh"
