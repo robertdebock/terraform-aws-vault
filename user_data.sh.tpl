@@ -16,7 +16,7 @@ setcap cap_ipc_lock=+ep $(readlink -f $(which vault))
 # Make a directory for Raft, certificates and init information.
 mkdir -p /vault/data
 chown vault:vault /vault/data
-chmod 0750 /vault/data
+chmod 750 /vault/data
 
 # 169.254.169.254 is an Amazon service to provide information about itself.
 my_hostname="$(curl http://169.254.169.254/latest/meta-data/hostname)"
