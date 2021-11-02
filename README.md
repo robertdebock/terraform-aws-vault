@@ -42,6 +42,9 @@ These variables can be used.
 - `tags` - default `{owner = "unset"}`.
 - `max_instance_lifetime` - default `86400`. (1 day)
 - `vpc_id` - default `""`.
+- `tls_ca_filename` - default `"tls/vault_ca.crt"`.`
+- `tls_cert_filename` - default `"tls/vault.crt"`.
+- `tls_key_filename` - default `"tls/vault.key"`.
 
 ## Deployment
 
@@ -131,6 +134,10 @@ Instance of the autoscale group will be destroyed and recreated after this value
 ### bastion_host
 
 You can have this module spin up a bastion host. If you have not set `vpc_id`, or it's set to `vpc_id`; you can only access then instances through a bastion host, so set `bastion_host` to `true`, which is default.
+
+### tls_ca_filename, tls_cert_filename & tls_key_filename
+
+These contain the TLS material to provide SSL. In the `examples/default/tls` there is a `create_tls_material.sh` script to generate the required files.
 
 ## Backup & restore
 

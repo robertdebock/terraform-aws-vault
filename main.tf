@@ -70,6 +70,9 @@ resource "local_file" "default" {
       name          = var.name
       vault_version = var.vault_version
       random_string = random_string.default.result
+      tls_ca        = file(var.tls_ca_filename)
+      tls_cert      = file(var.tls_cert_filename)
+      tls_key       = file(var.tls_key_filename)
     }
   )
   filename             = "${path.module}/user_data.sh"
@@ -190,16 +193,10 @@ resource "aws_security_group_rule" "vaultapi" {
   to_port           = 8200
   protocol          = "TCP"
   cidr_blocks       = [local.cidr_block]
-  # NOTDONE: Allow a user of this module to pick the cidr_blocks. (maybe 0/0, or something else.) -> This is the to access the instances, don't allow traffic other then through the loadbalancer.
   security_group_id = aws_security_group.default.id
 }
 
-# DONE: Compare to https://github.com/hashicorp/terraform-aws-vault -> Nothing special
-
-# DONE: Maybe 8200 egress is required. -> Nope.
-
 resource "aws_security_group_rule" "vaultreplication" {
-  # NOTDONE: Rename `replicate` to something like ha-traffic or so. (`raft`) -> https://learn.hashicorp.com/tutorials/vault/reference-architecture#network-connectivity-details
   description       = "vault replication"
   type              = "ingress"
   from_port         = 8201
@@ -270,14 +267,13 @@ resource "aws_lb" "default" {
 
 # Create a load balancer target group.
 resource "aws_lb_target_group" "default" {
-  name     = var.name
-  port     = 8200
-  protocol = "TCP"
-  vpc_id   = local.vpc_id
-  tags     = var.tags
+  name_prefix = "${var.name}-"
+  port        = 8200
+  protocol    = "TCP"
+  vpc_id      = local.vpc_id
+  tags        = var.tags
   health_check {
-    protocol = "HTTP"
-    # TODO: If using TLS, use `protocol = "HTTPS"'
+    protocol = "HTTPS"
     path = "/v1/sys/health"
   }
 }
@@ -318,7 +314,6 @@ resource "aws_autoscaling_group" "default" {
   enabled_metrics       = ["GroupDesiredCapacity", "GroupInServiceCapacity", "GroupPendingCapacity", "GroupMinSize", "GroupMaxSize", "GroupInServiceInstances", "GroupPendingInstances", "GroupStandbyInstances", "GroupStandbyCapacity", "GroupTerminatingCapacity", "GroupTerminatingInstances", "GroupTotalCapacity", "GroupTotalInstances"]
   tag {
     key                 = "name"
-    # DONE: Add some random string to make the tag value more unique. (Remember `user_data.sh.tpl`.)
     value               = "${var.name}-${random_string.default.result}"
     propagate_at_launch = true
   }
