@@ -64,7 +64,7 @@ mkdir /etc/vault.d/tls/ca.db.certs
 touch /etc/vault.d/tls/ca.db.index
 echo "1234" > /etc/vault.d/tls/ca.db.serial
 
-openssl ca -config /etc/vault.d/tls/ca.conf -out /etc/vault.d/tls/vault.crt -infiles /etc/vault.d/tls/vault.csr
+openssl ca -batch -config /etc/vault.d/tls/ca.conf -out /etc/vault.d/tls/vault.crt -infiles /etc/vault.d/tls/vault.csr
 
 # Place the Vault configuration.
 cat << EOF > /etc/vault.d/vault.hcl
