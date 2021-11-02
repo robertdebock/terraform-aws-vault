@@ -10,7 +10,7 @@ output "bastion_host_public_ip" {
 
 output "vault_instances" {
   description = "The private addresses of the Vault hosts. You can reach these throught the bastion host."
-  value       = data.aws_instances.default[*].private_ips
+  value       = flatten(data.aws_instances.default[*].private_ips)
 }
 
 output "instructions" {
