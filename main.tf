@@ -63,7 +63,8 @@ resource "aws_iam_instance_profile" "default" {
 
 # Create a CA key.
 resource "tls_private_key" "ca" {
-  algorithm = "ECDSA"
+  algorithm   = "RSA"
+  ecdsa_curve = "P256"
 }
 
 # Create a self signed CA certificate.
