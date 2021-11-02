@@ -1,10 +1,10 @@
 variable "name" {
-  description = "The name of the vault cluster in 3 to 8 characters."
+  description = "The name of the vault cluster in 3 to 6 characters."
   type        = string
   default     = "vault"
   validation {
-    condition     = length(var.name) >= 3 && length(var.name) <= 8 && var.name != "default"
-    error_message = "Please use a minimum of 3 and a maximum of 8 characters. \"default\" can't be used because it is reserved."
+    condition     = length(var.name) >= 3 && length(var.name) <= 6 && var.name != "default"
+    error_message = "Please use a minimum of 3 and a maximum of 6 characters. \"default\" can't be used because it is reserved."
   }
 }
 
@@ -51,6 +51,21 @@ variable "amount" {
     condition     = var.amount % 2 == 1 && var.amount >= 3 && var.amount <= 5
     error_message = "Please use an odd number for amount, like 3 or 5."
   }
+}
+
+variable "tls_ca_filename" {
+  description = "The name of the file that has the tls ca certificate stored."
+  default     = "tls/vault_ca.crt"
+}
+
+variable "tls_cert_filename" {
+  description = "The name of the file that has the tls certificate stored."
+  default     = "tls/vault.crt"
+}
+
+variable "tls_key_filename" {
+  description = "The name of the file that has the tls key stored."
+  default     = "tls/vault.key"
 }
 
 variable "vpc_id" {
