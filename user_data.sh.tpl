@@ -16,7 +16,7 @@ setcap cap_ipc_lock=+ep $(readlink -f $(which vault))
 # Make a directory for Raft, certificates and init information.
 mkdir -p /vault/data
 chown vault:vault /vault/data
-chmod 0750 /vault/data
+chmod 750 /vault/data
 
 # 169.254.169.254 is an Amazon service to provide information about itself.
 my_hostname="$(curl http://169.254.169.254/latest/meta-data/hostname)"
@@ -25,7 +25,7 @@ my_ipaddress="$(curl http://169.254.169.254/latest/meta-data/local-ipv4)"
 # Place TLS material
 mkdir /etc/vault.d/tls
 chown vault:vault /etc/vault.d/tls
-chmod 075 /etc/vault.d/tls
+chmod 750 /etc/vault.d/tls
 echo "${tls_ca}" > /etc/vault.d/tls/vault.ca
 echo "${tls_cert}" > /etc/vault.d/tls/vault.crt
 echo "${tls_key}" > /etc/vault.d/tls/vault.key
