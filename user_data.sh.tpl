@@ -71,6 +71,4 @@ systemctl --now enable vault
 
 # Allow users to use `vault`.
 echo "export VAULT_ADDR=https://$${my_ipaddress}:8200" >> /etc/profile
-echo "export VAULT_CACERT=/etc/vault.d/tls/vault_ca.crt" >> /etc/profile
-echo "export VAULT_CLIENT_CERT=/etc/vault.d/tls/vault.crt" >> /etc/profile
-echo "export VAULT_CLIENT_KEY=/etc/vault.d/tls/vault.key" >> /etc/profile
+echo "export VAULT_SKIP_VERIFY=1" >> /etc/profile
