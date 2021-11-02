@@ -9,6 +9,36 @@ locals {
   }
   instance_type = local._instance_type[var.size]
 
+  # A map from `size` to `volume_type`.
+  _volume_type = {
+    development = "gp2"
+    minimum     = "io1"
+    small       = "io1"
+    large       = "io1"
+    maximum     = "io1"
+  }
+  volume_type = local._volume_type[var.size]
+
+  # A map from `size` to `volume_size`.
+  _volume_size = {
+    development = "8"
+    minimum     = "50"
+    small       = "50"
+    large       = "100"
+    maximum     = "100"
+  }
+  volume_size = local._volume_size[var.size]
+
+  # A map from `size` to `volume_iops`.
+  _volume_iops = {
+    development = "100"
+    minimum     = "2500"
+    small       = "2500"
+    large       = "5000"
+    maximum     = "5000"
+  }
+  volume_iops = local._volume_iops[var.size]
+  
   # Form the cidr_block based on a variable.
   cidr_block = "${var.aws_vpc_cidr_block_start}.0.0/16"
 
