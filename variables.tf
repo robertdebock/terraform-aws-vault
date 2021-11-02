@@ -82,13 +82,3 @@ variable "max_instance_lifetime" {
     error_message = "Use \"0\" to remove the parameter or a value between \"86400\" and \"31536000\"."
   }
 }
-
-variable "launch_configuration_version" {
-  description = "The launch configuration version."
-  type        = number
-  default     = 1
-  validation {
-    condition     = var.launch_configuration_version >= 0
-    error_message = "Please use a positive number, like \"1\" or \"23\"."
-  }
-}

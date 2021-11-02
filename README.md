@@ -40,7 +40,6 @@ These variables can be used.
 - `aws_vpc_cidr_block_start` - default `"172.16"`.
 - `tags` - default `{owner = "unset"}`.
 - `max_instance_lifetime` - default `86400`. (1 day)
-- `launch_configuration_version` - default `1`.
 - `vpc_id` - default `""`.
 
 ## Deployment
@@ -78,8 +77,6 @@ You can't change this value after a deployment is done, without loosing service.
 ### vault_version
 
 This determines the version of Vault to install. Pick a version from [this](https://releases.hashicorp.com/vault/) list. The first Vault version packaged into an RPM was `1.2.7`.
-
-When changing this value, please also change the `launch_configuration_version`.
 
 Changing this value after the cluster has been deployed has effect after:
 
@@ -129,21 +126,6 @@ You can't change this value after a deployment is done, without loosing service.
 ### max_instance_lifetime
 
 Instance of the autoscale group will be destroyed and recreated after this value in seconds. This ensures you are using a "new" instance every time and you are not required to patch the instances, they will be recreated instead with the most recent image.
-
-### launch_configuration_version
-
-Because the launch configuration can't be overwritten, this version is used in the `name` to allow creating an extra launch configuration. Every time you change something to the launch configuration, change this number.
-
-Changes requiring a version bump:
-
-- modifications to `user_data.sh.tpl` (which end up in changes to `user_data.sh`).
-- `size` changes.
-- `vault_version` changes.
-- `key_filename` changes.
-
- Note; you can go up (`1` -> `2`) or down (`23` -> `7`), either way, a new launch configuration will be created.
-
- After updating this value; either wait for the `max_instance_lifetime` to expire or manually schedule an instance refresh of the AWS Scaling Group.
 
 ## Backup & restore
 

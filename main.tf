@@ -225,7 +225,7 @@ resource "aws_security_group_rule" "internet" {
 
 # Create a launch template.
 resource "aws_launch_configuration" "default" {
-  name                        = "${var.name}-${var.launch_configuration_version}"
+  name_prefix                 = "${var.name}-"
   image_id                    = data.aws_ami.default.id
   instance_type               = local.instance_type
   key_name                    = aws_key_pair.default.id
@@ -234,6 +234,11 @@ resource "aws_launch_configuration" "default" {
   user_data                   = local_file.default.content
   associate_public_ip_address = true
   spot_price                  = var.size == "development" ? "0.012" : null
+  root_block_device {
+    volume_type = local.volume_type
+    volume_size = local.volume_size
+    iops        = local.volume_iops
+  }
   depends_on                  = [local_file.default]
   lifecycle {
     create_before_destroy = true
