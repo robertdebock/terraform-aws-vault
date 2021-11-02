@@ -28,6 +28,7 @@ chown vault:vault /etc/vault.d/tls
 echo "${tls_ca}" > /etc/vault.d/tls/vault.ca
 echo "${tls_cert}" > /etc/vault.d/tls/vault.crt
 echo "${tls_key}" > /etc/vault.d/tls/vault.key
+chown vault:vault /etc/vault.d/tls/*
 chmod 750 /etc/vault.d/tls
 chmod 640 /etc/vault.d/tls/*
 
