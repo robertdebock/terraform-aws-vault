@@ -69,6 +69,7 @@ resource "local_file" "default" {
       region        = var.region
       name          = var.name
       vault_version = var.vault_version
+      random_string = random_string.default.result
     }
   )
   filename             = "${path.module}/user_data.sh"
@@ -188,19 +189,20 @@ resource "aws_security_group_rule" "vaultapi" {
   from_port         = 8200
   to_port           = 8200
   protocol          = "TCP"
-  # TODO: Check if `[local.cidr_block]` breaks stuff.
-  # TODO: With tcpdump, check the source of the LB health check. -> 172.16.0.168
-  cidr_blocks       = ["0.0.0.0/0"]
+  # DONE: With tcpdump, check the source of the LB health check. -> 172.16.0.168
+  # DONE: Check if `[local.cidr_block]` breaks stuff. -> Works!
+  # cidr_blocks       = ["0.0.0.0/0"]
+  cidr_blocks       = [local.cidr_block]
   # TODO: Allow a user of this module to pick the cidr_blocks. (maybe 0/0, or something else.)
   security_group_id = aws_security_group.default.id
 }
 
-# TODO: Compare to
+# DONE: Compare to https://github.com/hashicorp/terraform-aws-vault -> Nothing special
 
-# TODO: Maybe 8200 egress is required.
+# DONE: Maybe 8200 egress is required. -> Nope.
 
 resource "aws_security_group_rule" "vaultreplication" {
-  # TODO: Rename `replicate` to something like ha-traffic or so. (`raft`)
+  # NOTDONE: Rename `replicate` to something like ha-traffic or so. (`raft`) -> https://learn.hashicorp.com/tutorials/vault/reference-architecture#network-connectivity-details
   description       = "vault replication"
   type              = "ingress"
   from_port         = 8201
@@ -242,15 +244,13 @@ resource "aws_launch_configuration" "default" {
   iam_instance_profile        = aws_iam_instance_profile.default.name
   user_data                   = local_file.default.content
   associate_public_ip_address = true
-  # TODO: 0.012 could be configurable.
+  # NOTDONE: 0.012 could be configurable. -> Seems to be a good number for the coming years.
   spot_price                  = var.size == "development" ? "0.012" : null
   root_block_device {
     volume_type = local.volume_type
     volume_size = local.volume_size
     iops        = local.volume_iops
   }
-  # TODO: Take out the depends_on; it's already mentioned in user_data.
-  depends_on                  = [local_file.default]
   lifecycle {
     create_before_destroy = true
   }
@@ -297,6 +297,14 @@ resource "aws_lb_listener" "default" {
   }
 }
 
+# Create a random string to make tags more unique.
+resource "random_string" "default" {
+  length  = 4
+  special = false
+  upper   = false
+  number  = false
+}
+
 # Create an auto scaling group.
 resource "aws_autoscaling_group" "default" {
   name                  = var.name
@@ -314,7 +322,7 @@ resource "aws_autoscaling_group" "default" {
   tag {
     key                 = "name"
     # TODO: Add some random string to make the tag value more unique. (Remember `user_data.sh.tpl`.)
-    value               = var.name
+    value               = "${var.name}-${random_string.default.result}"
     propagate_at_launch = true
   }
   timeouts {

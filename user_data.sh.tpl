@@ -30,11 +30,12 @@ storage "raft" {
   path = "/vault/data"
   node_id = "$${my_hostname}"
   retry_join {
-    auto_join               = "provider=aws tag_key=name tag_value=${name} region=${region}"
+    auto_join               = "provider=aws tag_key=name tag_value=${name}-${random_string} region=${region}"
     auto_join_scheme        = "http"
-    leader_ca_cert_file     = "/vault/tls/vault.ca"
-    leader_client_cert_file = "/vault/tls/vault.crt"
-    leader_client_key_file  = "/vault/tls/vault.key"
+    # TODO: Maybe creat tls material like this: https://github.com/hashicorp/terraform-aws-vault/blob/master/modules/private-tls-cert/main.tf
+    # leader_ca_cert_file     = "/vault/tls/vault.ca"
+    # leader_client_cert_file = "/vault/tls/vault.crt"
+    # leader_client_key_file  = "/vault/tls/vault.key"
     # TODO: If TLS is enabled, switch to `https`.
   }
   # TODO: check mlock true or not. (https://www.vaultproject.io/docs/configuration/storage/raft)
@@ -46,9 +47,9 @@ api_addr = "http://$${my_ipaddress}:8200"
 listener "tcp" {
   address            = "$${my_ipaddress}:8200"
   tls_disable        = true
-  tls_client_ca_file = "/vault/tls/vault.ca"
-  tls_cert_file      = "/vault/tls/vault.crt"
-  tls_key_file       = "/vault/tls/vault.key"
+  # tls_client_ca_file = "/vault/tls/vault.ca"
+  # tls_cert_file      = "/vault/tls/vault.crt"
+  # tls_key_file       = "/vault/tls/vault.key"
   # TODO: Enable TLS; all nodes may have one key & certificate.
 }
 
