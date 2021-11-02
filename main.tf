@@ -189,11 +189,8 @@ resource "aws_security_group_rule" "vaultapi" {
   from_port         = 8200
   to_port           = 8200
   protocol          = "TCP"
-  # DONE: With tcpdump, check the source of the LB health check. -> 172.16.0.168
-  # DONE: Check if `[local.cidr_block]` breaks stuff. -> Works!
-  # cidr_blocks       = ["0.0.0.0/0"]
   cidr_blocks       = [local.cidr_block]
-  # TODO: Allow a user of this module to pick the cidr_blocks. (maybe 0/0, or something else.)
+  # NOTDONE: Allow a user of this module to pick the cidr_blocks. (maybe 0/0, or something else.) -> This is the to access the instances, don't allow traffic other then through the loadbalancer.
   security_group_id = aws_security_group.default.id
 }
 
@@ -299,7 +296,7 @@ resource "aws_lb_listener" "default" {
 
 # Create a random string to make tags more unique.
 resource "random_string" "default" {
-  length  = 4
+  length  = 6
   special = false
   upper   = false
   number  = false
@@ -321,7 +318,7 @@ resource "aws_autoscaling_group" "default" {
   enabled_metrics       = ["GroupDesiredCapacity", "GroupInServiceCapacity", "GroupPendingCapacity", "GroupMinSize", "GroupMaxSize", "GroupInServiceInstances", "GroupPendingInstances", "GroupStandbyInstances", "GroupStandbyCapacity", "GroupTerminatingCapacity", "GroupTerminatingInstances", "GroupTotalCapacity", "GroupTotalInstances"]
   tag {
     key                 = "name"
-    # TODO: Add some random string to make the tag value more unique. (Remember `user_data.sh.tpl`.)
+    # DONE: Add some random string to make the tag value more unique. (Remember `user_data.sh.tpl`.)
     value               = "${var.name}-${random_string.default.result}"
     propagate_at_launch = true
   }
