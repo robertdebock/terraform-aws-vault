@@ -37,6 +37,7 @@ These variables can be used.
 - `region` - default: `"eu-central-1"`.
 - `size` - default: `"small"`.
 - `amount` - default: `3`.
+- `bastion_host` - default: `true`.
 - `aws_vpc_cidr_block_start` - default `"172.16"`.
 - `tags` - default `{owner = "unset"}`.
 - `max_instance_lifetime` - default `86400`. (1 day)
@@ -46,7 +47,7 @@ These variables can be used.
 
 After spinning up a Vault cluster for the fist time, login to one of the Vault cluster members and initialize Vault:
 
-```
+```shell
 vault operator init
 ```
 
@@ -126,6 +127,10 @@ You can't change this value after a deployment is done, without loosing service.
 ### max_instance_lifetime
 
 Instance of the autoscale group will be destroyed and recreated after this value in seconds. This ensures you are using a "new" instance every time and you are not required to patch the instances, they will be recreated instead with the most recent image.
+
+### bastion_host
+
+You can have this module spin up a bastion host. If you have not set `vpc_id`, or it's set to `vpc_id`; you can only access then instances through a bastion host, so set `bastion_host` to `true`, which is default.
 
 ## Backup & restore
 

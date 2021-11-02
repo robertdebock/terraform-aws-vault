@@ -188,10 +188,19 @@ resource "aws_security_group_rule" "vaultapi" {
   from_port         = 8200
   to_port           = 8200
   protocol          = "TCP"
+  # TODO: Check if `[local.cidr_block]` breaks stuff.
+  # TODO: With tcpdump, check the source of the LB health check. -> 172.16.0.168
   cidr_blocks       = ["0.0.0.0/0"]
+  # TODO: Allow a user of this module to pick the cidr_blocks. (maybe 0/0, or something else.)
   security_group_id = aws_security_group.default.id
 }
+
+# TODO: Compare to
+
+# TODO: Maybe 8200 egress is required.
+
 resource "aws_security_group_rule" "vaultreplication" {
+  # TODO: Rename `replicate` to something like ha-traffic or so. (`raft`)
   description       = "vault replication"
   type              = "ingress"
   from_port         = 8201
@@ -203,6 +212,7 @@ resource "aws_security_group_rule" "vaultreplication" {
 
 # Allow access from the bastion host.
 resource "aws_security_group_rule" "ssh" {
+  count             = var.bastion_host ? 1 : 0
   description       = "ssh"
   type              = "ingress"
   from_port         = 22
@@ -233,12 +243,14 @@ resource "aws_launch_configuration" "default" {
   iam_instance_profile        = aws_iam_instance_profile.default.name
   user_data                   = local_file.default.content
   associate_public_ip_address = true
+  # TODO: 0.012 could be configurable.
   spot_price                  = var.size == "development" ? "0.012" : null
   root_block_device {
     volume_type = local.volume_type
     volume_size = local.volume_size
     iops        = local.volume_iops
   }
+  # TODO: Take out the depends_on; it's already mentioned in user_data.
   depends_on                  = [local_file.default]
   lifecycle {
     create_before_destroy = true
@@ -269,6 +281,7 @@ resource "aws_lb_target_group" "default" {
   tags     = var.tags
   health_check {
     protocol = "HTTP"
+    # TODO: If using TLS, use `protocol = "HTTPS"'
     path = "/v1/sys/health"
   }
 }
@@ -294,12 +307,14 @@ resource "aws_autoscaling_group" "default" {
   health_check_type     = "EC2"
   placement_group       = aws_placement_group.default.id
   max_instance_lifetime = var.max_instance_lifetime
+  # TODO: Fill Vault with a lot of data, then try refreshing.
   vpc_zone_identifier   = tolist(local.aws_subnet_ids)
   target_group_arns     = [aws_lb_target_group.default.arn]
   launch_configuration  = aws_launch_configuration.default.name
   enabled_metrics       = ["GroupDesiredCapacity", "GroupInServiceCapacity", "GroupPendingCapacity", "GroupMinSize", "GroupMaxSize", "GroupInServiceInstances", "GroupPendingInstances", "GroupStandbyInstances", "GroupStandbyCapacity", "GroupTerminatingCapacity", "GroupTerminatingInstances", "GroupTotalCapacity", "GroupTotalInstances"]
   tag {
     key                 = "name"
+    # TODO: Add some random string to make the tag value more unique. (Remember `user_data.sh.tpl`.)
     value               = var.name
     propagate_at_launch = true
   }
@@ -313,6 +328,7 @@ resource "aws_autoscaling_group" "default" {
 
 # Create one security group in the single VPC.
 resource "aws_security_group" "bastion" {
+  count  = var.bastion_host ? 1 : 0
   name   = "${var.name}-bastion"
   vpc_id = local.vpc_id
   tags   = var.tags
@@ -320,32 +336,35 @@ resource "aws_security_group" "bastion" {
 
 # Allow SSH to the security group.
 resource "aws_security_group_rule" "bastion-ssh" {
+  count             = var.bastion_host ? 1 : 0
   description       = "ssh"
   type              = "ingress"
   from_port         = 22
   to_port           = 22
   protocol          = "TCP"
   cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = aws_security_group.bastion.id
+  security_group_id = aws_security_group.bastion[0].id
 }
 
 # Allow internet access.
 resource "aws_security_group_rule" "bastion-internet" {
+  count             = var.bastion_host ? 1 : 0
   description       = "internet"
   protocol          = "-1"
   from_port         = 0
   to_port           = 0
   type              = "egress"
   cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = aws_security_group.bastion.id
+  security_group_id = aws_security_group.bastion[0].id
 }
 
 # Create the bastion host.
 resource "aws_instance" "bastion" {
+  count                       = var.bastion_host ? 1 : 0
   ami                         = data.aws_ami.default.id
   subnet_id                   = tolist(local.aws_subnet_ids)[0]
   instance_type               = "t3.micro"
-  vpc_security_group_ids      = [aws_security_group.bastion.id]
+  vpc_security_group_ids      = [aws_security_group.bastion[0].id]
   key_name                    = aws_key_pair.default.id
   associate_public_ip_address = true
   monitoring                  = true

@@ -5,7 +5,7 @@ output "aws_lb_dns_name" {
 
 output "bastion_host_public_ip" {
   description = "The IP address of the bastion host."
-  value       = aws_instance.bastion.public_ip
+  value       = try(aws_instance.bastion[0].public_ip, "No bastion host created.")
 }
 
 output "vault_instances" {
@@ -15,5 +15,5 @@ output "vault_instances" {
 
 output "instructions" {
   description = "How to initialize Vault."
-  value       = "For a new deployment, login (ssh ec2-user@${aws_instance.bastion.public_ip}), login to a Vault host and run 'vault operator init'."
+  value       = try("For a new deployment, login (ssh ec2-user@${aws_instance.bastion[0].public_ip}), login to a Vault host and run 'vault operator init'.", "Login to a Vault host and run 'vault operator init'.")
 }

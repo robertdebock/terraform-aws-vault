@@ -59,6 +59,12 @@ variable "vpc_id" {
   default     = ""
 }
 
+variable "bastion_host" {
+  description = "A bastion host is optional and would allow you to login to the instances."
+  type        = bool
+  default     = true
+}
+
 variable "aws_vpc_cidr_block_start" {
   description = "The first two octets of the VPC cidr. Only required when `vpc_id` is set to \"\"."
   type        = string
