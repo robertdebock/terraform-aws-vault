@@ -379,7 +379,7 @@ resource "aws_instance" "bastion" {
 data "aws_instances" "default" {
   instance_state_names = ["running"]
   instance_tags = {
-    name = var.name
+    name = "${var.name}-${random_string.default.result}"
   }
   depends_on = [aws_autoscaling_group.default]
 }
