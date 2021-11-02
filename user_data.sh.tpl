@@ -33,18 +33,18 @@ chmod 640 /etc/vault.d/tls/*
 
 openssl req -new -newkey rsa:2048 -nodes -keyout /etc/vault.d/tls/vault.key -out /etc/vault.d/tls/vault.csr -subj "/C=NL/ST=UTRECHT/L=Breukelen/O=Almost none/OU=IT department/CN=$${my_hostname}"
 
-echo << EOF > /etc/vault.d/tls/ca.conf
+cat << EOF > /etc/vault.d/tls/ca.conf
 [ ca ]
 default_ca = ca_default
 [ ca_default ]
 dir = /etc/vault.d/tls/
-certs = $dir
-new_certs_dir = $dir/ca.db.certs
-database = $dir/ca.db.index
-serial = $dir/ca.db.serial
-RANDFILE = $dir/ca.db.rand
-certificate = $dir/ca.crt
-private_key = $dir/ca.key
+certs = \$dir
+new_certs_dir = \$dir/ca.db.certs
+database = \$dir/ca.db.index
+serial = \$dir/ca.db.serial
+RANDFILE = \$dir/ca.db.rand
+certificate = \$dir/vault_ca.crt
+private_key = \$dir/vault_ca.pem
 default_days = 365
 default_crl_days = 30
 default_md = md5
