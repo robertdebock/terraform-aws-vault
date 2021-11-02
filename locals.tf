@@ -38,7 +38,7 @@ locals {
     maximum     = "5000"
   }
   volume_iops = local._volume_iops[var.size]
-  
+
   # Form the cidr_block based on a variable.
   cidr_block = "${var.aws_vpc_cidr_block_start}.0.0/16"
 
