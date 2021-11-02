@@ -212,7 +212,6 @@ resource "aws_security_group_rule" "vaultreplication" {
 
 # Allow access from the bastion host.
 resource "aws_security_group_rule" "ssh" {
-  count             = var.bastion_host ? 1 : 0
   description       = "ssh"
   type              = "ingress"
   from_port         = 22
