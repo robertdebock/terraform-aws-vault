@@ -61,6 +61,24 @@ resource "aws_iam_instance_profile" "default" {
   tags = var.tags
 }
 
+# Create a CA key.
+resource "tls_private_key" "ca" {
+  algorithm = "ECDSA"
+}
+
+# Create a self signed CA certificate.
+resource "tls_self_signed_cert" "ca" {
+  key_algorithm         = tls_private_key.ca.algorithm
+  private_key_pem       = tls_private_key.ca.private_key_pem
+  is_ca_certificate     = true
+  validity_period_hours = 24 * 365 * 5
+  allowed_uses          = ["cert_signing", "key_encipherment", "digital_signature"]
+  subject {
+    common_name  = "ca.example.com"
+    organization = "Very little."
+  }
+}
+
 # Write user_data.sh.
 resource "local_file" "default" {
   content = templatefile("${path.module}/user_data.sh.tpl",
@@ -70,9 +88,9 @@ resource "local_file" "default" {
       name          = var.name
       vault_version = var.vault_version
       random_string = random_string.default.result
-      tls_ca        = try(file(var.tls_ca_filename), "UNSET CA")
-      tls_cert      = try(file(var.tls_cert_filename), "UNSET CERT")
-      tls_key       = try(file(var.tls_key_filename), "UNSET KEY")
+      # Distribute the CA key and certificate, so instances can sign their own certicate.
+      ca_key        = tls_private_key.ca.private_key_pem
+      ca_cert       = tls_self_signed_cert.ca.cert_pem
     }
   )
   filename             = "${path.module}/user_data.sh"
@@ -82,7 +100,6 @@ resource "local_file" "default" {
 
 # Create a VPC.
 resource "aws_vpc" "default" {
-  # Make a VPC when var.vpc_id is not set.
   count      = var.vpc_id == "" ? 1 : 0
   cidr_block = local.cidr_block
   tags       = var.tags
@@ -90,21 +107,18 @@ resource "aws_vpc" "default" {
 
 # Lookup a VPC.
 data "aws_vpc" "default" {
-  # Lookup a VPC when var.vpc_id is set.
   count = var.vpc_id == "" ? 0 : 1
   id    = var.vpc_id
 }
 
 # Create an internet gateway.
 resource "aws_internet_gateway" "default" {
-  # Create an internet gateway when a VPC has been created.
   count  = var.vpc_id == "" ? 1 : 0
   vpc_id = local.vpc_id
   tags   = var.tags
 }
 
 data "aws_internet_gateway" "default" {
-  # Lookup an internet gateway when a VPC has been provided.
   count = var.vpc_id == "" ? 0 : 1
   filter {
     name   = "attachment.vpc-id"
@@ -114,20 +128,17 @@ data "aws_internet_gateway" "default" {
 
 # Create a routing table for the internet gateway.
 resource "aws_route_table" "default" {
-  # Make the routing table when a VPC has been created.
   count  = var.vpc_id == "" ? 1 : 0
   vpc_id = local.vpc_id
 }
 
 data "aws_route_tables" "default" {
-  # Lookup the routing table when a VPC has been provided.
   count  = var.vpc_id == "" ? 0 : 1
   vpc_id = local.vpc_id
 }
 
 # Add an internet route to the internet gateway.
 resource "aws_route" "default" {
-  # Only add a route when a VPC has been created.
   count                  = var.vpc_id == "" ? 1 : 0
   route_table_id         = local.aws_route_table_id
   destination_cidr_block = "0.0.0.0/0"
@@ -136,7 +147,6 @@ resource "aws_route" "default" {
 
 # Create the same amount of subnets as the amount of instances when we create the vpc.
 resource "aws_subnet" "default" {
-  # Only make an aws_subnet when the vpc has been generated.
   count             = var.vpc_id == "" ? min(length(data.aws_availability_zones.default.names), var.amount) : 0
   vpc_id            = local.vpc_id
   cidr_block        = "${var.aws_vpc_cidr_block_start}.${count.index}.0/24"
@@ -187,11 +197,12 @@ resource "aws_security_group" "default" {
 
 # Allow the vault API to be accessed.
 resource "aws_security_group_rule" "vaultapi" {
-  description       = "vault api"
-  type              = "ingress"
-  from_port         = 8200
-  to_port           = 8200
-  protocol          = "TCP"
+  description = "vault api"
+  type        = "ingress"
+  from_port   = 8200
+  to_port     = 8200
+  protocol    = "TCP"
+  # TODO: Initially use "0.0.0.0/0", next deployments use "[local.cidr_block]".
   cidr_blocks       = [local.cidr_block]
   security_group_id = aws_security_group.default.id
 }
@@ -238,7 +249,6 @@ resource "aws_launch_configuration" "default" {
   iam_instance_profile        = aws_iam_instance_profile.default.name
   user_data                   = local_file.default.content
   associate_public_ip_address = true
-  # NOTDONE: 0.012 could be configurable. -> Seems to be a good number for the coming years.
   spot_price                  = var.size == "development" ? "0.012" : null
   root_block_device {
     volume_type = local.volume_type
@@ -274,7 +284,7 @@ resource "aws_lb_target_group" "default" {
   tags        = var.tags
   health_check {
     protocol = "HTTPS"
-    path = "/v1/sys/health"
+    path     = "/v1/sys/health"
   }
 }
 
@@ -308,10 +318,10 @@ resource "aws_autoscaling_group" "default" {
   placement_group       = aws_placement_group.default.id
   max_instance_lifetime = var.max_instance_lifetime
   # TODO: Fill Vault with a lot of data, then try refreshing.
-  vpc_zone_identifier   = tolist(local.aws_subnet_ids)
-  target_group_arns     = [aws_lb_target_group.default.arn]
-  launch_configuration  = aws_launch_configuration.default.name
-  enabled_metrics       = ["GroupDesiredCapacity", "GroupInServiceCapacity", "GroupPendingCapacity", "GroupMinSize", "GroupMaxSize", "GroupInServiceInstances", "GroupPendingInstances", "GroupStandbyInstances", "GroupStandbyCapacity", "GroupTerminatingCapacity", "GroupTerminatingInstances", "GroupTotalCapacity", "GroupTotalInstances"]
+  vpc_zone_identifier  = tolist(local.aws_subnet_ids)
+  target_group_arns    = [aws_lb_target_group.default.arn]
+  launch_configuration = aws_launch_configuration.default.name
+  enabled_metrics      = ["GroupDesiredCapacity", "GroupInServiceCapacity", "GroupPendingCapacity", "GroupMinSize", "GroupMaxSize", "GroupInServiceInstances", "GroupPendingInstances", "GroupStandbyInstances", "GroupStandbyCapacity", "GroupTerminatingCapacity", "GroupTerminatingInstances", "GroupTotalCapacity", "GroupTotalInstances"]
   tag {
     key                 = "name"
     value               = "${var.name}-${random_string.default.result}"
