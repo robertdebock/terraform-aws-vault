@@ -25,10 +25,12 @@ my_ipaddress="$(curl http://169.254.169.254/latest/meta-data/local-ipv4)"
 # Place TLS material
 mkdir /etc/vault.d/tls
 chown vault:vault /etc/vault.d/tls
-chmod 750 /etc/vault.d/tls
 echo "${tls_ca}" > /etc/vault.d/tls/vault.ca
 echo "${tls_cert}" > /etc/vault.d/tls/vault.crt
 echo "${tls_key}" > /etc/vault.d/tls/vault.key
+chmod 750 /etc/vault.d/tls
+chmod 640 /etc/vault.d/tls/*
+
 
 # Place the Vault configuration.
 cat << EOF > /etc/vault.d/vault.hcl
@@ -52,7 +54,6 @@ api_addr = "https://$${my_ipaddress}:8200"
 
 listener "tcp" {
   address            = "$${my_ipaddress}:8200"
-  tls_disable        = true
   tls_client_ca_file = "/etc/vault.d/tls/vault.ca"
   tls_cert_file      = "/etc/vault.d/tls/vault.crt"
   tls_key_file       = "/etc/vault.d/tls/vault.key"
