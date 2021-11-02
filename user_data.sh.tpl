@@ -31,8 +31,6 @@ chown vault:vault /etc/vault.d/tls/*
 chmod 750 /etc/vault.d/tls
 chmod 640 /etc/vault.d/tls/*
 
-openssl req -new -newkey rsa:2048 -nodes -keyout /etc/vault.d/tls/vault.key -out /etc/vault.d/tls/vault.csr -subj "/C=NL/ST=UTRECHT/L=Breukelen/O=Almost none/OU=IT department/CN=$${my_hostname}"
-
 cat << EOF > /etc/vault.d/tls/ca.conf
 [ ca ]
 default_ca = ca_default
@@ -64,7 +62,38 @@ mkdir /etc/vault.d/tls/ca.db.certs
 touch /etc/vault.d/tls/ca.db.index
 echo "1234" > /etc/vault.d/tls/ca.db.serial
 
+# Describe the CSR details in a file.
+cat << EOF > /etc/vault.d/tls/csr_details.txt
+[req]
+default_bits = 2048
+prompt = no
+default_md = sha256
+req_extensions = req_ext
+distinguished_name = dn
+
+[ dn ]
+C=NL
+ST=UTRECHT
+L=Breukelen
+O=Very little to none.
+OU=IT Department
+CN = $${my_ipaddress}
+
+[ req_ext ]
+subjectAltName = @alt_names
+
+[ alt_names ]
+IP.1  = $${my_ipaddress}
+DNS.1 = $${my_hostname}
+EOF
+
+openssl req -new -sha256 -nodes -out /etc/vault.d/tls/vault.csr -newkey rsa:2048 -keyout /etc/vault.d/tls/vault.key -config /etc/vault.d/tls/csr_details.txt
+
+# Sign the csr, create the crt for this instance.
 openssl ca -batch -config /etc/vault.d/tls/ca.conf -out /etc/vault.d/tls/vault.crt -infiles /etc/vault.d/tls/vault.csr
+
+# Append the ca to the certificate.
+cat /etc/vault.d/tls/vault_ca.crt >> /etc/vault.d/tls/vault.crt
 
 # Place the Vault configuration.
 cat << EOF > /etc/vault.d/vault.hcl
