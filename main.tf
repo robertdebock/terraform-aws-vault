@@ -169,24 +169,40 @@ data "aws_ami" "default" {
   }
 }
 
-# Create a security group.
+# Create a security group for the loadbalancer.
+resource "aws_security_group" "loadbalancer" {
+  name   = "${var.name}-loadbalancer"
+  vpc_id = local.vpc_id
+  tags   = var.tags
+}
+
+# Allow the vault API to be accessed from the internet.
+resource "aws_security_group_rule" "loadbalancervaultapi" {
+  description       = "loadbalancer vault api"
+  type              = "ingress"
+  from_port         = 8200
+  to_port           = 8200
+  protocol          = "TCP"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.loadbalancer.id
+}
+
+# Create a security group for the instances.
 resource "aws_security_group" "default" {
   name   = var.name
   vpc_id = local.vpc_id
   tags   = var.tags
 }
 
-# Allow the vault API to be accessed.
+# Allow the vault API to be accessed from clients.
 resource "aws_security_group_rule" "vaultapi" {
   description = "vault api"
   type        = "ingress"
   from_port   = 8200
   to_port     = 8200
   protocol    = "TCP"
-  # TODO: Initially use "0.0.0.0/0", next deployments use "[local.cidr_block]".
-  # cidr_blocks       = ["0.0.0.0/0"]
-  cidr_blocks       = [local.cidr_block]
-  security_group_id = aws_security_group.default.id
+  source_security_group_id = aws_security_group.default.id
+  security_group_id         = aws_security_group.default.id
 }
 
 resource "aws_security_group_rule" "vaultreplication" {
@@ -195,7 +211,7 @@ resource "aws_security_group_rule" "vaultreplication" {
   from_port         = 8201
   to_port           = 8201
   protocol          = "TCP"
-  cidr_blocks       = [local.cidr_block]
+  source_security_group_id = aws_security_group.default.id
   security_group_id = aws_security_group.default.id
 }
 
@@ -206,7 +222,7 @@ resource "aws_security_group_rule" "ssh" {
   from_port         = 22
   to_port           = 22
   protocol          = "TCP"
-  cidr_blocks       = [local.cidr_block]
+  source_security_group_id = aws_security_group.default.id
   security_group_id = aws_security_group.default.id
 }
 
@@ -252,7 +268,8 @@ resource "aws_placement_group" "default" {
 # Add a load balancer.
 resource "aws_lb" "default" {
   name               = var.name
-  load_balancer_type = "network"
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.loadbalancer.id, aws_security_group.default.id]
   subnets            = local.aws_subnet_ids
   tags               = var.tags
 }
@@ -261,7 +278,7 @@ resource "aws_lb" "default" {
 resource "aws_lb_target_group" "default" {
   name_prefix = "${var.name}-"
   port        = 8200
-  protocol    = "TCP"
+  protocol    = "HTTPS"
   vpc_id      = local.vpc_id
   tags        = var.tags
   health_check {
@@ -274,7 +291,8 @@ resource "aws_lb_target_group" "default" {
 resource "aws_lb_listener" "default" {
   load_balancer_arn = aws_lb.default.arn
   port              = 8200
-  protocol          = "TCP"
+  protocol          = "HTTPS"
+  certificate_arn   = var.certificate_arn
   tags              = var.tags
   default_action {
     type             = "forward"

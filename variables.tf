@@ -88,3 +88,8 @@ variable "max_instance_lifetime" {
     error_message = "Use \"0\" to remove the parameter or a value between \"86400\" and \"31536000\"."
   }
 }
+
+variable "certificate_arn" {
+  description = "The ARN to an existing certificate."
+  type        = string
+}
