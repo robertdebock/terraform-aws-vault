@@ -1,6 +1,6 @@
 # Make a certificate.
 resource "aws_acm_certificate" "default" {
-  domain_name       = "vault.robertdebock.nl"
+  domain_name       = "ci-vault.robertdebock.nl"
   validation_method = "DNS"
   tags = {
     owner = "robertdebock"
@@ -33,7 +33,7 @@ module "vault" {
 # Add a loadbalancer record to DNS zone.
 resource "cloudflare_record" "default" {
   zone_id = data.cloudflare_zone.default.id
-  name    = "vault"
+  name    = "ci-vault"
   value   = module.vault.aws_lb_dns_name
   type    = "CNAME"
 }
