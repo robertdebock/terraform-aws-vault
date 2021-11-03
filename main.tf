@@ -300,10 +300,10 @@ resource "aws_autoscaling_group" "default" {
   placement_group       = aws_placement_group.default.id
   max_instance_lifetime = var.max_instance_lifetime
   # TODO: Fill Vault with a lot of data, then try refreshing.
-  vpc_zone_identifier  = tolist(local.aws_subnet_ids)
-  target_group_arns    = [aws_lb_target_group.default.arn]
-  launch_configuration = aws_launch_configuration.default.name
-  enabled_metrics      = ["GroupDesiredCapacity", "GroupInServiceCapacity", "GroupPendingCapacity", "GroupMinSize", "GroupMaxSize", "GroupInServiceInstances", "GroupPendingInstances", "GroupStandbyInstances", "GroupStandbyCapacity", "GroupTerminatingCapacity", "GroupTerminatingInstances", "GroupTotalCapacity", "GroupTotalInstances"]
+  vpc_zone_identifier   = tolist(local.aws_subnet_ids)
+  target_group_arns     = [aws_lb_target_group.default.arn]
+  launch_configuration  = aws_launch_configuration.default.name
+  enabled_metrics       = ["GroupDesiredCapacity", "GroupInServiceCapacity", "GroupPendingCapacity", "GroupMinSize", "GroupMaxSize", "GroupInServiceInstances", "GroupPendingInstances", "GroupStandbyInstances", "GroupStandbyCapacity", "GroupTerminatingCapacity", "GroupTerminatingInstances", "GroupTotalCapacity", "GroupTotalInstances"]
   tag {
     key                 = "name"
     value               = "${var.name}-${random_string.default.result}"
