@@ -27,3 +27,13 @@ Generate a CA key and certificate.
 ```shell
 terraform apply
 ```
+
+## Testing
+
+You can write "random" data to Vault.
+
+```shell
+while [ 1 ] ; do
+  vault kv put kv/my-$((1 + $RANDOM % 1042)) my-key=my-$((1 + $RANDOM % 1024))
+done
+```
