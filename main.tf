@@ -196,34 +196,34 @@ resource "aws_security_group" "default" {
 
 # Allow the vault API to be accessed from clients.
 resource "aws_security_group_rule" "vaultapi" {
-  description = "vault api"
-  type        = "ingress"
-  from_port   = 8200
-  to_port     = 8200
-  protocol    = "TCP"
+  description              = "vault api"
+  type                     = "ingress"
+  from_port                = 8200
+  to_port                  = 8200
+  protocol                 = "TCP"
   source_security_group_id = aws_security_group.default.id
-  security_group_id         = aws_security_group.default.id
+  security_group_id        = aws_security_group.default.id
 }
 
 resource "aws_security_group_rule" "vaultreplication" {
-  description       = "vault replication"
-  type              = "ingress"
-  from_port         = 8201
-  to_port           = 8201
-  protocol          = "TCP"
+  description              = "vault replication"
+  type                     = "ingress"
+  from_port                = 8201
+  to_port                  = 8201
+  protocol                 = "TCP"
   source_security_group_id = aws_security_group.default.id
-  security_group_id = aws_security_group.default.id
+  security_group_id        = aws_security_group.default.id
 }
 
 # Allow access from the bastion host.
 resource "aws_security_group_rule" "ssh" {
-  description       = "ssh"
-  type              = "ingress"
-  from_port         = 22
-  to_port           = 22
-  protocol          = "TCP"
+  description              = "ssh"
+  type                     = "ingress"
+  from_port                = 22
+  to_port                  = 22
+  protocol                 = "TCP"
   source_security_group_id = aws_security_group.default.id
-  security_group_id = aws_security_group.default.id
+  security_group_id        = aws_security_group.default.id
 }
 
 # Allow internet from the instances. Required for package installations.
