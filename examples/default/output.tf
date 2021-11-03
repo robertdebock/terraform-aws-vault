@@ -1,6 +1,6 @@
 output "vault_url" {
   description = "The URL to this Vault installation."
-  value       = "http://${module.vault.aws_lb_dns_name}:8200/ui"
+  value       = "https://${module.vault.aws_lb_dns_name}:8200/ui"
 }
 
 output "instructions" {

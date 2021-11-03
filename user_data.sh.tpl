@@ -22,77 +22,46 @@ chmod 750 /vault/data
 my_hostname="$(curl http://169.254.169.254/latest/meta-data/hostname)"
 my_ipaddress="$(curl http://169.254.169.254/latest/meta-data/local-ipv4)"
 
-# Place TLS material.
+# Place CA key and certificate.
 mkdir /etc/vault.d/tls
 chown vault:vault /etc/vault.d/tls
-echo "${ca_key}" > /etc/vault.d/tls/vault_ca.pem
-echo "${ca_cert}" > /etc/vault.d/tls/vault_ca.crt
-chown vault:vault /etc/vault.d/tls/*
 chmod 750 /etc/vault.d/tls
-chmod 640 /etc/vault.d/tls/*
+echo "${vault_ca_key}" > /etc/vault.d/tls/vault_ca.pem
+echo "${vault_ca_cert}" > /etc/vault.d/tls/vault_ca.crt
+chown vault:vault /etc/vault.d/tls/*
+chmod 640 /etc/vault.d/tls/vault_ca.pem
+chmod 644 /etc/vault.d/tls/vault_ca.crt
 
-cat << EOF > /etc/vault.d/tls/ca.conf
-[ ca ]
-default_ca = ca_default
-[ ca_default ]
-dir = /etc/vault.d/tls/
-certs = \$dir
-new_certs_dir = \$dir/ca.db.certs
-database = \$dir/ca.db.index
-serial = \$dir/ca.db.serial
-RANDFILE = \$dir/ca.db.rand
-certificate = \$dir/vault_ca.crt
-private_key = \$dir/vault_ca.pem
-default_days = 365
-default_crl_days = 30
-default_md = md5
-preserve = no
-policy = generic_policy
-[ generic_policy ]
-countryName = optional
-stateOrProvinceName = optional
-localityName = optional
-organizationName = optional
-organizationalUnitName = optional
-commonName = optional
-emailAddress = optional
-EOF
-
-mkdir /etc/vault.d/tls/ca.db.certs
-touch /etc/vault.d/tls/ca.db.index
-echo "1234" > /etc/vault.d/tls/ca.db.serial
-
-# Describe the CSR details in a file.
-cat << EOF > /etc/vault.d/tls/csr_details.txt
+# Place request.cfg
+cat << EOF > /etc/vault.d/tls/request.cfg
 [req]
-default_bits = 2048
-prompt = no
-default_md = sha256
-req_extensions = req_ext
 distinguished_name = dn
+req_extensions     = ext
+prompt             = no
 
-[ dn ]
-C=NL
-ST=UTRECHT
-L=Breukelen
-O=Very little to none.
-OU=IT Department
-CN = $${my_ipaddress}
+[dn]
+organizationName       = Snake
+organizationalUnitName = SnakeUnit
+commonName             = vault-internal.cluster.local
 
-[ req_ext ]
-subjectAltName = @alt_names
+[ext]
+basicConstraints = CA:FALSE
+keyUsage         = nonRepudiation, digitalSignature, keyEncipherment
+extendedKeyUsage = serverAuth
+subjectAltName   = @alt_names
 
-[ alt_names ]
-IP.1  = $${my_ipaddress}
+[alt_names]
+IP.1 = $${my_ipaddress}
 DNS.1 = $${my_hostname}
 EOF
 
-openssl req -new -sha256 -nodes -out /etc/vault.d/tls/vault.csr -newkey rsa:2048 -keyout /etc/vault.d/tls/vault.key -config /etc/vault.d/tls/csr_details.txt
+# Create a private key and certificate signing request for this instance.
+openssl req -config /etc/vault.d/tls/request.cfg -new -newkey rsa:2048 -nodes -keyout /etc/vault.d/tls/vault.pem -extensions ext -out /etc/vault.d/tls/vault.csr
 
-# Sign the csr, create the crt for this instance.
-openssl ca -batch -config /etc/vault.d/tls/ca.conf -out /etc/vault.d/tls/vault.crt -infiles /etc/vault.d/tls/vault.csr
+# Sign the certificate signing request using the distributed CA.
+openssl x509 -extfile /etc/vault.d/tls/request.cfg -extensions ext -req -in /etc/vault.d/tls/vault.csr -CA /etc/vault.d/tls/vault_ca.crt -CAkey /etc/vault.d/tls/vault_ca.pem -CAcreateserial -out /etc/vault.d/tls/vault.crt -days 365
 
-# Append the ca to the certificate.
+# Concatenate CA and server certificate
 cat /etc/vault.d/tls/vault_ca.crt >> /etc/vault.d/tls/vault.crt
 
 # Place the Vault configuration.
@@ -107,7 +76,7 @@ storage "raft" {
     auto_join_scheme        = "https"
     leader_ca_cert_file     = "/etc/vault.d/tls/vault_ca.crt"
     leader_client_cert_file = "/etc/vault.d/tls/vault.crt"
-    leader_client_key_file  = "/etc/vault.d/tls/vault.key"
+    leader_client_key_file  = "/etc/vault.d/tls/vault.pem"
   }
 }
 
@@ -116,9 +85,9 @@ api_addr = "https://$${my_ipaddress}:8200"
 
 listener "tcp" {
   address            = "$${my_ipaddress}:8200"
-  tls_client_ca_file = "/etc/vault.d/tls/vault_ca.crt"
+  tls_key_file       = "/etc/vault.d/tls/vault.pem"
   tls_cert_file      = "/etc/vault.d/tls/vault.crt"
-  tls_key_file       = "/etc/vault.d/tls/vault.key"
+  tls_client_ca_file = "/etc/vault.d/tls/vault_ca.crt"
 }
 
 seal "awskms" {
