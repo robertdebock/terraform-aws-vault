@@ -61,25 +61,6 @@ resource "aws_iam_instance_profile" "default" {
   tags = var.tags
 }
 
-# Create a CA key.
-resource "tls_private_key" "ca" {
-  algorithm   = "RSA"
-  ecdsa_curve = "P256"
-}
-
-# Create a self signed CA certificate.
-resource "tls_self_signed_cert" "ca" {
-  key_algorithm         = tls_private_key.ca.algorithm
-  private_key_pem       = tls_private_key.ca.private_key_pem
-  is_ca_certificate     = true
-  validity_period_hours = 24 * 365 * 5
-  allowed_uses          = ["cert_signing", "key_encipherment", "digital_signature"]
-  subject {
-    common_name  = "ca.example.com"
-    organization = "Very little."
-  }
-}
-
 # Write user_data.sh.
 resource "local_file" "default" {
   content = templatefile("${path.module}/user_data.sh.tpl",
@@ -89,9 +70,8 @@ resource "local_file" "default" {
       name          = var.name
       vault_version = var.vault_version
       random_string = random_string.default.result
-      # Distribute the CA key and certificate, so instances can sign their own certicate.
-      ca_key        = tls_private_key.ca.private_key_pem
-      ca_cert       = tls_self_signed_cert.ca.cert_pem
+      vault_ca_key  = file("tls/vault_ca.pem")
+      vault_ca_cert = file("tls/vault_ca.crt")
     }
   )
   filename             = "${path.module}/user_data.sh"
@@ -204,8 +184,8 @@ resource "aws_security_group_rule" "vaultapi" {
   to_port     = 8200
   protocol    = "TCP"
   # TODO: Initially use "0.0.0.0/0", next deployments use "[local.cidr_block]".
-  cidr_blocks       = ["0.0.0.0/0"]
-  #cidr_blocks       = [local.cidr_block]
+  # cidr_blocks       = ["0.0.0.0/0"]
+  cidr_blocks       = [local.cidr_block]
   security_group_id = aws_security_group.default.id
 }
 

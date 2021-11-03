@@ -53,21 +53,6 @@ variable "amount" {
   }
 }
 
-variable "tls_ca_filename" {
-  description = "The name of the file that has the tls ca certificate stored."
-  default     = "tls/vault_ca.crt"
-}
-
-variable "tls_cert_filename" {
-  description = "The name of the file that has the tls certificate stored."
-  default     = "tls/vault.crt"
-}
-
-variable "tls_key_filename" {
-  description = "The name of the file that has the tls key stored."
-  default     = "tls/vault.key"
-}
-
 variable "vpc_id" {
   description = "The VPC identifier to deploy in. Fill this value when you want the Vault installation to be done in an existing VPC."
   type        = string
