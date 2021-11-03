@@ -1,18 +1,11 @@
 #!/usr/bin/env bash
-#
-# Creates a set of certificates for use with HashiCorp Vault
-# https://learn.hashicorp.com/vault/operations/ops-deployment-guide
-
-# set -o errexit
-# set -o nounset
-# set -o xtrace
 
 TLS_PATH="./tls"
 
 rm $TLS_PATH/*
 test -d $TLS_PATH || mkdir -p $TLS_PATH
 
-# Create CA
+# Create CA config.
 CA_CONFIG="
 [ req ]
 distinguished_name = dn
