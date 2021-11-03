@@ -14,6 +14,12 @@ output "vault_instances" {
 }
 
 output "instructions" {
-  description = "How to initialize Vault."
-  value       = try("For a new deployment, login (ssh ec2-user@${aws_instance.bastion[0].public_ip}), login to a Vault host and run 'vault operator init'.", "Login to a Vault host and run 'vault operator init'.")
+  description = "How to bootstrap Vault."
+  value = <<EOF
+  1. Run: ssh ec2-user@${aws_instance.bastion[0].public_ip}
+  2. Run: ssh ${flatten(data.aws_instances.default[*].private_ips)[0]}
+  3. Run: vault operator init
+  4. Run: vault login
+  5. Run: vault operator raft autopilot set-config -min-quorum=${var.amount} -cleanup-dead-servers=true -dead-server-last-contact-threshold=120
+  EOF
 }
