@@ -249,6 +249,7 @@ resource "aws_launch_configuration" "default" {
   associate_public_ip_address = true
   spot_price                  = var.size == "development" ? "0.012" : null
   root_block_device {
+    encrypted   = false
     volume_type = local.volume_type
     volume_size = local.volume_size
     iops        = local.volume_iops
