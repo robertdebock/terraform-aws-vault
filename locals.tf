@@ -31,7 +31,7 @@ locals {
 
   # A map from `size` to `volume_iops`.
   _volume_iops = {
-    development = "100"
+    development = "0"
     minimum     = "2500"
     small       = "2500"
     large       = "5000"
