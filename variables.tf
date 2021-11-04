@@ -11,7 +11,7 @@ variable "name" {
 variable "vault_version" {
   description = "The version of Vault to install."
   type        = string
-  default     = "1.8.4"
+  default     = "1.8.5"
   validation {
     condition     = can(regex("^1\\.", var.vault_version))
     error_message = "Please use a SemVer version, where the major version is \"1\"."
