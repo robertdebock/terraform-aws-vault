@@ -285,6 +285,7 @@ resource "aws_lb_target_group" "default" {
   health_check {
     protocol = "HTTPS"
     path     = "/v1/sys/health"
+    interval = 5
   }
 }
 
