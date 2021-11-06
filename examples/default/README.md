@@ -35,9 +35,23 @@ You can write "random" data to Vault.
 ```shell
 vault secrets enable -version=2 kv
 
-my_ipaddress=$(curl --silent http://169.254.169.254/latest/meta-data/local-ipv4)
 while [ 1 ] ; do
-  randomness=$(curl --insecure --header "X-Vault-Token: $(cat ~/.vault-token)" --request POST --data "format=hex" https://${my_ipaddress}:8200/v1/sys/tools/random/164)
+  randomness=$(curl --insecure --header "X-Vault-Token: $(cat ~/.vault-token)" --request POST --data "format=hex" ${VAULT_ADDR}/v1/sys/tools/random/164)
   vault kv put kv/my-$((1 + $RANDOM % 1042)) my-key=${randomness}
 done
 ```
+
+You can request a bunch of tokens:
+
+```shell
+cat << EOF >> payload.json
+{
+  "meta": {
+    "user": "root"
+  },
+  "ttl": "1h",
+  "renewable": true
+}
+EOF
+
+ab -H "X-Vault-Token: $(cat ~/.vault-token)" -p payload.json -c 16 -n 2014 ${VAULT_ADDR}/v1/auth/token/create
