@@ -286,6 +286,7 @@ resource "aws_lb_target_group" "default" {
     protocol = "HTTPS"
     path     = "/v1/sys/health"
     interval = 5
+    timeout  = 2
   }
 }
 
