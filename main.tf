@@ -325,6 +325,13 @@ resource "aws_autoscaling_group" "default" {
   target_group_arns     = [aws_lb_target_group.default.arn]
   launch_configuration  = aws_launch_configuration.default.name
   enabled_metrics       = ["GroupDesiredCapacity", "GroupInServiceCapacity", "GroupPendingCapacity", "GroupMinSize", "GroupMaxSize", "GroupInServiceInstances", "GroupPendingInstances", "GroupStandbyInstances", "GroupStandbyCapacity", "GroupTerminatingCapacity", "GroupTerminatingInstances", "GroupTotalCapacity", "GroupTotalInstances"]
+  instance_refresh {
+    strategy = "Rolling"
+    preferences {
+      min_healthy_percentage = 90
+      instance_warmup        = 300
+    }
+  }
   tag {
     key                 = "name"
     value               = "${var.name}-${random_string.default.result}"
