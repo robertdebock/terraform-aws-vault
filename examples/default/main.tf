@@ -1,6 +1,7 @@
 # Make a certificate.
 resource "aws_acm_certificate" "default" {
   domain_name       = "ci-vault.robertdebock.nl"
+  # After a deployment, this value (`domain_name`) can't be changed because the certificate is bound to the load balancer listener.
   validation_method = "DNS"
   tags = {
     owner = "robertdebock"
@@ -16,7 +17,7 @@ data "cloudflare_zone" "default" {
 resource "cloudflare_record" "validation" {
   zone_id = data.cloudflare_zone.default.id
   name    = tolist(aws_acm_certificate.default.domain_validation_options)[0].resource_record_name
-  value   = tolist(aws_acm_certificate.default.domain_validation_options)[0].resource_record_value
+  value   = regex(".*[^.]", tolist(aws_acm_certificate.default.domain_validation_options)[0].resource_record_value)
   type    = "CNAME"
 }
 
