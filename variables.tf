@@ -14,7 +14,7 @@ variable "vault_version" {
   default     = "1.8.5"
   validation {
     condition     = can(regex("^1\\.", var.vault_version))
-    error_message = "Please use a SemVer version, where the major version is \"1\"."
+    error_message = "Please use a SemVer version, where the major version is \"1\". Use \"1.2.7\" or newer."
   }
 }
 
