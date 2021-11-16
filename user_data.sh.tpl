@@ -25,7 +25,7 @@ my_ipaddress="$(curl http://169.254.169.254/latest/meta-data/local-ipv4)"
 # Place CA key and certificate.
 mkdir /etc/vault.d/tls
 chown vault:vault /etc/vault.d/tls
-chmod 750 /etc/vault.d/tls
+chmod 755 /etc/vault.d/tls
 echo "${vault_ca_key}" > /etc/vault.d/tls/vault_ca.pem
 echo "${vault_ca_cert}" > /etc/vault.d/tls/vault_ca.crt
 chown vault:vault /etc/vault.d/tls/*
@@ -57,6 +57,7 @@ EOF
 
 # Create a private key and certificate signing request for this instance.
 openssl req -config /etc/vault.d/tls/request.cfg -new -newkey rsa:2048 -nodes -keyout /etc/vault.d/tls/vault.pem -extensions ext -out /etc/vault.d/tls/vault.csr
+chmod 640 /etc/vault.d/tls/vault.pem
 
 # Sign the certificate signing request using the distributed CA.
 openssl x509 -extfile /etc/vault.d/tls/request.cfg -extensions ext -req -in /etc/vault.d/tls/vault.csr -CA /etc/vault.d/tls/vault_ca.crt -CAkey /etc/vault.d/tls/vault_ca.pem -CAcreateserial -out /etc/vault.d/tls/vault.crt -days 365

@@ -25,6 +25,7 @@ resource "cloudflare_record" "validation" {
 module "vault" {
   source          = "../../"
   size            = "development"
+  spot_price      = 0.024
   certificate_arn = aws_acm_certificate.default.arn
   tags = {
     owner = "robertdebock"

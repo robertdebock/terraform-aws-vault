@@ -93,3 +93,13 @@ variable "certificate_arn" {
   description = "The ARN to an existing certificate."
   type        = string
 }
+
+variable "spot_price" {
+  description = "The price to offer for a spot instance."
+  type        = number
+  default     = 0.012
+  validation {
+    condition     = var.spot_price >= 0.0036
+    error_message = "Please use a minimum spot price of 0.0036."
+  }
+}

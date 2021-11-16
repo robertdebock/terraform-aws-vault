@@ -247,7 +247,7 @@ resource "aws_launch_configuration" "default" {
   iam_instance_profile        = aws_iam_instance_profile.default.name
   user_data                   = local_file.default.content
   associate_public_ip_address = true
-  spot_price                  = var.size == "development" ? "0.012" : null
+  spot_price                  = var.size == "development" ? var.spot_price : null
   root_block_device {
     encrypted   = false
     volume_type = local.volume_type
