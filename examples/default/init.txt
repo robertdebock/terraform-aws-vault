@@ -1,7 +1,0 @@
-Recovery Key 1: 82IVpYjcr5tySV40gNnsS3D3vC3DNwPVExPRFxX4WrFk
-Recovery Key 2: vCShdbCuaL8/W89jT8qemn7A79ys0gs1+3CfiL7SeGVm
-Recovery Key 3: nK/v/vzUqRbEhkCQ9+K+PdRNFPkp11fYqbt5ZuQk3RdU
-Recovery Key 4: Z9ZTH0b2MyEqlHSxQPRzfwT73UuJE5NzWkCPQaW/duaM
-Recovery Key 5: TEXFJYdeni6lYTiMh5LBXhMTOYILtApfGSnux497QaaS
-
-Initial Root Token: s.5JcmRh7QXR3CEQabMzmxb00K
