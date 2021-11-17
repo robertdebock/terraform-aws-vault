@@ -320,7 +320,6 @@ resource "aws_autoscaling_group" "default" {
   health_check_type     = "EC2"
   placement_group       = aws_placement_group.default.id
   max_instance_lifetime = var.max_instance_lifetime
-  # TODO: Fill Vault with a lot of data, then try refreshing.
   vpc_zone_identifier   = tolist(local.aws_subnet_ids)
   target_group_arns     = [aws_lb_target_group.default.arn]
   launch_configuration  = aws_launch_configuration.default.name
