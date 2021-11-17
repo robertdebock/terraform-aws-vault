@@ -3,7 +3,7 @@ variable "name" {
   type        = string
   default     = "vault"
   validation {
-    condition     = length(var.name) >= 3 && length(var.name) <= 6 && var.name != "default"
+    condition     = length(var.name) >= 3 && length(var.name) <= 5 && var.name != "default"
     error_message = "Please use a minimum of 3 and a maximum of 6 characters. \"default\" can't be used because it is reserved."
   }
 }
