@@ -95,7 +95,7 @@ variable "certificate_arn" {
 }
 
 variable "spot_price" {
-  description = "The price to offer for a spot instance."
+  description = "The price to offer for a spot instance. Only required when `size` is set to `development`."
   type        = number
   default     = 0.012
   validation {
