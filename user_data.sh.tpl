@@ -28,11 +28,10 @@ chown vault:vault /etc/vault.d/tls
 chmod 755 /etc/vault.d/tls
 echo "${vault_ca_key}" > /etc/vault.d/tls/vault_ca.pem
 echo "${vault_ca_cert}" > /etc/vault.d/tls/vault_ca.crt
-chown vault:vault /etc/vault.d/tls/*
 chmod 640 /etc/vault.d/tls/vault_ca.pem
 chmod 644 /etc/vault.d/tls/vault_ca.crt
 
-# Place request.cfg
+# Place request.cfg.
 cat << EOF > /etc/vault.d/tls/request.cfg
 [req]
 distinguished_name = dn
@@ -62,8 +61,11 @@ chmod 640 /etc/vault.d/tls/vault.pem
 # Sign the certificate signing request using the distributed CA.
 openssl x509 -extfile /etc/vault.d/tls/request.cfg -extensions ext -req -in /etc/vault.d/tls/vault.csr -CA /etc/vault.d/tls/vault_ca.crt -CAkey /etc/vault.d/tls/vault_ca.pem -CAcreateserial -out /etc/vault.d/tls/vault.crt -days 365
 
-# Concatenate CA and server certificate
+# Concatenate CA and server certificate.
 cat /etc/vault.d/tls/vault_ca.crt >> /etc/vault.d/tls/vault.crt
+
+# The TLS material is owned by Vault.
+chown vault:vault /etc/vault.d/tls/*
 
 # Place the Vault configuration.
 cat << EOF > /etc/vault.d/vault.hcl
