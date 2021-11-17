@@ -54,4 +54,7 @@ cat << EOF >> payload.json
 }
 EOF
 
+yum -y install httpd
+
 ab -H "X-Vault-Token: $(cat ~/.vault-token)" -p payload.json -c 16 -n 2014 ${VAULT_ADDR}/v1/auth/token/create
+```
