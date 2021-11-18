@@ -54,7 +54,7 @@ variable "volume_type" {
   type        = string
   default     = "io1"
   validation {
-    condition     = contains(["gp2", "io1"])
+    condition     = contains(["gp2", "io1"], var.volume_type)
     error_message = "Please use \"gp2\" or \"io1\"."
   }
 }
@@ -73,7 +73,7 @@ variable "volume_iops" {
   type        = number
   default     = "2500"
   validation {
-    condition     = var.volume_ops >= 0
+    condition     = var.volume_iops >= 0
     error_message = "Please us a positive number, such as \"2500\"."
   }
 }
