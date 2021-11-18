@@ -184,8 +184,7 @@ resource "aws_security_group_rule" "loadbalancervaultapi" {
   from_port         = 8200
   to_port           = 8200
   protocol          = "TCP"
-  # TODO: Make `cidr_blocks` variable.
-  cidr_blocks       = ["0.0.0.0/0"]
+  cidr_blocks       = var.allowed_cidr_blocks
   security_group_id = aws_security_group.loadbalancer.id
 }
 
