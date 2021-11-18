@@ -49,6 +49,35 @@ variable "instance_type" {
   default     = "t3.large"
 }
 
+variable "volume_type" {
+  description = "When `size` is set to `custom`, specify your own volume type here."
+  type        = string
+  default     = "io1"
+  validation {
+    condition     = contains(["gp2", "io1"])
+    error_message = "Please use \"gp2\" or \"io1\"."
+  }
+}
+variable "volume_size" {
+  description = "When `size` is set to `custom`, specify your own volume size (in GB) here."
+  type        = number
+  default     = 50
+  validation {
+    condition     = var.volume_size > 8
+    error_message = "Please use a minimum of \"8\"."
+  }
+}
+
+variable "volume_iops" {
+  description = "When `size` is set to `custom`, specify your own volume iops here."
+  type        = number
+  default     = "2500"
+  validation {
+    condition     = var.volume_ops >= 0
+    error_message = "Please us a positive number, such as \"2500\"."
+  }
+}
+
 variable "amount" {
   description = "The amount of instances to deploy."
   type        = number
