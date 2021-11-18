@@ -17,4 +17,4 @@ keyUsage           = critical, digitalSignature, cRLSign, keyCertSign
 
 # Create CA key and certificate.
 openssl req -config <(echo "$CA_CONFIG") -new -newkey rsa:2048 -nodes \
- -subj "/CN=Snake Root CA" -x509 -extensions ext -keyout $TLS_PATH/vault_ca.pem -out $TLS_PATH/vault_ca.crt
+ -subj "/CN=Snake Root CA" -x509 -extensions ext -keyout $TLS_PATH/vault_ca.pem -out $TLS_PATH/vault_ca.crt -days 7300
