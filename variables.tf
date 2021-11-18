@@ -39,7 +39,7 @@ variable "size" {
   default     = "small"
   validation {
     condition     = contains(["custom", "development", "minimum", "small", "large", "maximum"], var.size)
-    error_message = "Please use "custom", \"development\", \"minimum\", \"small\", \"large\" or \"maximum\"."
+    error_message = "Please use \"custom\", \"development\", \"minimum\", \"small\", \"large\" or \"maximum\"."
   }
 }
 
