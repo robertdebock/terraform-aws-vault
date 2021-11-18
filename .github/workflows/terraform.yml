@@ -54,12 +54,3 @@ jobs:
         env:
           TF_CLI_ARGS: "-input=false -auto-approve"
         if: ${{ always() }}
-      # Workaround for an [issue](https://github.com/hashicorp/terraform-provider-aws/issues/21460).
-      - name: terraform destroy second time
-        uses: robertdebock/terraform-action@1.1.2
-        with:
-          action: destroy
-          directory: ./examples/${{ matrix.config.name }}
-        env:
-          TF_CLI_ARGS: "-input=false -auto-approve"
-        if: ${{ always() }}
