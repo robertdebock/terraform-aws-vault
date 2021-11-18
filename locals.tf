@@ -1,6 +1,7 @@
 locals {
   # A map from `size` to `instance_type`.
   _instance_type = {
+    custom      = var.instance_type
     development = "t3.micro"
     minimum     = "m5.large"
     small       = "m5.xlarge"

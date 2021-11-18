@@ -1,10 +1,10 @@
 variable "name" {
-  description = "The name of the vault cluster in 3 to 6 characters."
+  description = "The name of the vault cluster in 3 to 5 characters."
   type        = string
   default     = "vault"
   validation {
     condition     = length(var.name) >= 3 && length(var.name) <= 5 && var.name != "default"
-    error_message = "Please use a minimum of 3 and a maximum of 6 characters. \"default\" can't be used because it is reserved."
+    error_message = "Please use a minimum of 3 and a maximum of 5 characters. \"default\" can't be used because it is reserved."
   }
 }
 
@@ -26,7 +26,7 @@ variable "key_filename" {
 variable "region" {
   description = "The region to deploy to."
   type        = string
-  default     = "eu-central-1"
+  default     = "eu-west-1"
   validation {
     condition     = contains(["eu-central-1", "eu-north-1", "eu-south-1", "eu-west-1", "eu-west-2", "eu-west-3", ], var.region)
     error_message = "Please use \"eu-central-1\", \"eu-north-1\", \"eu-south-1\", \"eu-west-1\", \"eu-west-2\" or \"eu-west-3\"."
@@ -38,9 +38,15 @@ variable "size" {
   type        = string
   default     = "small"
   validation {
-    condition     = contains(["development", "minimum", "small", "large", "maximum"], var.size)
-    error_message = "Please use \"development\", \"minimum\", \"small\", \"large\" or \"maximum\"."
+    condition     = contains(["custom", "development", "minimum", "small", "large", "maximum"], var.size)
+    error_message = "Please use "custom", \"development\", \"minimum\", \"small\", \"large\" or \"maximum\"."
   }
+}
+
+variable "instance_type" {
+  description = "When `size` is set to `custom`, specify your own instance type here."
+  type        = string
+  default     = "t3.large"
 }
 
 variable "amount" {
@@ -53,6 +59,7 @@ variable "amount" {
   }
 }
 
+# TODO: Add a variable (bool) for `ui`. (Remember `output.tf`.)
 variable "vpc_id" {
   description = "The VPC identifier to deploy in. Fill this value when you want the Vault installation to be done in an existing VPC."
   type        = string
