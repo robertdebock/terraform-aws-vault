@@ -69,9 +69,9 @@ variable "volume_size" {
 }
 
 variable "volume_iops" {
-  description = "When `size` is set to `custom`, specify your own volume iops here."
+  description = "When `size` is set to `custom`, specify your own volume iops here. (Maximum 50 times the `volume_size`.)"
   type        = number
-  default     = "2500"
+  default     = "400"
   validation {
     condition     = var.volume_iops >= 0
     error_message = "Please us a positive number, such as \"2500\"."
