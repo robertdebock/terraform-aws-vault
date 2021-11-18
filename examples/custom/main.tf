@@ -25,6 +25,7 @@ resource "cloudflare_record" "validation" {
 module "vault" {
   source          = "../../"
   name            = "vltc"
+  vault_ui        = false
   size            = "custom"
   instance_type   = "t3.large"
   volume_type     = "io1"
