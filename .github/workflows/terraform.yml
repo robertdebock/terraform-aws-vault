@@ -17,6 +17,7 @@ jobs:
         config:
           - name: custom
           - name: development
+          - name: production
     steps:
       - name: checkout
         uses: actions/checkout@v2
