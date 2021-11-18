@@ -16,8 +16,8 @@ jobs:
       matrix:
         config:
           - name: custom
+          - name: default
           - name: development
-          - name: production
     steps:
       - name: checkout
         uses: actions/checkout@v2
