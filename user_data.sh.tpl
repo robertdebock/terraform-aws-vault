@@ -59,7 +59,7 @@ openssl req -config /etc/vault.d/tls/request.cfg -new -newkey rsa:2048 -nodes -k
 chmod 640 /etc/vault.d/tls/vault.pem
 
 # Sign the certificate signing request using the distributed CA.
-openssl x509 -extfile /etc/vault.d/tls/request.cfg -extensions ext -req -in /etc/vault.d/tls/vault.csr -CA /etc/vault.d/tls/vault_ca.crt -CAkey /etc/vault.d/tls/vault_ca.pem -CAcreateserial -out /etc/vault.d/tls/vault.crt -days 365
+openssl x509 -extfile /etc/vault.d/tls/request.cfg -extensions ext -req -in /etc/vault.d/tls/vault.csr -CA /etc/vault.d/tls/vault_ca.crt -CAkey /etc/vault.d/tls/vault_ca.pem -CAcreateserial -out /etc/vault.d/tls/vault.crt -days 7300
 
 # Concatenate CA and server certificate.
 cat /etc/vault.d/tls/vault_ca.crt >> /etc/vault.d/tls/vault.crt
