@@ -29,7 +29,7 @@ module "vault" {
   instance_type   = "t3.large"
   volume_type     = "io1"
   volume_size     = "64"
-  volume_iops     = "5000"
+  volume_iops     = "3200"
   certificate_arn = aws_acm_certificate.default.arn
   tags = {
     owner = "robertdebock"
