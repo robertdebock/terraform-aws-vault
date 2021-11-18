@@ -72,6 +72,7 @@ resource "local_file" "default" {
       random_string = random_string.default.result
       vault_ca_key  = file("tls/vault_ca.pem")
       vault_ca_cert = file("tls/vault_ca.crt")
+      vault_ui      = var.vault_ui
     }
   )
   filename             = "${path.module}/user_data.sh"
@@ -183,6 +184,7 @@ resource "aws_security_group_rule" "loadbalancervaultapi" {
   from_port         = 8200
   to_port           = 8200
   protocol          = "TCP"
+  # TODO: Make `cidr_blocks` variable.
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = aws_security_group.loadbalancer.id
 }

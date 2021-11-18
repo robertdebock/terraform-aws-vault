@@ -88,7 +88,12 @@ variable "amount" {
   }
 }
 
-# TODO: Add a variable (bool) for `ui`. (Remember `output.tf`.)
+variable "vault_ui" {
+  description = "Expose (or hide) a web user interface."
+  type        = bool
+  default     = true
+}
+
 variable "vpc_id" {
   description = "The VPC identifier to deploy in. Fill this value when you want the Vault installation to be done in an existing VPC."
   type        = string

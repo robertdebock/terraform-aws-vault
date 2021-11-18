@@ -69,7 +69,7 @@ chown vault:vault /etc/vault.d/tls/*
 
 # Place the Vault configuration.
 cat << EOF > /etc/vault.d/vault.hcl
-ui=true
+ui=${vault_ui}
 
 storage "raft" {
   path = "/vault/data"
