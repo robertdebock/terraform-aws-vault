@@ -1,4 +1,3 @@
-t
 variable "vault_version" {
   description = "The version of Vault to install."
   type        = string
