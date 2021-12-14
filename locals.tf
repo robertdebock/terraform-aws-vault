@@ -25,10 +25,10 @@ locals {
   _volume_size = {
     custom      = var.volume_size
     development = 8
-    minimum     = 50
-    small       = 50
-    large       = 100
-    maximum     = 100
+    minimum     = 100
+    small       = 100
+    large       = 200
+    maximum     = 200
   }
   volume_size = local._volume_size[var.size]
 
@@ -36,10 +36,10 @@ locals {
   _volume_iops = {
     custom      = var.volume_iops
     development = 0
-    minimum     = 2500
-    small       = 2500
-    large       = 5000
-    maximum     = 5000
+    minimum     = 3000
+    small       = 3000
+    large       = 10000
+    maximum     = 10000
   }
   volume_iops = local._volume_iops[var.size]
 
