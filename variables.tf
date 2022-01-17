@@ -144,7 +144,7 @@ variable "certificate_arn" {
 variable "spot_price" {
   description = "The price to offer for a spot instance. Only required when `size` is set to `development`."
   type        = number
-  default     = 0.012
+  default     = 0.024
   validation {
     condition     = var.spot_price >= 0.0036
     error_message = "Please use a minimum spot price of 0.0036."
