@@ -65,14 +65,17 @@ resource "aws_iam_instance_profile" "default" {
 resource "local_file" "default" {
   content = templatefile("${path.module}/user_data.sh.tpl",
     {
-      kms_key_id    = aws_kms_key.default.id
-      region        = var.region
-      name          = var.name
-      vault_version = var.vault_version
-      random_string = random_string.default.result
-      vault_ca_key  = file("tls/vault_ca.pem")
-      vault_ca_cert = file("tls/vault_ca.crt")
-      vault_ui      = var.vault_ui
+      default_lease_ttl = var.default_lease_ttl
+      kms_key_id        = aws_kms_key.default.id
+      log_level         = var.log_level
+      max_lease_ttl     = var.max_lease_ttl
+      name              = var.name
+      random_string     = random_string.default.result
+      region            = var.region
+      vault_ca_key      = file("tls/vault_ca.pem")
+      vault_ca_cert     = file("tls/vault_ca.crt")
+      vault_ui          = var.vault_ui
+      vault_version     = var.vault_version
     }
   )
   filename             = "${path.module}/user_data.sh"

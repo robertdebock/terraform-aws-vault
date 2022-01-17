@@ -11,7 +11,7 @@ variable "name" {
 variable "vault_version" {
   description = "The version of Vault to install."
   type        = string
-  default     = "1.9.0"
+  default     = "1.9.2"
   validation {
     condition     = can(regex("^1\\.", var.vault_version))
     error_message = "Please use a SemVer version, where the major version is \"1\". Use \"1.2.7\" or newer."
@@ -148,5 +148,35 @@ variable "spot_price" {
   validation {
     condition     = var.spot_price >= 0.0036
     error_message = "Please use a minimum spot price of 0.0036."
+  }
+}
+
+variable "log_level" {
+  description = "Specifies the Vault log level to use."
+  type        = string
+  default     = "Info"
+  validation {
+    condition     = contains(["Trace", "Debug", "Error", "Warn", "Info"], var.log_level)
+    error_message = "Please use \"Trace\", \"Debug\", \"Error\", \"Warn\" or \"Info\"."
+  }
+}
+
+variable "default_lease_ttl" {
+  description = "Specifies the default lease duration for tokens and secrets."
+  type        = string
+  default     = "768h"
+  validation {
+    condition     = can(regex("^[1-9][0-9]*(s|m|h)", var.default_lease_ttl))
+    error_message = "Please use a positive number, followed by the duration indicator."
+  }
+}
+
+variable "max_lease_ttl" {
+  description = "Specifies the maximum lease duration for tokens and secrets."
+  type        = string
+  default     = "768h"
+  validation {
+    condition     = can(regex("^[1-9][0-9]*(s|m|h)", var.max_lease_ttl))
+    error_message = "Please use a positive number, followed by the duration indicator."
   }
 }

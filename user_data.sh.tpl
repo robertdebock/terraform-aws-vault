@@ -97,6 +97,11 @@ seal "awskms" {
   region     = "${region}"
   kms_key_id = "${kms_key_id}"
 }
+
+log_level = ${log_level}
+
+max_lease_ttl = ${max_lease_ttl}
+default_lease_ttl = ${default_lease_ttl}
 EOF
 
 # Start and enable Vault.

@@ -30,6 +30,9 @@ module "vault" {
   tags = {
     owner = "robertdebock"
   }
+  log_level         = "Debug"
+  max_lease_ttl     = "168h"
+  default_lease_ttl = "24h"
 }
 
 # Add a loadbalancer record to DNS zone.
