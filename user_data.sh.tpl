@@ -69,10 +69,15 @@ chown vault:vault /etc/vault.d/tls/*
 
 # Place the Vault configuration.
 cat << EOF > /etc/vault.d/vault.hcl
-ui=${vault_ui}
+ui                = ${vault_ui}
+cluster_addr      = "https://$${my_ipaddress}:8201"
+api_addr          = "https://$${my_ipaddress}:8200"
+log_level         = "${log_level}"
+max_lease_ttl     = "${max_lease_ttl}"
+default_lease_ttl = "${default_lease_ttl}"
 
 storage "raft" {
-  path = "/vault/data"
+  path    = "/vault/data"
   node_id = "$${my_hostname}"
   retry_join {
     auto_join               = "provider=aws tag_key=name tag_value=${name}-${random_string} region=${region}"
@@ -82,9 +87,6 @@ storage "raft" {
     leader_client_key_file  = "/etc/vault.d/tls/vault.pem"
   }
 }
-
-cluster_addr = "https://$${my_ipaddress}:8201"
-api_addr = "https://$${my_ipaddress}:8200"
 
 listener "tcp" {
   address            = "$${my_ipaddress}:8200"
@@ -97,11 +99,6 @@ seal "awskms" {
   region     = "${region}"
   kms_key_id = "${kms_key_id}"
 }
-
-log_level = "${log_level}"
-
-max_lease_ttl = "${max_lease_ttl}"
-default_lease_ttl = "${default_lease_ttl}"
 EOF
 
 # Start and enable Vault.
