@@ -180,3 +180,13 @@ variable "max_lease_ttl" {
     error_message = "Please use a positive number, followed by the duration indicator."
   }
 }
+
+variable "vault_path" {
+  description = "The absolute path where Vault should place data."
+  type        = string
+  default     = "/opt/vault"
+  validation {
+    condition     = can(regex("^/", var.vault_path))
+    error_message = "Please use an absolute path like \"/my/vault\"."
+  }
+}

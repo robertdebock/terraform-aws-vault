@@ -14,25 +14,25 @@ yum install -y vault-${vault_version}
 setcap cap_ipc_lock=+ep $(readlink -f $(which vault))
 
 # Make a directory for Raft, certificates and init information.
-mkdir -p /vault/data
-chown vault:vault /vault/data
-chmod 750 /vault/data
+mkdir -p "${vault_path}"
+chown vault:vault "${vault_path}"
+chmod 750 "${vault_path}"
 
 # 169.254.169.254 is an Amazon service to provide information about itself.
 my_hostname="$(curl http://169.254.169.254/latest/meta-data/hostname)"
 my_ipaddress="$(curl http://169.254.169.254/latest/meta-data/local-ipv4)"
 
 # Place CA key and certificate.
-mkdir /etc/vault.d/tls
-chown vault:vault /etc/vault.d/tls
-chmod 755 /etc/vault.d/tls
-echo "${vault_ca_key}" > /etc/vault.d/tls/vault_ca.pem
-echo "${vault_ca_cert}" > /etc/vault.d/tls/vault_ca.crt
-chmod 640 /etc/vault.d/tls/vault_ca.pem
-chmod 644 /etc/vault.d/tls/vault_ca.crt
+test -d ${vault_path}/tls || mkdir ${vault_path}/tls
+chown vault:vault ${vault_path}/tls
+chmod 700 ${vault_path}/tls
+echo "${vault_ca_key}" > ${vault_path}/tls/vault_ca.pem
+echo "${vault_ca_cert}" > ${vault_path}/tls/vault_ca.crt
+chmod 600 ${vault_path}/tls/vault_ca.pem
+chmod 600 ${vault_path}/tls/vault_ca.crt
 
 # Place request.cfg.
-cat << EOF > /etc/vault.d/tls/request.cfg
+cat << EOF > ${vault_path}/tls/request.cfg
 [req]
 distinguished_name = dn
 req_extensions     = ext
@@ -55,17 +55,17 @@ DNS.1 = $${my_hostname}
 EOF
 
 # Create a private key and certificate signing request for this instance.
-openssl req -config /etc/vault.d/tls/request.cfg -new -newkey rsa:2048 -nodes -keyout /etc/vault.d/tls/vault.pem -extensions ext -out /etc/vault.d/tls/vault.csr
-chmod 640 /etc/vault.d/tls/vault.pem
+openssl req -config ${vault_path}/tls/request.cfg -new -newkey rsa:2048 -nodes -keyout ${vault_path}/tls/vault.pem -extensions ext -out ${vault_path}/tls/vault.csr
+chmod 640 ${vault_path}/tls/vault.pem
 
 # Sign the certificate signing request using the distributed CA.
-openssl x509 -extfile /etc/vault.d/tls/request.cfg -extensions ext -req -in /etc/vault.d/tls/vault.csr -CA /etc/vault.d/tls/vault_ca.crt -CAkey /etc/vault.d/tls/vault_ca.pem -CAcreateserial -out /etc/vault.d/tls/vault.crt -days 7300
+openssl x509 -extfile ${vault_path}/tls/request.cfg -extensions ext -req -in ${vault_path}/tls/vault.csr -CA ${vault_path}/tls/vault_ca.crt -CAkey ${vault_path}/tls/vault_ca.pem -CAcreateserial -out ${vault_path}/tls/vault.crt -days 7300
 
 # Concatenate CA and server certificate.
-cat /etc/vault.d/tls/vault_ca.crt >> /etc/vault.d/tls/vault.crt
+cat ${vault_path}/tls/vault_ca.crt >> ${vault_path}/tls/vault.crt
 
 # The TLS material is owned by Vault.
-chown vault:vault /etc/vault.d/tls/*
+chown vault:vault ${vault_path}/tls/*
 
 # Place the Vault configuration.
 cat << EOF > /etc/vault.d/vault.hcl
@@ -77,22 +77,22 @@ max_lease_ttl     = "${max_lease_ttl}"
 default_lease_ttl = "${default_lease_ttl}"
 
 storage "raft" {
-  path    = "/vault/data"
+  path    = "${vault_path}/data"
   node_id = "$${my_hostname}"
   retry_join {
     auto_join               = "provider=aws tag_key=name tag_value=${name}-${random_string} region=${region}"
     auto_join_scheme        = "https"
-    leader_ca_cert_file     = "/etc/vault.d/tls/vault_ca.crt"
-    leader_client_cert_file = "/etc/vault.d/tls/vault.crt"
-    leader_client_key_file  = "/etc/vault.d/tls/vault.pem"
+    leader_ca_cert_file     = "${vault_path}/tls/vault_ca.crt"
+    leader_client_cert_file = "${vault_path}/tls/vault.crt"
+    leader_client_key_file  = "${vault_path}/tls/vault.pem"
   }
 }
 
 listener "tcp" {
   address            = "$${my_ipaddress}:8200"
-  tls_key_file       = "/etc/vault.d/tls/vault.pem"
-  tls_cert_file      = "/etc/vault.d/tls/vault.crt"
-  tls_client_ca_file = "/etc/vault.d/tls/vault_ca.crt"
+  tls_key_file       = "${vault_path}/tls/vault.pem"
+  tls_cert_file      = "${vault_path}/tls/vault.crt"
+  tls_client_ca_file = "${vault_path}/tls/vault_ca.crt"
 }
 
 seal "awskms" {
@@ -106,4 +106,4 @@ systemctl --now enable vault
 
 # Allow users to use `vault`.
 echo "export VAULT_ADDR=https://$${my_ipaddress}:8200" >> /etc/profile.d/vault.sh
-echo "export VAULT_CACERT=/etc/vault.d/tls/vault_ca.crt" >> /etc/profile.d/vault.sh
+echo "export VAULT_CACERT=${vault_path}/tls/vault_ca.crt" >> /etc/profile.d/vault.sh
