@@ -13,6 +13,10 @@ yum install -y vault-${vault_version}
 # Allow IPC lock capability to Vault.
 setcap cap_ipc_lock=+ep $(readlink -f $(which vault))
 
+# Disable core dumps.
+echo '* hard core 0' >> /etc/security/limits.d/vault.conf
+echo '* soft core 0' >> /etc/security/limits.d/vault.conf
+
 # Make a directory for Raft, certificates and init information.
 mkdir -p "${vault_path}"
 chown vault:vault "${vault_path}"
