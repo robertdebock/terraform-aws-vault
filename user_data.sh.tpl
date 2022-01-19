@@ -16,6 +16,7 @@ setcap cap_ipc_lock=+ep $(readlink -f $(which vault))
 # Disable core dumps.
 echo '* hard core 0' >> /etc/security/limits.d/vault.conf
 echo '* soft core 0' >> /etc/security/limits.d/vault.conf
+ulimit -c 0
 
 # Make a directory for Raft, certificates and init information.
 mkdir -p "${vault_path}"
