@@ -18,6 +18,7 @@ jobs:
           - name: custom
           - name: default
           - name: development
+          - name: mykey
     steps:
       - name: checkout
         uses: actions/checkout@v2

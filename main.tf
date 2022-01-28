@@ -159,6 +159,7 @@ data "aws_availability_zones" "default" {
 
 # Place an SSH key.
 resource "aws_key_pair" "default" {
+  count      = var.key_filename != "" ? 1 : 0
   key_name   = var.name
   public_key = file(var.key_filename)
   tags       = var.tags
@@ -247,7 +248,7 @@ resource "aws_launch_configuration" "default" {
   name_prefix                 = "${var.name}-"
   image_id                    = data.aws_ami.default.id
   instance_type               = local.instance_type
-  key_name                    = aws_key_pair.default.id
+  key_name                    = try(var.key_id, aws_key_pair.default[0].id)
   security_groups             = [aws_security_group.default.id]
   iam_instance_profile        = aws_iam_instance_profile.default.name
   user_data                   = local_file.default.content
@@ -388,7 +389,7 @@ resource "aws_instance" "bastion" {
   subnet_id                   = tolist(local.aws_subnet_ids)[0]
   instance_type               = "t3.micro"
   vpc_security_group_ids      = [aws_security_group.bastion[0].id]
-  key_name                    = aws_key_pair.default.id
+  key_name                    = try(var.key_id, aws_key_pair.default[0].id)
   associate_public_ip_address = true
   monitoring                  = true
   tags                        = var.tags
