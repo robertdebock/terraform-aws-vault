@@ -91,12 +91,6 @@ resource "aws_vpc" "default" {
   tags       = var.tags
 }
 
-# Lookup a VPC.
-data "aws_vpc" "default" {
-  count = var.vpc_id == "" ? 0 : 1
-  id    = var.vpc_id
-}
-
 # Create an internet gateway.
 resource "aws_internet_gateway" "default" {
   count  = var.vpc_id == "" ? 1 : 0
