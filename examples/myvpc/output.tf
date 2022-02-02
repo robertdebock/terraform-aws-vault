@@ -7,7 +7,3 @@ output "instructions" {
   description = "How to initialize Vault."
   value       = module.vault.instructions
 }
-
-output "module" {
-  value = module.vault
-}
