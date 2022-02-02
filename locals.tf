@@ -46,8 +46,8 @@ locals {
   # Form the cidr_block based on a variable.
   cidr_block = "${var.aws_vpc_cidr_block_start}.0.0/16"
 
-  # Set the `local.vpc_id` based on either the resource object or the data object, whichever is set.
-  vpc_id = try(aws_vpc.default[0].id, data.aws_vpc.default[0].id)
+  # Set the `local.vpc_id` based on either the resource object or the variable object, whichever is available.
+  vpc_id = try(aws_vpc.default[0].id, var.vpc_id)
 
   # Set the `local.internet_gateway_id` based on either the resource object or the data object, whichever is set.
   internet_gateway_id = try(aws_internet_gateway.default[0].id, data.aws_internet_gateway.default[0].id)
@@ -55,6 +55,6 @@ locals {
   # Set the `local.aws_route_table_id` based on either the resource object or the data object, whichever is set.
   aws_route_table_id = try(aws_route_table.default[0].id, data.aws_route_tables.default[0].id)
 
-  # Set the `aws_subnet_id` based on either the resource object or the data object, whichever is set.
-  aws_subnet_ids = try(data.aws_subnet_ids.default[0].id, aws_subnet.default[*].id)
+  # Set the `aws_subnet_ids` based on either the resource object or the data object, whichever is set.
+  aws_subnet_ids = coalescelist(aws_subnet.default[*].id, tolist(data.aws_subnet_ids.default[0].ids))
 }
