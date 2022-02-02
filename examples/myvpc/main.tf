@@ -35,7 +35,7 @@ module "vault" {
 
 # Add a loadbalancer record to DNS zone.
 resource "cloudflare_record" "default" {
-  name    = "vault"
+  name    = "myvpv"
   type    = "CNAME"
   value   = module.vault.aws_lb_dns_name
   zone_id = data.cloudflare_zone.default.id
