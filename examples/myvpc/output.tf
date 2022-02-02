@@ -3,7 +3,11 @@ output "vault_url" {
   value       = "https://${cloudflare_record.default.hostname}:8200/ui"
 }
 
-# output "instructions" {
-#   description = "How to initialize Vault."
-#   value       = module.vault.instructions
-# }
+output "instructions" {
+  description = "How to initialize Vault."
+  value       = module.vault.instructions
+}
+
+output "module" {
+  value = module.vault
+}
