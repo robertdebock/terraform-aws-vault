@@ -15,30 +15,30 @@ data "cloudflare_zone" "default" {
 
 # Add validation details to the DNS zone.
 resource "cloudflare_record" "validation" {
-  zone_id = data.cloudflare_zone.default.id
   name    = tolist(aws_acm_certificate.default.domain_validation_options)[0].resource_record_name
-  value   = regex(".*[^.]", tolist(aws_acm_certificate.default.domain_validation_options)[0].resource_record_value)
   type    = "CNAME"
+  value   = regex(".*[^.]", tolist(aws_acm_certificate.default.domain_validation_options)[0].resource_record_value)
+  zone_id = data.cloudflare_zone.default.id
 }
 
 # Call the module.
 module "vault" {
-  source          = "../../"
-  size            = "development"
-  spot_price      = 0.024
-  certificate_arn = aws_acm_certificate.default.arn
+  certificate_arn   = aws_acm_certificate.default.arn
+  default_lease_ttl = "24h"
+  log_level         = "Debug"
+  max_lease_ttl     = "168h"
+  size              = "development"
+  source            = "../../"
+  spot_price        = 0.024
   tags = {
     owner = "robertdebock"
   }
-  log_level         = "Debug"
-  max_lease_ttl     = "168h"
-  default_lease_ttl = "24h"
 }
 
 # Add a loadbalancer record to DNS zone.
 resource "cloudflare_record" "default" {
-  zone_id = data.cloudflare_zone.default.id
   name    = "ci-vault"
-  value   = module.vault.aws_lb_dns_name
   type    = "CNAME"
+  value   = module.vault.aws_lb_dns_name
+  zone_id = data.cloudflare_zone.default.id
 }

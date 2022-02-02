@@ -12,8 +12,8 @@ data "aws_iam_policy_document" "assumerole" {
       "sts:AssumeRole",
     ]
     principals {
-      type        = "Service"
       identifiers = ["ec2.amazonaws.com"]
+      type        = "Service"
     }
   }
 }
@@ -30,9 +30,9 @@ data "aws_iam_policy_document" "join_unseal" {
   }
   statement {
     actions = [
+      "kms:Decrypt",
       "kms:DescribeKey",
       "kms:Encrypt",
-      "kms:Decrypt",
     ]
     resources = [
       aws_kms_key.default.arn
@@ -42,16 +42,16 @@ data "aws_iam_policy_document" "join_unseal" {
 
 # Make a role to allow role assumption.
 resource "aws_iam_role" "default" {
-  name               = var.name
   assume_role_policy = data.aws_iam_policy_document.assumerole.json
+  name               = var.name
   tags               = var.tags
 }
 
 # Link the default role to the join_unseal policy.
 resource "aws_iam_role_policy" "default" {
   name   = "${var.name}-join_unseal"
-  role   = aws_iam_role.default.id
   policy = data.aws_iam_policy_document.join_unseal.json
+  role   = aws_iam_role.default.id
 }
 
 # Make an iam instance profile
@@ -63,6 +63,9 @@ resource "aws_iam_instance_profile" "default" {
 
 # Write user_data.sh.
 resource "local_file" "default" {
+  directory_permission = "0755"
+  file_permission      = "0640"
+  filename             = "${path.module}/user_data.sh"
   content = templatefile("${path.module}/user_data.sh.tpl",
     {
       default_lease_ttl = var.default_lease_ttl
@@ -72,16 +75,13 @@ resource "local_file" "default" {
       name              = var.name
       random_string     = random_string.default.result
       region            = var.region
-      vault_ca_key      = file("tls/vault_ca.pem")
       vault_ca_cert     = file("tls/vault_ca.crt")
+      vault_ca_key      = file("tls/vault_ca.pem")
       vault_path        = var.vault_path
       vault_ui          = var.vault_ui
       vault_version     = var.vault_version
     }
   )
-  filename             = "${path.module}/user_data.sh"
-  file_permission      = "0640"
-  directory_permission = "0755"
 }
 
 # Create a VPC.
@@ -94,8 +94,8 @@ resource "aws_vpc" "default" {
 # Create an internet gateway.
 resource "aws_internet_gateway" "default" {
   count  = var.vpc_id == "" ? 1 : 0
-  vpc_id = local.vpc_id
   tags   = var.tags
+  vpc_id = local.vpc_id
 }
 
 data "aws_internet_gateway" "default" {
@@ -120,18 +120,18 @@ data "aws_route_tables" "default" {
 # Add an internet route to the internet gateway.
 resource "aws_route" "default" {
   count                  = var.vpc_id == "" ? 1 : 0
-  route_table_id         = local.aws_route_table_id
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = local.internet_gateway_id
+  route_table_id         = local.aws_route_table_id
 }
 
 # Create the same amount of subnets as the amount of instances when we create the vpc.
 resource "aws_subnet" "default" {
   count             = var.vpc_id == "" ? min(length(data.aws_availability_zones.default.names), var.amount) : 0
-  vpc_id            = local.vpc_id
-  cidr_block        = "${var.aws_vpc_cidr_block_start}.${count.index}.0/24"
   availability_zone = data.aws_availability_zones.default.names[count.index]
+  cidr_block        = "${var.aws_vpc_cidr_block_start}.${count.index}.0/24"
   tags              = var.tags
+  vpc_id            = local.vpc_id
 }
 
 data "aws_subnet_ids" "default" {
@@ -142,8 +142,8 @@ data "aws_subnet_ids" "default" {
 # Associate the subnet to the routing table.
 resource "aws_route_table_association" "default" {
   count          = var.vpc_id == "" ? min(length(data.aws_availability_zones.default.names), var.amount) : 0
-  subnet_id      = local.aws_subnet_ids[count.index]
   route_table_id = local.aws_route_table_id
+  subnet_id      = local.aws_subnet_ids[count.index]
 }
 
 # Find availability_zones in this region.
@@ -172,87 +172,87 @@ data "aws_ami" "default" {
 # Create a security group for the loadbalancer.
 resource "aws_security_group" "loadbalancer" {
   name   = "${var.name}-loadbalancer"
-  vpc_id = local.vpc_id
   tags   = var.tags
+  vpc_id = local.vpc_id
 }
 
 # Allow the vault API to be accessed from the internet.
 resource "aws_security_group_rule" "loadbalancervaultapi" {
-  description       = "loadbalancer vault api"
-  type              = "ingress"
-  from_port         = 8200
-  to_port           = 8200
-  protocol          = "TCP"
   cidr_blocks       = var.allowed_cidr_blocks
+  description       = "loadbalancer vault api"
+  from_port         = 8200
+  protocol          = "TCP"
   security_group_id = aws_security_group.loadbalancer.id
+  to_port           = 8200
+  type              = "ingress"
 }
 
 # Create a security group for the instances.
 resource "aws_security_group" "default" {
   name   = var.name
-  vpc_id = local.vpc_id
   tags   = var.tags
+  vpc_id = local.vpc_id
 }
 
 # Allow the vault API to be accessed from clients.
 resource "aws_security_group_rule" "vaultapi" {
   description              = "vault api"
-  type                     = "ingress"
   from_port                = 8200
-  to_port                  = 8200
   protocol                 = "TCP"
-  source_security_group_id = aws_security_group.default.id
   security_group_id        = aws_security_group.default.id
+  source_security_group_id = aws_security_group.default.id
+  to_port                  = 8200
+  type                     = "ingress"
 }
 
 resource "aws_security_group_rule" "vaultreplication" {
   description              = "vault replication"
-  type                     = "ingress"
   from_port                = 8201
-  to_port                  = 8201
   protocol                 = "TCP"
-  source_security_group_id = aws_security_group.default.id
   security_group_id        = aws_security_group.default.id
+  source_security_group_id = aws_security_group.default.id
+  to_port                  = 8201
+  type                     = "ingress"
 }
 
 # Allow access from the bastion host.
 resource "aws_security_group_rule" "ssh" {
-  description       = "ssh"
-  type              = "ingress"
-  from_port         = 22
-  to_port           = 22
-  protocol          = "TCP"
   cidr_blocks       = [local.cidr_block]
+  description       = "ssh"
+  from_port         = 22
+  protocol          = "TCP"
   security_group_id = aws_security_group.default.id
+  to_port           = 22
+  type              = "ingress"
 }
 
 # Allow internet from the instances. Required for package installations.
 resource "aws_security_group_rule" "internet" {
+  cidr_blocks       = ["0.0.0.0/0"]
   description       = "internet"
-  protocol          = "-1"
   from_port         = 0
+  protocol          = "-1"
+  security_group_id = aws_security_group.default.id
   to_port           = 0
   type              = "egress"
-  cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = aws_security_group.default.id
 }
 
 # Create a launch template.
 resource "aws_launch_configuration" "default" {
-  name_prefix                 = "${var.name}-"
+  associate_public_ip_address = true
+  iam_instance_profile        = aws_iam_instance_profile.default.name
   image_id                    = data.aws_ami.default.id
   instance_type               = local.instance_type
   key_name                    = try(var.key_id, aws_key_pair.default[0].id)
+  name_prefix                 = "${var.name}-"
   security_groups             = [aws_security_group.default.id]
-  iam_instance_profile        = aws_iam_instance_profile.default.name
-  user_data                   = local_file.default.content
-  associate_public_ip_address = true
   spot_price                  = var.size == "development" ? var.spot_price : null
+  user_data                   = local_file.default.content
   root_block_device {
     encrypted   = false
-    volume_type = local.volume_type
-    volume_size = local.volume_size
     iops        = local.volume_iops
+    volume_size = local.volume_size
+    volume_type = local.volume_type
   }
   lifecycle {
     create_before_destroy = true
@@ -268,8 +268,8 @@ resource "aws_placement_group" "default" {
 
 # Add a load balancer.
 resource "aws_lb" "default" {
-  name               = var.name
   load_balancer_type = "application"
+  name               = var.name
   security_groups    = [aws_security_group.loadbalancer.id, aws_security_group.default.id]
   subnets            = local.aws_subnet_ids
   tags               = var.tags
@@ -280,67 +280,67 @@ resource "aws_lb_target_group" "default" {
   name_prefix = "${var.name}-"
   port        = 8200
   protocol    = "HTTPS"
-  vpc_id      = local.vpc_id
   tags        = var.tags
+  vpc_id      = local.vpc_id
   health_check {
-    protocol = "HTTPS"
-    path     = "/v1/sys/health"
     interval = 5
+    path     = "/v1/sys/health"
+    protocol = "HTTPS"
     timeout  = 2
   }
 }
 
 # Add a listener to the loadbalancer.
 resource "aws_lb_listener" "default" {
+  certificate_arn   = var.certificate_arn
   load_balancer_arn = aws_lb.default.arn
   port              = 8200
   protocol          = "HTTPS"
-  certificate_arn   = var.certificate_arn
   tags              = var.tags
   default_action {
-    type             = "forward"
     target_group_arn = aws_lb_target_group.default.arn
+    type             = "forward"
   }
 }
 
 # Create a random string to make tags more unique.
 resource "random_string" "default" {
   length  = 6
+  number  = false
   special = false
   upper   = false
-  number  = false
 }
 
 # Create an auto scaling group.
 resource "aws_autoscaling_group" "default" {
-  name                  = var.name
   desired_capacity      = var.amount
-  min_size              = var.amount - 1
-  max_size              = var.amount + 1
-  health_check_type     = "EC2"
-  placement_group       = aws_placement_group.default.id
-  max_instance_lifetime = var.max_instance_lifetime
-  vpc_zone_identifier   = tolist(local.aws_subnet_ids)
-  target_group_arns     = [aws_lb_target_group.default.arn]
-  launch_configuration  = aws_launch_configuration.default.name
   enabled_metrics       = ["GroupDesiredCapacity", "GroupInServiceCapacity", "GroupPendingCapacity", "GroupMinSize", "GroupMaxSize", "GroupInServiceInstances", "GroupPendingInstances", "GroupStandbyInstances", "GroupStandbyCapacity", "GroupTerminatingCapacity", "GroupTerminatingInstances", "GroupTotalCapacity", "GroupTotalInstances"]
+  health_check_type     = "EC2"
+  launch_configuration  = aws_launch_configuration.default.name
+  max_instance_lifetime = var.max_instance_lifetime
+  max_size              = var.amount + 1
+  min_size              = var.amount - 1
+  name                  = var.name
+  placement_group       = aws_placement_group.default.id
+  target_group_arns     = [aws_lb_target_group.default.arn]
+  vpc_zone_identifier   = tolist(local.aws_subnet_ids)
   instance_refresh {
     strategy = "Rolling"
     preferences {
-      min_healthy_percentage = 90
       instance_warmup        = 300
+      min_healthy_percentage = 90
     }
-  }
-  tag {
-    key                 = "name"
-    value               = "${var.name}-${random_string.default.result}"
-    propagate_at_launch = true
-  }
-  timeouts {
-    delete = "15m"
   }
   lifecycle {
     create_before_destroy = true
+  }
+  tag {
+    key                 = "name"
+    propagate_at_launch = true
+    value               = "${var.name}-${random_string.default.result}"
+  }
+  timeouts {
+    delete = "15m"
   }
 }
 
@@ -348,45 +348,45 @@ resource "aws_autoscaling_group" "default" {
 resource "aws_security_group" "bastion" {
   count  = var.bastion_host ? 1 : 0
   name   = "${var.name}-bastion"
-  vpc_id = local.vpc_id
   tags   = var.tags
+  vpc_id = local.vpc_id
 }
 
 # Allow SSH to the security group.
 resource "aws_security_group_rule" "bastion-ssh" {
   count             = var.bastion_host ? 1 : 0
-  description       = "ssh"
-  type              = "ingress"
-  from_port         = 22
-  to_port           = 22
-  protocol          = "TCP"
   cidr_blocks       = ["0.0.0.0/0"]
+  description       = "ssh"
+  from_port         = 22
+  protocol          = "TCP"
   security_group_id = aws_security_group.bastion[0].id
+  to_port           = 22
+  type              = "ingress"
 }
 
 # Allow internet access.
 resource "aws_security_group_rule" "bastion-internet" {
   count             = var.bastion_host ? 1 : 0
+  cidr_blocks       = ["0.0.0.0/0"]
   description       = "internet"
-  protocol          = "-1"
   from_port         = 0
+  protocol          = "-1"
+  security_group_id = aws_security_group.bastion[0].id
   to_port           = 0
   type              = "egress"
-  cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = aws_security_group.bastion[0].id
 }
 
 # Create the bastion host.
 resource "aws_instance" "bastion" {
   count                       = var.bastion_host ? 1 : 0
   ami                         = data.aws_ami.default.id
-  subnet_id                   = tolist(local.aws_subnet_ids)[0]
-  instance_type               = "t3.micro"
-  vpc_security_group_ids      = [aws_security_group.bastion[0].id]
-  key_name                    = try(var.key_id, aws_key_pair.default[0].id)
   associate_public_ip_address = true
+  instance_type               = "t3.micro"
+  key_name                    = try(var.key_id, aws_key_pair.default[0].id)
   monitoring                  = true
+  subnet_id                   = tolist(local.aws_subnet_ids)[0]
   tags                        = var.tags
+  vpc_security_group_ids      = [aws_security_group.bastion[0].id]
 }
 
 # Collect the created vault instances.
