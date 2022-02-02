@@ -19,7 +19,6 @@ jobs:
           - name: default
           - name: development
           - name: mykey
-          - name: myvpc # This depends on `examples/myvpc/network`, not deployed in CI.
     steps:
       - name: checkout
         uses: actions/checkout@v2
