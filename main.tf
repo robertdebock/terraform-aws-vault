@@ -153,7 +153,7 @@ data "aws_availability_zones" "default" {
 
 # Place an SSH key.
 resource "aws_key_pair" "default" {
-  count      = var.key_filename != "" ? 1 : 0
+  count      = var.key_filename == "" ? 0 : 1
   key_name   = var.name
   public_key = file(var.key_filename)
   tags       = var.tags
