@@ -26,7 +26,7 @@ module "vault" {
   source          = "../../"
   name            = "myvpc"
   certificate_arn = aws_acm_certificate.default.arn
-  vpc_id          = "vpc-021a68c8b8997fd77"
+  vpc_id          = "vpc-0240f26b38fc7deb2"
   tags = {
     owner = "robertdebock"
   }
