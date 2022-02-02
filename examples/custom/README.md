@@ -19,7 +19,7 @@ test -f id_rsa.pub || ssh-keygen -f id_rsa
 Generate a CA key and certificate.
 
 ```shell
-./vault.tls.sh
+./vault-tls.sh
 ```
 
 ## Deploying
