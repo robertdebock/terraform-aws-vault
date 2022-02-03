@@ -26,6 +26,7 @@ module "vault" {
   certificate_arn = aws_acm_certificate.default.arn
   name            = "vltp"
   source          = "../../"
+  key_filename    = "id_rsa.pub"
   tags = {
     owner = "robertdebock"
   }
