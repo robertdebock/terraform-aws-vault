@@ -243,7 +243,7 @@ resource "aws_launch_configuration" "default" {
   iam_instance_profile        = aws_iam_instance_profile.default.name
   image_id                    = data.aws_ami.default.id
   instance_type               = local.instance_type
-  key_name                    = try(var.key_id, aws_key_pair.default[0].id)
+  key_name                    = local.key_name
   name_prefix                 = "${var.name}-"
   security_groups             = [aws_security_group.default.id]
   spot_price                  = var.size == "development" ? var.spot_price : null
@@ -382,7 +382,7 @@ resource "aws_instance" "bastion" {
   ami                         = data.aws_ami.default.id
   associate_public_ip_address = true
   instance_type               = "t3.micro"
-  key_name                    = try(var.key_id, aws_key_pair.default[0].id)
+  key_name                    = local.key_name
   monitoring                  = true
   subnet_id                   = tolist(local.aws_subnet_ids)[0]
   tags                        = var.tags

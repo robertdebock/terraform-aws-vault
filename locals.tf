@@ -43,6 +43,9 @@ locals {
   }
   volume_iops = local._volume_iops[var.size]
 
+  # Resolve the key, either set using `key_id` or place using `key_filename`.
+  key_name = try(aws_key_pair.default[0].id, var.key_id)
+
   # Form the cidr_block based on a variable.
   cidr_block = "${var.aws_vpc_cidr_block_start}.0.0/16"
 
