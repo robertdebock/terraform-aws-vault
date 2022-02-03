@@ -1,6 +1,6 @@
 # Make a certificate.
 resource "aws_acm_certificate" "default" {
-  domain_name       = "ci-vault.robertdebock.nl"
+  domain_name       = "development.robertdebock.nl"
   # After a deployment, this value (`domain_name`) can't be changed because the certificate is bound to the load balancer listener.
   validation_method = "DNS"
   tags = {
