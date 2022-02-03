@@ -26,6 +26,7 @@ jobs:
         run: |
           cd ./examples/${{ matrix.config.name }}
           ssh-keygen -f id_rsa -q -N ""
+          ./vault-tls.sh
       - name: terraform init
         uses: robertdebock/terraform-action@1.1.2
         with:
