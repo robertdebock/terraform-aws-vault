@@ -1,6 +1,6 @@
 # HashiCorp Vault on AWS
 
-This code spins up an opensource HashiCorp Vault cluster:
+This code spins up an open-source HashiCorp Vault cluster:
 
 - Spread over availability zones.
 - Using automatic unsealing.
@@ -154,3 +154,20 @@ To understand the cost for this service, you can use cost.modules.tf:
 terraform apply
 terraform state pull | curl -s -X POST -H "Content-Type: application/json" -d @- https://cost.modules.tf/
 ```
+Here is a table relating `size` to a monthly price. (Date: Feb 2022)
+
+| Size (`size`) | Monthly price ($) |
+|---------------|-------------------|
+| `custom`      | Varies: 223.34 *  |
+| `development` | 50.98             |
+| `minimum`     | 257.47            |
+| `small`       | 488.59            |
+| `large`       | 950.83            |
+| `maximum`     | 1875.31           |
+
+When `size` is set to `custom`, these parameters determine the price:
+- `volume_iops`
+- `volume_size`
+- `volume_type`
+
+(*) The price for `size = "custom"` in the table above is based on the settings in `examples/custom`.
