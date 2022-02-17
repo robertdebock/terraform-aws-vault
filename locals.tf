@@ -59,6 +59,6 @@ locals {
   aws_route_table_id = try(aws_route_table.default[0].id, data.aws_route_tables.default[0].id)
 
   # Set the `aws_subnet_ids` based on either the resource object or the data object, whichever is set.
-  aws_subnet_ids = coalescelist(aws_subnet.default[*].id, try(tolist(data.aws_subnet_ids.default[0].ids), []))
+  aws_subnet_ids = coalescelist(aws_subnet.default[*].id, try(tolist(data.aws_subnets.default[0].ids), []))
 
 }

@@ -134,9 +134,12 @@ resource "aws_subnet" "default" {
   vpc_id            = local.vpc_id
 }
 
-data "aws_subnet_ids" "default" {
+data "aws_subnets" "default" {
   count  = var.vpc_id == "" ? 0 : 1
-  vpc_id = local.vpc_id
+  filter {
+    name   = "vpc-id"
+    values = [local.vpc_id]
+  }
 }
 
 # Associate the subnet to the routing table.
