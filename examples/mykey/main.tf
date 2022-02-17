@@ -30,7 +30,7 @@ resource "cloudflare_record" "validation" {
 # Call the module.
 module "vault" {
   certificate_arn = aws_acm_certificate.default.arn
-  key_id          = aws_key_pair.default.id
+  key_name        = aws_key_pair.default.id
   name            = "mykey"
   source          = "../../"
   tags = {

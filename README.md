@@ -33,7 +33,8 @@ These variables can be used.
 
 - `name` - default: `"vault"`.
 - `vault_version` - default `"1.8.5"`.
-- `key_filename` - default: `"id_rsa.pub"`.
+- `key_filename` - default: `""`. (Use either `key_filename` or `key_name`.)
+- `key_name` - default: `""`. (Use either `key_filename` or `key_name`.)
 - `region` - default: `"eu-central-1"`.
 - `size` - default: `"small"`.
 - `amount` - default: `3`.

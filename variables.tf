@@ -18,13 +18,13 @@ variable "vault_version" {
   }
 }
 
-variable "key_id" {
-  description = "The identifier of an existing ssh key. Either specify \"key_id\" or \"key_filename\"."
+variable "key_name" {
+  description = "The name of an existing ssh key. Either specify \"key_name\" or \"key_filename\"."
   default     = ""
 }
 
 variable "key_filename" {
-  description = "The name of the file that has the public ssh key stored. Either specify \"key_id\" or \"key_filename\"."
+  description = "The name of the file that has the public ssh key stored. Either specify \"key_name\" or \"key_filename\"."
   default     = ""
 }
 
