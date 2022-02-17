@@ -25,7 +25,7 @@ resource "cloudflare_record" "validation" {
 module "vault" {
   certificate_arn = aws_acm_certificate.default.arn
   key_filename    = "id_rsa.pub"
-  name            = "mysubnet"
+  name            = "mysbt"
   source          = "../../"
   vpc_id          = "vpc-0e408fb19cdf19c29"
   subnet_ids      = ["subnet-057032f1178cad01e", "subnet-0965fe1a3ce6953fc", "subnet-0ae980fe642e14861"]
@@ -36,7 +36,7 @@ module "vault" {
 
 # Add a loadbalancer record to DNS zone.
 resource "cloudflare_record" "default" {
-  name    = "mysubnet"
+  name    = "mysbt"
   type    = "CNAME"
   value   = module.vault.aws_lb_dns_name
   zone_id = data.cloudflare_zone.default.id
