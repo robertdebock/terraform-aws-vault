@@ -28,6 +28,7 @@ module "vault" {
   name            = "myvpc"
   source          = "../../"
   vpc_id          = "vpc-0e408fb19cdf19c29"
+  subnet_ids      = ["subnet-057032f1178cad01e", "subnet-0965fe1a3ce6953fc", "subnet-0ae980fe642e14861"]
   tags = {
     owner = "robertdebock"
   }

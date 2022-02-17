@@ -195,3 +195,9 @@ variable "vault_path" {
     error_message = "Please use an absolute path like \"/my/vault\"."
   }
 }
+
+variable "subnet_ids" {
+  description = "The ids of the subnets to deploy to."
+  type        = list(string)
+  default     = []
+}
