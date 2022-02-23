@@ -2,8 +2,6 @@
 on:
   - push
 
-concurrency: ci-${{ github.ref }}
-
 jobs:
   terraform:
     name: terraform
@@ -23,6 +21,7 @@ jobs:
           - name: mykey
           - name: enterprise
           - name: hsm
+    concurrency: ci-${{ github.ref }}
     steps:
       - name: checkout
         uses: actions/checkout@v2
