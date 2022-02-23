@@ -21,7 +21,9 @@ jobs:
           - name: mykey
           - name: enterprise
           - name: hsm
-    concurrency: ci-${{ github.ref }}
+    concurrency:
+      group: ${{ github.workflow }}
+      cancel-in-progress: true
     steps:
       - name: checkout
         uses: actions/checkout@v2
