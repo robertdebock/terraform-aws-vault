@@ -61,4 +61,11 @@ locals {
   # Set the `aws_subnet_ids` based on either the resource object or the data object, whichever is set.
   aws_subnet_ids = coalescelist(var.subnet_ids, aws_subnet.default[*].id, try(tolist(data.aws_subnets.default[0].ids), []))
 
+  # Compose the package name based on the `vault_type`.
+  _vault_package = {
+    enterprise = "vault-enterprise-${var.vault_version}+ent-1"
+    hsm = "vault-enterprise-hsm-${var.vault_version}+ent-1"
+    opensource = "vault${var.vault_version}"
+  }
+  vault_package = local._vault_package[var.vault_type]
 }

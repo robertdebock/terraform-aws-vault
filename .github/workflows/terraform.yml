@@ -19,6 +19,8 @@ jobs:
           - name: default
           - name: development
           - name: mykey
+          - name: enterprise
+          - name: hsm
     steps:
       - name: checkout
         uses: actions/checkout@v2

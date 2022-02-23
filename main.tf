@@ -65,7 +65,7 @@ resource "aws_iam_instance_profile" "default" {
 resource "local_file" "default" {
   directory_permission = "0755"
   file_permission      = "0640"
-  filename             = "${path.module}/user_data.sh"
+  filename             = "user_data.sh"
   content = templatefile("${path.module}/user_data.sh.tpl",
     {
       default_lease_ttl = var.default_lease_ttl
@@ -80,6 +80,8 @@ resource "local_file" "default" {
       vault_path        = var.vault_path
       vault_ui          = var.vault_ui
       vault_version     = var.vault_version
+      vault_package     = local.vault_package
+      vault_license     = try(var.vault_license, null)
     }
   )
 }
