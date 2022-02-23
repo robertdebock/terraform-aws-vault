@@ -215,9 +215,9 @@ variable "vault_type" {
 variable "vault_license" {
   description = "The contents of the license."
   type        = string
-  default     = null
+  default     = ""
   validation {
-    condition     = length(var.vault_license) == 1201
+    condition     = length(var.vault_license) == 1201 || length(var.vault_license) == 0
     error_message = "The license should contain 1201 characters."
   }
 }
