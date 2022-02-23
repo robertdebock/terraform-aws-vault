@@ -2,6 +2,8 @@
 on:
   - push
 
+concurrency: ci-${{ github.ref }}
+
 jobs:
   terraform:
     name: terraform
