@@ -20,8 +20,6 @@ jobs:
           - name: mykey
           - name: enterprise
           - name: hsm
-    concurrency:
-      group: ci
     steps:
       - name: checkout
         uses: actions/checkout@v2
