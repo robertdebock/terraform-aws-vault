@@ -64,7 +64,6 @@ locals {
   # Compose the package name based on the `vault_type`.
   _vault_package = {
     enterprise = "vault-enterprise-${var.vault_version}+ent-1"
-    hsm = "vault-enterprise-hsm-${var.vault_version}+ent-1"
     opensource = "vault${var.vault_version}"
   }
   vault_package = local._vault_package[var.vault_type]

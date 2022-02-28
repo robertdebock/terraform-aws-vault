@@ -207,8 +207,8 @@ variable "vault_type" {
   type        = string
   default     = "opensource"
   validation {
-    condition     = contains(["enterprise", "hsm", "opensource"], var.vault_type)
-    error_message = "Please use \"enterprise\", \"hsm\" or \"opensource\"."
+    condition     = contains(["enterprise", "opensource"], var.vault_type)
+    error_message = "Please use \"enterprise\" or \"opensource\"."
   }
 }
 
