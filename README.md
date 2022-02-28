@@ -6,7 +6,7 @@ This code spins up a HashiCorp Vault cluster:
 - Using automatic unsealing.
 - Automatically finding other nodes.
 - With a load balancer.
-- A bastion host.
+- An optional bastion host.
 
 ## Overview
 
@@ -33,16 +33,12 @@ These variables can be used.
 
 - `name` - default: `"vault"`.
 - `vault_version` - default `"1.8.5"`.
-- `key_filename` - default: `""`. (Use either `key_filename` or `key_name`.)
-- `key_name` - default: `""`. (Use either `key_filename` or `key_name`.)
 - `region` - default: `"eu-central-1"`.
 - `size` - default: `"small"`.
 - `amount` - default: `3`.
 - `bastion_host` - default: `true`.
-- `aws_vpc_cidr_block_start` - default `"172.16"`.
-- `tags` - default `{owner = "unset"}`.
-- `max_instance_lifetime` - default `86400`. (1 day)
-- `vpc_id` - default `""`.
+
+More variables can be found in [variables.tf](variables.tf).
 
 ## Deployment
 
@@ -157,18 +153,19 @@ terraform state pull | curl -s -X POST -H "Content-Type: application/json" -d @-
 ```
 Here is a table relating `size` to a monthly price. (Date: Feb 2022)
 
-| Size (`size`) | Monthly price ($) |
-|---------------|-------------------|
-| `custom`      | Varies: 223.34 *  |
-| `development` | 50.98             |
-| `minimum`     | 257.47            |
-| `small`       | 488.59            |
-| `large`       | 950.83            |
-| `maximum`     | 1875.31           |
+| Size (`size`) | Monthly price ($) * |
+|---------------|---------------------|
+| `custom`      | Varies: 223.34 **   |
+| `development` | 50.98               |
+| `minimum`     | 257.47              |
+| `small`       | 488.59              |
+| `large`       | 950.83              |
+| `maximum`     | 1875.31             |
 
 When `size` is set to `custom`, these parameters determine the price:
 - `volume_iops`
 - `volume_size`
 - `volume_type`
 
-(*) The price for `size = "custom"` in the table above is based on the settings in `examples/custom`.
+(*) The price depends on the `instance_type`. This table is based on "intel"-like intances. "arm"-like instances may be cheaper.
+(**) The price for `size = "custom"` in the table above is based on the settings in `examples/custom`.
