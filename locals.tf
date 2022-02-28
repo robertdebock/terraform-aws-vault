@@ -70,8 +70,19 @@ locals {
 
   # The instance_type can be of the type "x86_64" or "arm64". This mapping sets the correct pattern to find an ami.
   _ami_pattern = {
-    default = "amzn2-ami-hvm-*-x86_64-ebs"
-    m6g     = "amzn2-ami-hvm-*-arm64-gp2"
+    a1   = "amzn2-ami-hvm-*-arm64-gp2"
+    m4   = "amzn2-ami-hvm-*-x86_64-ebs"
+    m5   = "amzn2-ami-hvm-*-x86_64-ebs"
+    m5a  = "amzn2-ami-hvm-*-x86_64-ebs"
+    m5n  = "amzn2-ami-hvm-*-x86_64-ebs"
+    m5zn = "amzn2-ami-hvm-*-x86_64-ebs"
+    m6g  = "amzn2-ami-hvm-*-arm64-gp2"
+    m6i  = "amzn2-ami-hvm-*-x86_64-ebs"
+    m6a  = "amzn2-ami-hvm-*-x86_64-ebs"
+    t2   = "amzn2-ami-hvm-*-x86_64-ebs"
+    t3   = "amzn2-ami-hvm-*-x86_64-ebs"
+    t3a  = "amzn2-ami-hvm-*-x86_64-ebs"
+    t4g  = "amzn2-ami-hvm-*-arm64-gp2"
   }
-  ami_pattern = local._ami_pattern[try(split(".", var.instance_type)[0], "default")]
+  ami_pattern = local._ami_pattern[split(".", var.instance_type)[0]]
 }
