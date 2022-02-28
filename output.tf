@@ -15,7 +15,7 @@ output "vault_instances" {
 
 output "instructions" {
   description = "How to bootstrap Vault."
-  value = <<EOF
+  value       = <<EOF
   1. Run: ssh ec2-user@${aws_instance.bastion[0].public_ip}
   2. Run: ssh ${flatten(data.aws_instances.default[*].private_ips)[0]}
   3. Run: sudo su -

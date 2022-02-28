@@ -137,7 +137,7 @@ resource "aws_subnet" "default" {
 }
 
 data "aws_subnets" "default" {
-  count  = var.vpc_id == "" ? 0 : 1
+  count = var.vpc_id == "" ? 0 : 1
   filter {
     name   = "vpc-id"
     values = [local.vpc_id]
