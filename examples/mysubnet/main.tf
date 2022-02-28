@@ -27,8 +27,8 @@ module "vault" {
   key_filename    = "id_rsa.pub"
   name            = "mysbt"
   source          = "../../"
-  vpc_id          = "vpc-0e408fb19cdf19c29"
-  subnet_ids      = ["subnet-057032f1178cad01e", "subnet-0965fe1a3ce6953fc", "subnet-0ae980fe642e14861"]
+  vpc_id          = "vpc-0ceae91a773a43365"
+  subnet_ids      = ["subnet-01faa9046b9f58749", "subnet-0af54b5d0832d4f42", "subnet-0f9e5a02098bda2c2"]
   tags = {
     owner = "robertdebock"
   }

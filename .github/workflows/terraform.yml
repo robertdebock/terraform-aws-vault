@@ -19,7 +19,9 @@ jobs:
           - name: development
           - name: enterprise
           - name: graviton
-          # - name: mykey
+          - name: mykey
+          - name: mysubnet
+          - name: myvpc
     steps:
       - name: checkout
         uses: actions/checkout@v2

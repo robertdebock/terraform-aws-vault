@@ -27,7 +27,7 @@ module "vault" {
   key_filename    = "id_rsa.pub"
   name            = "myvpc"
   source          = "../../"
-  vpc_id          = "vpc-0240f26b38fc7deb2"
+  vpc_id          = "vpc-0fca255aad86da9a0"
   tags = {
     owner = "robertdebock"
   }
