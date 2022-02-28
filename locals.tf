@@ -64,7 +64,14 @@ locals {
   # Compose the package name based on the `vault_type`.
   _vault_package = {
     enterprise = "vault-enterprise-${var.vault_version}+ent-1"
-    opensource = "vault${var.vault_version}"
+    opensource = "vault-${var.vault_version}"
   }
   vault_package = local._vault_package[var.vault_type]
+
+  # The instance_type can be of the type "x86_64" or "arm64". This mapping sets the correct pattern to find an ami.
+  _ami_pattern = {
+    default = "amzn2-ami-hvm-*-x86_64-ebs"
+    m6g     = "amzn2-ami-hvm-*-arm64-gp2"
+  }
+  ami_pattern = local._ami_pattern[try(split(".", var.instance_type)[0], "default")]
 }
