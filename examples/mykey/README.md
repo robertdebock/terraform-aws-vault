@@ -1,6 +1,6 @@
-# Default scenario for Vault
+# MyKey scenario for Vault
 
-Spin up a HashiCorp Vault cluster that automatically unseals and members joins based on AWS tags.
+Spin up a HashiCorp Vault cluster that automatically unseals and members joins based on AWS tags with an exising SSH key.
 
 ## Setup
 

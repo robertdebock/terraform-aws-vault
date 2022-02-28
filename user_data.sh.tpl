@@ -8,7 +8,7 @@ yum install -y yum-utils
 yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
 
 # Install a specific version of Vault.
-yum install -y vault-${vault_version}
+yum install -y ${vault_package}
 
 # Allow IPC lock capability to Vault.
 setcap cap_ipc_lock=+ep $(readlink -f $(which vault))
@@ -112,3 +112,8 @@ systemctl --now enable vault
 # Allow users to use `vault`.
 echo "export VAULT_ADDR=https://$${my_ipaddress}:8200" >> /etc/profile.d/vault.sh
 echo "export VAULT_CACERT=${vault_path}/tls/vault_ca.crt" >> /etc/profile.d/vault.sh
+
+# Expose the license.
+if [ ! -z "${vault_license}" ] ; then
+  echo "VAULT_LICENSE=${vault_license}" >> /etc/vault.d/vault.env
+fi

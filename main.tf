@@ -65,7 +65,7 @@ resource "aws_iam_instance_profile" "default" {
 resource "local_file" "default" {
   directory_permission = "0755"
   file_permission      = "0640"
-  filename             = "${path.module}/user_data.sh"
+  filename             = "user_data.sh"
   content = templatefile("${path.module}/user_data.sh.tpl",
     {
       default_lease_ttl = var.default_lease_ttl
@@ -80,6 +80,8 @@ resource "local_file" "default" {
       vault_path        = var.vault_path
       vault_ui          = var.vault_ui
       vault_version     = var.vault_version
+      vault_package     = local.vault_package
+      vault_license     = try(var.vault_license, null)
     }
   )
 }
@@ -135,7 +137,7 @@ resource "aws_subnet" "default" {
 }
 
 data "aws_subnets" "default" {
-  count  = var.vpc_id == "" ? 0 : 1
+  count = var.vpc_id == "" ? 0 : 1
   filter {
     name   = "vpc-id"
     values = [local.vpc_id]
@@ -168,7 +170,7 @@ data "aws_ami" "default" {
   owners      = ["amazon"]
   filter {
     name   = "name"
-    values = ["amzn2-ami-hvm-*-x86_64-ebs"]
+    values = [local.ami_pattern]
   }
 }
 
@@ -379,10 +381,20 @@ resource "aws_security_group_rule" "bastion-internet" {
   type              = "egress"
 }
 
+# Find amis.
+data "aws_ami" "bastion" {
+  most_recent = true
+  owners      = ["amazon"]
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm-*-x86_64-ebs"]
+  }
+}
+
 # Create the bastion host.
 resource "aws_instance" "bastion" {
   count                       = var.bastion_host ? 1 : 0
-  ami                         = data.aws_ami.default.id
+  ami                         = data.aws_ami.bastion.id
   associate_public_ip_address = true
   instance_type               = "t3.micro"
   key_name                    = local.key_name

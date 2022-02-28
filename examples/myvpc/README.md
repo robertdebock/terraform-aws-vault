@@ -1,6 +1,13 @@
-# Default scenario for Vault
+# MyVPC scenario for Vault
 
 Spin up a HashiCorp Vault cluster that automatically unseals and members joins based on AWS tags.
+
+This cluster spins up in a pre-defined VPC. To test this scenario, the extra resources needs to be created:
+
+```shell
+cd network
+terraform apply
+```
 
 ## Setup
 

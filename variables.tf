@@ -201,3 +201,23 @@ variable "subnet_ids" {
   type        = list(string)
   default     = []
 }
+
+variable "vault_type" {
+  description = "The type of installation to do, either \"enterprise\" or \"opensource\"."
+  type        = string
+  default     = "opensource"
+  validation {
+    condition     = contains(["enterprise", "opensource"], var.vault_type)
+    error_message = "Please use \"enterprise\" or \"opensource\"."
+  }
+}
+
+variable "vault_license" {
+  description = "The contents of the license."
+  type        = string
+  default     = ""
+  validation {
+    condition     = length(var.vault_license) == 1201 || length(var.vault_license) == 0
+    error_message = "The license should contain 1201 characters."
+  }
+}

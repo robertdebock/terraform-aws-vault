@@ -1,6 +1,6 @@
 # Make a certificate.
 resource "aws_acm_certificate" "default" {
-  domain_name = "mysubnet.robertdebock.nl"
+  domain_name = "grvtn.robertdebock.nl"
   # After a deployment, this value (`domain_name`) can't be changed because the certificate is bound to the load balancer listener.
   validation_method = "DNS"
   tags = {
@@ -24,11 +24,15 @@ resource "cloudflare_record" "validation" {
 # Call the module.
 module "vault" {
   certificate_arn = aws_acm_certificate.default.arn
+  instance_type   = "m6g.large"
   key_filename    = "id_rsa.pub"
-  name            = "mysbt"
+  name            = "grvtn"
+  size            = "custom"
   source          = "../../"
-  vpc_id          = "vpc-0ceae91a773a43365"
-  subnet_ids      = ["subnet-01faa9046b9f58749", "subnet-0af54b5d0832d4f42", "subnet-0f9e5a02098bda2c2"]
+  vault_ui        = true
+  volume_iops     = "3200"
+  volume_size     = "64"
+  volume_type     = "io1"
   tags = {
     owner = "robertdebock"
   }
@@ -36,7 +40,7 @@ module "vault" {
 
 # Add a loadbalancer record to DNS zone.
 resource "cloudflare_record" "default" {
-  name    = "mysbt"
+  name    = "graviton"
   type    = "CNAME"
   value   = module.vault.aws_lb_dns_name
   zone_id = data.cloudflare_zone.default.id

@@ -1,6 +1,6 @@
-# Development scenario for Vault
+# Graviton scenario for Vault
 
-Spin up a HashiCorp Vault cluster that automatically unseals and members joins based on AWS tags on spot instances. Cheap for development, not for production.
+Spin up a HashiCorp Vault cluster that automatically unseals and members joins based on AWS tags on a Graviton instance.
 
 ## Setup
 
@@ -36,7 +36,7 @@ You can write "random" data to Vault.
 vault secrets enable -version=2 kv
 
 while [ 1 ] ; do
-  randomness=$(curl --insecure --header "X-Vault-Token: $(cat ~/.vault-token)" --request POST --data "format=hex" ${VAULT_ADDR}/v1/sys/tools/random/164 > /dev/null 2>&1)
+  randomness=$(curl --insecure --header "X-Vault-Token: $(cat ~/.vault-token)" --request POST --data "format=hex" ${VAULT_ADDR}/v1/sys/tools/random/164)
   vault kv put kv/my-$((1 + $RANDOM % 1042)) my-key=${randomness}
 done
 ```

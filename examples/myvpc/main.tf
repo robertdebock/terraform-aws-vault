@@ -1,6 +1,6 @@
 # Make a certificate.
 resource "aws_acm_certificate" "default" {
-  domain_name       = "myvpc.robertdebock.nl"
+  domain_name = "myvpc.robertdebock.nl"
   # After a deployment, this value (`domain_name`) can't be changed because the certificate is bound to the load balancer listener.
   validation_method = "DNS"
   tags = {
@@ -27,7 +27,7 @@ module "vault" {
   key_filename    = "id_rsa.pub"
   name            = "myvpc"
   source          = "../../"
-  vpc_id          = "vpc-0240f26b38fc7deb2"
+  vpc_id          = "vpc-0fca255aad86da9a0"
   tags = {
     owner = "robertdebock"
   }
