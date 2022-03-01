@@ -106,14 +106,14 @@ seal "awskms" {
 }
 EOF
 
+# Expose the license.
+if [ ! -z "${vault_license}" ] ; then
+  echo "VAULT_LICENSE=${vault_license}" >> /etc/vault.d/vault.env
+fi
+
 # Start and enable Vault.
 systemctl --now enable vault
 
 # Allow users to use `vault`.
 echo "export VAULT_ADDR=https://$${my_ipaddress}:8200" >> /etc/profile.d/vault.sh
 echo "export VAULT_CACERT=${vault_path}/tls/vault_ca.crt" >> /etc/profile.d/vault.sh
-
-# Expose the license.
-if [ ! -z "${vault_license}" ] ; then
-  echo "VAULT_LICENSE=${vault_license}" >> /etc/vault.d/vault.env
-fi
