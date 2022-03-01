@@ -153,19 +153,20 @@ terraform state pull | curl -s -X POST -H "Content-Type: application/json" -d @-
 ```
 Here is a table relating `size` to a monthly price. (Date: Feb 2022)
 
-| Size (`size`) | Monthly price ($) * |
-|---------------|---------------------|
-| `custom`      | Varies: 223.34 **   |
-| `development` | 50.98               |
-| `minimum`     | 257.47              |
-| `small`       | 488.59              |
-| `large`       | 950.83              |
-| `maximum`     | 1875.31             |
+| Size (`size`) | Monthly price x86_64 ($) | Monthly price arm64 ($) |
+|---------------|--------------------------|-------------------------|
+| `custom`      | Varies: 223.34 *        | Varies: +- 193.00 **     |
+| `development` | 50.98                    | `size` != `custom` ***  |
+| `minimum`     | 257.47                   | `size` != `custom` ***  |
+| **`small`**   | 488.59                   | `size` != `custom` ***  |
+| `large`       | 950.83                   | `size` != `custom` ***  |
+| `maximum`     | 1875.31                  | `size` != `custom` ***  |
 
 When `size` is set to `custom`, these parameters determine the price:
 - `volume_iops`
 - `volume_size`
 - `volume_type`
 
-(*) The price depends on the `instance_type`. This table is based on "intel"-like intances. "arm"-like instances may be cheaper.
-(**) The price for `size = "custom"` in the table above is based on the settings in `examples/custom`.
+(*) The price for `size = "custom"` in the table above is based on the settings in `examples/custom`.
+(**) The [cost analysis tool](https://cost.modules.tf/) does not support Graviton, so the price was analysed manually.
+(***) The Graviton types can only be used when `size` is set to `custom`.
