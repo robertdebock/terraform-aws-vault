@@ -29,10 +29,6 @@ module "vault" {
   name            = "grvtn"
   size            = "custom"
   source          = "../../"
-  vault_ui        = true
-  volume_iops     = "3200"
-  volume_size     = "64"
-  volume_type     = "io1"
   tags = {
     owner = "robertdebock"
   }
