@@ -138,6 +138,7 @@ resource "aws_subnet" "default" {
   vpc_id            = local.vpc_id
 }
 
+# Find subnets if the vpc was specified.
 data "aws_subnets" "default" {
   count = var.vpc_id == "" ? 0 : 1
   filter {
@@ -177,62 +178,63 @@ data "aws_ami" "default" {
 }
 
 # Create a security group for the loadbalancer.
-resource "aws_security_group" "loadbalancer" {
-  name   = "${var.name}-loadbalancer"
+resource "aws_security_group" "public" {
+  name   = "${var.name}-public"
   tags   = var.tags
   vpc_id = local.vpc_id
 }
 
 # Allow the vault API to be accessed from the internet.
-resource "aws_security_group_rule" "loadbalancervaultapi" {
+resource "aws_security_group_rule" "api_public" {
   cidr_blocks       = var.allowed_cidr_blocks
-  description       = "loadbalancer vault api"
+  description       = "Vault API"
   from_port         = 8200
   protocol          = "TCP"
-  security_group_id = aws_security_group.loadbalancer.id
+  security_group_id = aws_security_group.public.id
   to_port           = 8200
   type              = "ingress"
 }
 
-# Allow vault replication traffic.
-resource "aws_security_group_rule" "loadbalancervaultreplication" {
-  count             = var.vault_type == "enterprise" ? 0 : 1
-  cidr_blocks       = var.allowed_cidr_blocks_replication
-  description       = "loadbalancer vault replication"
-  from_port         = 8201
-  protocol          = "TCP"
-  security_group_id = aws_security_group.loadbalancer.id
-  to_port           = 8201
-  type              = "ingress"
-}
-
 # Create a security group for the instances.
-resource "aws_security_group" "default" {
-  name   = var.name
+resource "aws_security_group" "private" {
+  name   = "${var.name}-private"
   tags   = var.tags
   vpc_id = local.vpc_id
 }
 
 # Allow the Vault API to be accessed from clients.
-resource "aws_security_group_rule" "vaultapi" {
+resource "aws_security_group_rule" "api_private" {
   description              = "vault api"
   from_port                = 8200
   protocol                 = "TCP"
-  security_group_id        = aws_security_group.default.id
-  source_security_group_id = aws_security_group.default.id
+  security_group_id        = aws_security_group.private.id
+  source_security_group_id = aws_security_group.private.id
   to_port                  = 8200
   type                     = "ingress"
 }
 
-## Allow the Vault raft for HA communication.
-resource "aws_security_group_rule" "vaultreplication" {
-  description              = "vault replication"
+# Allow instances to use Raft.
+resource "aws_security_group_rule" "raft" {
+  description              = "server to server"
   from_port                = 8201
   protocol                 = "TCP"
-  security_group_id        = aws_security_group.default.id
-  source_security_group_id = aws_security_group.default.id
+  security_group_id        = aws_security_group.private.id
+  source_security_group_id = aws_security_group.private.id
   to_port                  = 8201
   type                     = "ingress"
+}
+
+# TODO: fix "Error: [WARN] A duplicate Security Group rule was found on (sg-06eef62a4be10d264)."
+# Allow other clusters to use Raft. (Required for "DR" and "PR", both enterprise features.)
+resource "aws_security_group_rule" "clustertocluster" {
+  count             = var.vault_type == "enterprise" ? 1 : 0
+  cidr_blocks       = var.allowed_cidr_blocks_replication
+  description       = "Vault Raft"
+  from_port         = 8201
+  protocol          = "TCP"
+  security_group_id = aws_security_group.public.id
+  to_port           = 8201
+  type              = "ingress"
 }
 
 # Allow access from the bastion host.
@@ -241,7 +243,7 @@ resource "aws_security_group_rule" "ssh" {
   description       = "ssh"
   from_port         = 22
   protocol          = "TCP"
-  security_group_id = aws_security_group.default.id
+  security_group_id = aws_security_group.private.id
   to_port           = 22
   type              = "ingress"
 }
@@ -252,7 +254,7 @@ resource "aws_security_group_rule" "internet" {
   description       = "internet"
   from_port         = 0
   protocol          = "-1"
-  security_group_id = aws_security_group.default.id
+  security_group_id = aws_security_group.private.id
   to_port           = 0
   type              = "egress"
 }
@@ -265,7 +267,7 @@ resource "aws_launch_configuration" "default" {
   instance_type               = local.instance_type
   key_name                    = local.key_name
   name_prefix                 = "${var.name}-"
-  security_groups             = [aws_security_group.default.id]
+  security_groups             = [aws_security_group.private.id, aws_security_group.public.id]
   spot_price                  = var.size == "development" ? var.spot_price : null
   user_data                   = local_file.default.content
   root_block_device {
@@ -290,7 +292,7 @@ resource "aws_placement_group" "default" {
 resource "aws_lb" "api" {
   load_balancer_type = "application"
   name               = "${var.name}-api"
-  security_groups    = [aws_security_group.loadbalancer.id, aws_security_group.default.id]
+  security_groups    = [aws_security_group.public.id, aws_security_group.private.id]
   subnets            = local.aws_subnet_ids
   tags               = var.tags
 }
