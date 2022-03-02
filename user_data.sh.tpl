@@ -72,11 +72,20 @@ cat ${vault_path}/tls/vault_ca.crt >> ${vault_path}/tls/vault.crt
 # The TLS material is owned by Vault.
 chown vault:vault ${vault_path}/tls/*
 
+# Deterine the cluster_addr
+if [ -z "${cluster_addr}" ] ; then
+  echo "Setting the cluster_addr to https://$${my_hostname}:8201"
+  cluster_addr="https://$${my_ipaddress}:8201"
+else
+  echo "Using cluster_addr ${cluster_addr}"
+  cluster_addr="${cluster_addr}"
+fi
+
 # Place the Vault configuration.
 cat << EOF > /etc/vault.d/vault.hcl
 ui                = ${vault_ui}
 api_addr          = "${api_addr}"
-cluster_addr      = "${cluster_addr}"
+cluster_addr      = "$${cluster_addr}"
 log_level         = "${log_level}"
 max_lease_ttl     = "${max_lease_ttl}"
 default_lease_ttl = "${default_lease_ttl}"
@@ -85,7 +94,7 @@ storage "raft" {
   path    = "${vault_path}/data"
   node_id = "$${my_hostname}"
   retry_join {
-    auto_join               = "provider=aws tag_key=name tag_value=${name}-${random_string} region=${region}"
+    auto_join               = "provider=aws tag_key=name tag_value=${name}-${random_string} addr_type=private_v4 region=${region}"
     auto_join_scheme        = "https"
     leader_ca_cert_file     = "${vault_path}/tls/vault_ca.crt"
     leader_client_cert_file = "${vault_path}/tls/vault.crt"

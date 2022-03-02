@@ -69,9 +69,7 @@ resource "local_file" "default" {
   content = templatefile("${path.module}/user_data.sh.tpl",
     {
       api_addr          = coalesce(var.api_addr, "https://${aws_lb.api.dns_name}:8200")
-      # TODO: The cluster_address is not required for "opensource" and will give an issue.
-      # So; some conditional must be built in.
-      cluster_addr      = coalesce(var.cluster_addr, "https://${aws_lb.replication[0].dns_name}:8201")
+      cluster_addr      = try(var.cluster_addr, null)
       default_lease_ttl = var.default_lease_ttl
       kms_key_id        = aws_kms_key.default.id
       log_level         = var.log_level
@@ -196,6 +194,18 @@ resource "aws_security_group_rule" "loadbalancervaultapi" {
   type              = "ingress"
 }
 
+# Allow vault replication traffic.
+resource "aws_security_group_rule" "loadbalancervaultreplication" {
+  count             = var.vault_type == "enterprise" ? 0 : 1
+  cidr_blocks       = var.allowed_cidr_blocks_replication
+  description       = "loadbalancer vault replication"
+  from_port         = 8201
+  protocol          = "TCP"
+  security_group_id = aws_security_group.loadbalancer.id
+  to_port           = 8201
+  type              = "ingress"
+}
+
 # Create a security group for the instances.
 resource "aws_security_group" "default" {
   name   = var.name
@@ -214,16 +224,15 @@ resource "aws_security_group_rule" "vaultapi" {
   type                     = "ingress"
 }
 
-## Allow the Vault replication port to be accessed from selected cidr_blocks.
-resource "aws_security_group_rule" "replication" {
-  count             = var.vault_type == "enterprise" ? 0 : 1
-  cidr_blocks       = var.allowed_cidr_blocks_replication
-  description       = "Vault replication"
-  from_port         = 8201
-  protocol          = "TCP"
-  security_group_id = aws_security_group.default.id
-  to_port           = 8201
-  type              = "ingress"
+## Allow the Vault raft for HA communication.
+resource "aws_security_group_rule" "vaultreplication" {
+  description              = "vault replication"
+  from_port                = 8201
+  protocol                 = "TCP"
+  security_group_id        = aws_security_group.default.id
+  source_security_group_id = aws_security_group.default.id
+  to_port                  = 8201
+  type                     = "ingress"
 }
 
 # Allow access from the bastion host.
