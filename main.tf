@@ -212,14 +212,15 @@ resource "aws_security_group_rule" "vaultapi" {
   type                     = "ingress"
 }
 
-resource "aws_security_group_rule" "vaultreplication" {
-  description              = "vault replication"
-  from_port                = 8201
-  protocol                 = "TCP"
-  security_group_id        = aws_security_group.default.id
-  source_security_group_id = aws_security_group.default.id
-  to_port                  = 8201
-  type                     = "ingress"
+resource "aws_security_group_rule" "replication" {
+  count             = var.key_filename == "" ? 0 : 1
+  cidr_blocks       = var.allowed_cidr_blocks_replication
+  description       = "Vault replication"
+  from_port         = 8201
+  protocol          = "TCP"
+  security_group_id = aws_security_group.default.id
+  to_port           = 8201
+  type              = "ingress"
 }
 
 # Allow access from the bastion host.
@@ -282,8 +283,8 @@ resource "aws_lb" "default" {
   tags               = var.tags
 }
 
-# Create a load balancer target group.
-resource "aws_lb_target_group" "default" {
+# Create a load balancer target group for the API/UI.
+resource "aws_lb_target_group" "api" {
   name_prefix = "${var.name}-"
   port        = 8200
   protocol    = "HTTPS"
@@ -297,15 +298,43 @@ resource "aws_lb_target_group" "default" {
   }
 }
 
-# Add a listener to the loadbalancer.
-resource "aws_lb_listener" "default" {
+# Create a load balancer target group.
+resource "aws_lb_target_group" "replication" {
+  name_prefix = "${var.name}-"
+  port        = 8201
+  protocol    = "HTTPS"
+  tags        = var.tags
+  vpc_id      = local.vpc_id
+  health_check {
+    interval = 5
+    path     = "/v1/sys/health?standbyok=true&perfstandbyok=true&drsecondarycode=200"
+    protocol = "HTTPS"
+    timeout  = 2
+  }
+}
+
+# Add a API listener to the loadbalancer.
+resource "aws_lb_listener" "api" {
   certificate_arn   = var.certificate_arn
   load_balancer_arn = aws_lb.default.arn
   port              = 8200
   protocol          = "HTTPS"
   tags              = var.tags
   default_action {
-    target_group_arn = aws_lb_target_group.default.arn
+    target_group_arn = aws_lb_target_group.api.arn
+    type             = "forward"
+  }
+}
+
+# Add a replication listener to the loadbalancer.
+resource "aws_lb_listener" "replication" {
+  certificate_arn   = var.certificate_arn
+  load_balancer_arn = aws_lb.default.arn
+  port              = 8201
+  protocol          = "HTTPS"
+  tags              = var.tags
+  default_action {
+    target_group_arn = aws_lb_target_group.replication.arn
     type             = "forward"
   }
 }
@@ -329,7 +358,7 @@ resource "aws_autoscaling_group" "default" {
   min_size              = var.amount - 1
   name                  = var.name
   placement_group       = aws_placement_group.default.id
-  target_group_arns     = [aws_lb_target_group.default.arn]
+  target_group_arns     = [aws_lb_target_group.api.arn, aws_lb_target_group.replication.arn]
   vpc_zone_identifier   = tolist(local.aws_subnet_ids)
   instance_refresh {
     strategy = "Rolling"

@@ -241,3 +241,9 @@ variable "cluster_addr" {
     error_message = "Please use a URL like: \"https://vault.example.com:8201\"."
   }
 }
+
+variable "allowed_cidr_blocks_replication" {
+  description = "What CIDR blocks are allowed to replicate."
+  type        = list(string)
+  default     = []
+}

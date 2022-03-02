@@ -73,7 +73,7 @@ cat ${vault_path}/tls/vault_ca.crt >> ${vault_path}/tls/vault.crt
 chown vault:vault ${vault_path}/tls/*
 
 if [ -z "${cluster_addr}" ] ; then
-  cluster_addr="https://$${my_ipaddress}:8201"
+  cluster_addr="https://$${my_hostname}:8201"
 else
   cluster_addr="${cluster_addr}"
 fi
@@ -101,6 +101,7 @@ storage "raft" {
 
 listener "tcp" {
   address            = "$${my_ipaddress}:8200"
+  cluster_address    = "$${my_ipaddress}:8201"
   tls_key_file       = "${vault_path}/tls/vault.pem"
   tls_cert_file      = "${vault_path}/tls/vault.crt"
   tls_client_ca_file = "${vault_path}/tls/vault_ca.crt"
