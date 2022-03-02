@@ -76,7 +76,7 @@ chown vault:vault ${vault_path}/tls/*
 cat << EOF > /etc/vault.d/vault.hcl
 ui                = ${vault_ui}
 api_addr          = "${api_addr}"
-cluster_addr      = "$${cluster_addr}"
+cluster_addr      = "${cluster_addr}"
 log_level         = "${log_level}"
 max_lease_ttl     = "${max_lease_ttl}"
 default_lease_ttl = "${default_lease_ttl}"
