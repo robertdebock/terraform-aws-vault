@@ -69,7 +69,7 @@ resource "local_file" "default" {
   content = templatefile("${path.module}/user_data.sh.tpl",
     {
       api_addr          = coalesce(var.api_addr, "https://${aws_lb.api.dns_name}:8200")
-      cluster_addr      = coalesce(var.cluster_addr, "https://${aws_lb.replication[0].dns_name}:8200")
+      cluster_addr      = coalesce(var.cluster_addr, "https://${aws_lb.replication[0].dns_name}:8201")
       default_lease_ttl = var.default_lease_ttl
       kms_key_id        = aws_kms_key.default.id
       log_level         = var.log_level
@@ -213,7 +213,7 @@ resource "aws_security_group_rule" "vaultapi" {
 }
 
 resource "aws_security_group_rule" "replication" {
-  count             = var.key_filename == "" ? 0 : 1
+  count             = var.vault_type == "enterprise" ? 0 : 1
   cidr_blocks       = var.allowed_cidr_blocks_replication
   description       = "Vault replication"
   from_port         = 8201
