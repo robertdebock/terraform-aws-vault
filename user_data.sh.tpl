@@ -72,12 +72,6 @@ cat ${vault_path}/tls/vault_ca.crt >> ${vault_path}/tls/vault.crt
 # The TLS material is owned by Vault.
 chown vault:vault ${vault_path}/tls/*
 
-if [ -z "${cluster_addr}" ] ; then
-  cluster_addr="https://$${my_hostname}:8201"
-else
-  cluster_addr="${cluster_addr}"
-fi
-
 # Place the Vault configuration.
 cat << EOF > /etc/vault.d/vault.hcl
 ui                = ${vault_ui}

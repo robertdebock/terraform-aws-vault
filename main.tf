@@ -68,8 +68,8 @@ resource "local_file" "default" {
   filename             = "user_data.sh"
   content = templatefile("${path.module}/user_data.sh.tpl",
     {
-      api_addr          = coalesce(var.api_addr, "https://${aws_lb.default.dns_name}:8200")
-      cluster_addr      = try(var.cluster_addr, null)
+      api_addr          = coalesce(var.api_addr, "https://${aws_lb.api.dns_name}:8200")
+      cluster_addr      = coalesce(var.cluster_addr, "https://${aws_lb.replication.dns_name}:8200")
       default_lease_ttl = var.default_lease_ttl
       kms_key_id        = aws_kms_key.default.id
       log_level         = var.log_level
@@ -274,14 +274,23 @@ resource "aws_placement_group" "default" {
   tags     = var.tags
 }
 
-# Add a load balancer.
-resource "aws_lb" "default" {
+# Add a load balancer for the API/UI.
+resource "aws_lb" "api" {
   load_balancer_type = "application"
-  name               = var.name
+  name               = "${var.name}-api"
   security_groups    = [aws_security_group.loadbalancer.id, aws_security_group.default.id]
   subnets            = local.aws_subnet_ids
   tags               = var.tags
 }
+
+# Add a load balancer for replication.
+resource "aws_lb" "replication" {
+  load_balancer_type = "network"
+  name               = "${var.name}-replication"
+  subnets            = local.aws_subnet_ids
+  tags               = var.tags
+}
+
 
 # Create a load balancer target group for the API/UI.
 resource "aws_lb_target_group" "api" {
@@ -302,22 +311,22 @@ resource "aws_lb_target_group" "api" {
 resource "aws_lb_target_group" "replication" {
   name_prefix = "${var.name}-"
   port        = 8201
-  protocol    = "HTTPS"
+  protocol    = "TCP"
   tags        = var.tags
   vpc_id      = local.vpc_id
   health_check {
-    interval = 5
-    path     = "/v1/sys/health?standbyok=true&perfstandbyok=true&drsecondarycode=200"
+    # interval = 10
+    # path     = "/v1/sys/health?standbyok=true&perfstandbyok=true&drsecondarycode=200"
     port     = 8200
-    protocol = "HTTPS"
-    timeout  = 2
+    # protocol = "HTTPS"
+    # timeout  = 2
   }
 }
 
 # Add a API listener to the loadbalancer.
 resource "aws_lb_listener" "api" {
   certificate_arn   = var.certificate_arn
-  load_balancer_arn = aws_lb.default.arn
+  load_balancer_arn = aws_lb.api.arn
   port              = 8200
   protocol          = "HTTPS"
   tags              = var.tags
@@ -329,10 +338,9 @@ resource "aws_lb_listener" "api" {
 
 # Add a replication listener to the loadbalancer.
 resource "aws_lb_listener" "replication" {
-  certificate_arn   = var.certificate_arn
-  load_balancer_arn = aws_lb.default.arn
+  load_balancer_arn = aws_lb.replication.arn
   port              = 8201
-  protocol          = "HTTPS"
+  protocol          = "TCP"
   tags              = var.tags
   default_action {
     target_group_arn = aws_lb_target_group.replication.arn
