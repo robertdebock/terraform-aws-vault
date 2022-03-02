@@ -24,8 +24,3 @@ output "instructions" {
   6. Run: vault operator raft autopilot set-config -min-quorum=${var.amount} -cleanup-dead-servers=true -dead-server-last-contact-threshold=120
 EOF
 }
-
-output "vault_url" {
-  description = "The URL how to access Vault."
-  value       = try(var.api_addr, "https://${aws_lb.default.dns_name}:8200")
-}
