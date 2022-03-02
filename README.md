@@ -29,6 +29,8 @@ This code spins up a HashiCorp Vault cluster:
                                      +----------------------------+
 ```
 
+Details on the [network setup](NETWORK.MD)
+
 These variables can be used.
 
 - `name` - default: `"vault"`.
