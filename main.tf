@@ -377,7 +377,7 @@ resource "aws_autoscaling_group" "default" {
   min_size              = var.amount - 1
   name                  = var.name
   placement_group       = aws_placement_group.default.id
-  target_group_arns     = [aws_lb_target_group.api.arn, aws_lb_target_group.replication[0].arn]
+  target_group_arns     = compact([aws_lb_target_group.api.arn, try(aws_lb_target_group.replication[0].arn, null)])
   vpc_zone_identifier   = tolist(local.aws_subnet_ids)
   instance_refresh {
     strategy = "Rolling"
