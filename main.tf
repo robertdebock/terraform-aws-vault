@@ -68,6 +68,8 @@ resource "local_file" "default" {
   filename             = "user_data.sh"
   content = templatefile("${path.module}/user_data.sh.tpl",
     {
+      api_addr          = coalesce(var.api_addr, "https://${aws_lb.default.dns_name}:8200")
+      cluster_addr      = try(var.cluster_addr, null)
       default_lease_ttl = var.default_lease_ttl
       kms_key_id        = aws_kms_key.default.id
       log_level         = var.log_level

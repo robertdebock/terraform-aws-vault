@@ -23,6 +23,7 @@ resource "cloudflare_record" "validation" {
 
 # Call the module.
 module "vault" {
+  api_addr        = "https://custom.robertdebock.nl:8200"
   certificate_arn = aws_acm_certificate.default.arn
   instance_type   = "t3.large"
   key_filename    = "id_rsa.pub"

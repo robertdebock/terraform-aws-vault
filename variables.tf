@@ -221,3 +221,23 @@ variable "vault_license" {
     error_message = "The license should contain 1201 characters."
   }
 }
+
+variable "api_addr" {
+  description = "The URL for the Vault API to advertise."
+  type        = string
+  default     = ""
+  validation {
+    condition     = can(regex("^http", var.api_addr)) || length(var.api_addr) == 0
+    error_message = "Please use a URL like: \"https://vault.example.com:8200\"."
+  }
+}
+
+variable "cluster_addr" {
+  description = "The URL to advertise to other Vault servers in the cluster."
+  type        = string
+  default     = ""
+  validation {
+    condition     = can(regex("^http", var.cluster_addr)) || length(var.cluster_addr) == 0
+    error_message = "Please use a URL like: \"https://vault.example.com:8201\"."
+  }
+}

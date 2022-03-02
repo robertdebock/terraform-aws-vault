@@ -72,11 +72,17 @@ cat ${vault_path}/tls/vault_ca.crt >> ${vault_path}/tls/vault.crt
 # The TLS material is owned by Vault.
 chown vault:vault ${vault_path}/tls/*
 
+if [ -z "${cluster_addr}" ] ; then
+  cluster_addr="https://$${my_ipaddress}:8201"
+else
+  cluster_addr="${cluster_addr}"
+fi
+
 # Place the Vault configuration.
 cat << EOF > /etc/vault.d/vault.hcl
 ui                = ${vault_ui}
-cluster_addr      = "https://$${my_ipaddress}:8201"
-api_addr          = "https://$${my_ipaddress}:8200"
+api_addr          = "${api_addr}"
+cluster_addr      = "$${cluster_addr}"
 log_level         = "${log_level}"
 max_lease_ttl     = "${max_lease_ttl}"
 default_lease_ttl = "${default_lease_ttl}"
