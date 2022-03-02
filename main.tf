@@ -69,7 +69,7 @@ resource "local_file" "default" {
   content = templatefile("${path.module}/user_data.sh.tpl",
     {
       api_addr          = coalesce(var.api_addr, "https://${aws_lb.api.dns_name}:8200")
-      cluster_addr      = coalesce(var.cluster_addr, "https://${aws_lb.replication.dns_name}:8200")
+      cluster_addr      = coalesce(var.cluster_addr, "https://${aws_lb.replication[0].dns_name}:8200")
       default_lease_ttl = var.default_lease_ttl
       kms_key_id        = aws_kms_key.default.id
       log_level         = var.log_level
@@ -285,6 +285,7 @@ resource "aws_lb" "api" {
 
 # Add a load balancer for replication.
 resource "aws_lb" "replication" {
+  count              = var.vault_type == "enterprise" ? 1 : 0
   load_balancer_type = "network"
   name               = "${var.name}-replication"
   subnets            = local.aws_subnet_ids
@@ -309,17 +310,14 @@ resource "aws_lb_target_group" "api" {
 
 # Create a load balancer target group.
 resource "aws_lb_target_group" "replication" {
+  count              = var.vault_type == "enterprise" ? 1 : 0
   name_prefix = "${var.name}-"
   port        = 8201
   protocol    = "TCP"
   tags        = var.tags
   vpc_id      = local.vpc_id
   health_check {
-    # interval = 10
-    # path     = "/v1/sys/health?standbyok=true&perfstandbyok=true&drsecondarycode=200"
     port     = 8200
-    # protocol = "HTTPS"
-    # timeout  = 2
   }
 }
 
@@ -338,12 +336,13 @@ resource "aws_lb_listener" "api" {
 
 # Add a replication listener to the loadbalancer.
 resource "aws_lb_listener" "replication" {
-  load_balancer_arn = aws_lb.replication.arn
+  count              = var.vault_type == "enterprise" ? 1 : 0
+  load_balancer_arn = aws_lb.replication[0].arn
   port              = 8201
   protocol          = "TCP"
   tags              = var.tags
   default_action {
-    target_group_arn = aws_lb_target_group.replication.arn
+    target_group_arn = aws_lb_target_group.replication[0].arn
     type             = "forward"
   }
 }
@@ -367,7 +366,7 @@ resource "aws_autoscaling_group" "default" {
   min_size              = var.amount - 1
   name                  = var.name
   placement_group       = aws_placement_group.default.id
-  target_group_arns     = [aws_lb_target_group.api.arn, aws_lb_target_group.replication.arn]
+  target_group_arns     = [aws_lb_target_group.api.arn, aws_lb_target_group.replication[0].arn]
   vpc_zone_identifier   = tolist(local.aws_subnet_ids)
   instance_refresh {
     strategy = "Rolling"
