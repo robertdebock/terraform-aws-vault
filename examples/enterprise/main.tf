@@ -23,8 +23,9 @@ resource "cloudflare_record" "validation" {
 
 # Call the module.
 module "vault" {
-  certificate_arn = aws_acm_certificate.default.arn
+  allowed_cidr_blocks_replication = ["0.0.0.0/0"]
   api_addr        = "https://ent.robertdebock.nl:8200"
+  certificate_arn = aws_acm_certificate.default.arn
   name            = "ent"
   source          = "../../"
   key_filename    = "id_rsa.pub"
