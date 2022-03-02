@@ -69,6 +69,8 @@ resource "local_file" "default" {
   content = templatefile("${path.module}/user_data.sh.tpl",
     {
       api_addr          = coalesce(var.api_addr, "https://${aws_lb.api.dns_name}:8200")
+      # TODO: The cluster_address is not required for "opensource" and will give an issue.
+      # So; some conditional must be built in.
       cluster_addr      = coalesce(var.cluster_addr, "https://${aws_lb.replication[0].dns_name}:8201")
       default_lease_ttl = var.default_lease_ttl
       kms_key_id        = aws_kms_key.default.id
@@ -201,7 +203,7 @@ resource "aws_security_group" "default" {
   vpc_id = local.vpc_id
 }
 
-# Allow the vault API to be accessed from clients.
+# Allow the Vault API to be accessed from clients.
 resource "aws_security_group_rule" "vaultapi" {
   description              = "vault api"
   from_port                = 8200
@@ -212,6 +214,7 @@ resource "aws_security_group_rule" "vaultapi" {
   type                     = "ingress"
 }
 
+## Allow the Vault replication port to be accessed from selected cidr_blocks.
 resource "aws_security_group_rule" "replication" {
   count             = var.vault_type == "enterprise" ? 0 : 1
   cidr_blocks       = var.allowed_cidr_blocks_replication
@@ -316,9 +319,6 @@ resource "aws_lb_target_group" "replication" {
   protocol    = "TCP"
   tags        = var.tags
   vpc_id      = local.vpc_id
-  health_check {
-    port     = 8200
-  }
 }
 
 # Add a API listener to the loadbalancer.
