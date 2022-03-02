@@ -308,6 +308,7 @@ resource "aws_lb_target_group" "replication" {
   health_check {
     interval = 5
     path     = "/v1/sys/health?standbyok=true&perfstandbyok=true&drsecondarycode=200"
+    port     = 8200
     protocol = "HTTPS"
     timeout  = 2
   }
