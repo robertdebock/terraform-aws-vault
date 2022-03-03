@@ -435,7 +435,7 @@ resource "aws_instance" "bastion" {
   count                       = var.bastion_host ? 1 : 0
   ami                         = data.aws_ami.default.id
   associate_public_ip_address = true
-  instance_type               = "t3.micro"
+  instance_type               = local.instance_type
   key_name                    = local.key_name
   monitoring                  = true
   subnet_id                   = tolist(local.aws_subnet_ids)[0]
