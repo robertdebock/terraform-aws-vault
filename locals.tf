@@ -155,5 +155,5 @@ locals {
     x2iezn  = "amzn2-ami-hvm-*-x86_64-ebs"
     z1d     = "amzn2-ami-hvm-*-x86_64-ebs"
   }
-  ami_pattern = local._ami_pattern[split(".", var.instance_type)[0]]
+  ami_pattern = local._ami_pattern[split(".", local.instance_type)[0]]
 }
