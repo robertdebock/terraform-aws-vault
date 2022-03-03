@@ -2,7 +2,7 @@ locals {
   # A map from `size` to `instance_type`.
   _instance_type = {
     custom      = var.instance_type
-    development = "t3.micro"
+    development = "t4g.nano"
     minimum     = "m5.large"
     small       = "m5.xlarge"
     large       = "m5.2xlarge"
@@ -70,19 +70,6 @@ locals {
 
   # The instance_type can be of the type "x86_64" or "arm64". This mapping sets the correct pattern to find an ami.
   _ami_pattern = {
-    a1   = "amzn2-ami-hvm-*-arm64-gp2"
-    m4   = "amzn2-ami-hvm-*-x86_64-ebs"
-    m5   = "amzn2-ami-hvm-*-x86_64-ebs"
-    m5a  = "amzn2-ami-hvm-*-x86_64-ebs"
-    m5n  = "amzn2-ami-hvm-*-x86_64-ebs"
-    m5zn = "amzn2-ami-hvm-*-x86_64-ebs"
-    m6g  = "amzn2-ami-hvm-*-arm64-gp2"
-    m6i  = "amzn2-ami-hvm-*-x86_64-ebs"
-    m6a  = "amzn2-ami-hvm-*-x86_64-ebs"
-    t2   = "amzn2-ami-hvm-*-x86_64-ebs"
-    t3   = "amzn2-ami-hvm-*-x86_64-ebs"
-    t3a  = "amzn2-ami-hvm-*-x86_64-ebs"
-    t4g  = "amzn2-ami-hvm-*-arm64-gp2"
     a1      = "amzn2-ami-hvm-*-x86_64-ebs"
     c1      = "amzn2-ami-hvm-*-x86_64-ebs"
     c3      = "amzn2-ami-hvm-*-x86_64-ebs"
@@ -116,9 +103,9 @@ locals {
     i2      = "amzn2-ami-hvm-*-x86_64-ebs"
     i3      = "amzn2-ami-hvm-*-x86_64-ebs"
     i3en    = "amzn2-ami-hvm-*-x86_64-ebs"
-    im4gn   = "amzn2-ami-hvm-*-x86_64-ebs"
+    im4gn   = "amzn2-ami-hvm-*-arm64-gp2"
     inf1    = "amzn2-ami-hvm-*-x86_64-ebs"
-    is4gen  = "amzn2-ami-hvm-*-x86_64-ebs"
+    is4gen  = "amzn2-ami-hvm-*-arm64-gp2"
     m1      = "amzn2-ami-hvm-*-x86_64-ebs"
     m2      = "amzn2-ami-hvm-*-x86_64-ebs"
     m3      = "amzn2-ami-hvm-*-x86_64-ebs"
@@ -134,8 +121,6 @@ locals {
     m6g     = "amzn2-ami-hvm-*-arm64-gp2"
     m6gd    = "amzn2-ami-hvm-*-arm64-gp2"
     m6i     = "amzn2-ami-hvm-*-x86_64-ebs"
-    mac1    = "amzn2-ami-hvm-*-x86_64-ebs"
-    mac2    = "amzn2-ami-hvm-*-x86_64-ebs"
     p2      = "amzn2-ami-hvm-*-x86_64-ebs"
     p3      = "amzn2-ami-hvm-*-x86_64-ebs"
     p3dn    = "amzn2-ami-hvm-*-x86_64-ebs"
