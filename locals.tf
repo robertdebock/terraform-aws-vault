@@ -83,7 +83,6 @@ locals {
     t3   = "amzn2-ami-hvm-*-x86_64-ebs"
     t3a  = "amzn2-ami-hvm-*-x86_64-ebs"
     t4g  = "amzn2-ami-hvm-*-arm64-gp2"
-
     a1      = "amzn2-ami-hvm-*-x86_64-ebs"
     c1      = "amzn2-ami-hvm-*-x86_64-ebs"
     c3      = "amzn2-ami-hvm-*-x86_64-ebs"
