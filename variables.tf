@@ -247,3 +247,13 @@ variable "allowed_cidr_blocks_replication" {
   type        = list(string)
   default     = []
 }
+
+variable "cooldown" {
+  description = "The cooldown period in seconds to use for the autoscaling group."
+  type        = number
+  default     = 300
+  validation {
+    condition     = var.cooldown >= 60 && var.cooldown <= 600
+    error_message = "Please use a cooldown period between 60 and 600 seconds."
+  }
+}

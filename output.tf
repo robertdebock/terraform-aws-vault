@@ -21,6 +21,6 @@ output "instructions" {
   3. Run: sudo su -
   4. Run: vault operator init
   5. Run: vault login
-  6. Run: vault operator raft autopilot set-config -min-quorum=${var.amount} -cleanup-dead-servers=true -dead-server-last-contact-threshold=120
+  6. Run: vault operator raft autopilot set-config -min-quorum=${var.amount} -cleanup-dead-servers=true -dead-server-last-contact-threshold=${var.cooldown / 2.5}
 EOF
 }
