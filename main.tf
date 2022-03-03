@@ -258,7 +258,7 @@ resource "aws_security_group_rule" "internet" {
   type              = "egress"
 }
 
-# Create a launch template.
+# Create a launch configuration.
 resource "aws_launch_configuration" "default" {
   associate_public_ip_address = true
   iam_instance_profile        = aws_iam_instance_profile.default.name
@@ -367,6 +367,7 @@ resource "random_string" "default" {
 
 # Create an auto scaling group.
 resource "aws_autoscaling_group" "default" {
+  default_cooldown      = var.cooldown
   desired_capacity      = var.amount
   enabled_metrics       = ["GroupDesiredCapacity", "GroupInServiceCapacity", "GroupPendingCapacity", "GroupMinSize", "GroupMaxSize", "GroupInServiceInstances", "GroupPendingInstances", "GroupStandbyInstances", "GroupStandbyCapacity", "GroupTerminatingCapacity", "GroupTerminatingInstances", "GroupTotalCapacity", "GroupTotalInstances"]
   health_check_type     = "EC2"
@@ -435,7 +436,7 @@ resource "aws_instance" "bastion" {
   count                       = var.bastion_host ? 1 : 0
   ami                         = data.aws_ami.default.id
   associate_public_ip_address = true
-  instance_type               = local.instance_type
+  instance_type               = "t4g.nano"
   key_name                    = local.key_name
   monitoring                  = true
   subnet_id                   = tolist(local.aws_subnet_ids)[0]
