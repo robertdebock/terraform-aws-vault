@@ -29,7 +29,8 @@ This code spins up a HashiCorp Vault cluster:
                                      +----------------------------+
 ```
 
-Details on the [network setup](NETWORK.MD)
+Details on the [network setup](NETWORK.MD).
+Details on the [target groups](TARGET_GROUPS.md).
 
 These variables can be used.
 
