@@ -167,7 +167,7 @@ resource "aws_key_pair" "default" {
   tags       = var.tags
 }
 
-# Find amis.
+# Find amis for the Vault instances.
 data "aws_ami" "default" {
   most_recent = true
   owners      = ["amazon"]
@@ -224,7 +224,6 @@ resource "aws_security_group_rule" "raft" {
   type                     = "ingress"
 }
 
-# TODO: fix "Error: [WARN] A duplicate Security Group rule was found on (sg-06eef62a4be10d264)."
 # Allow other clusters to use Raft. (Required for "DR" and "PR", both enterprise features.)
 resource "aws_security_group_rule" "clustertocluster" {
   count             = var.vault_type == "enterprise" ? 1 : 0
@@ -431,20 +430,10 @@ resource "aws_security_group_rule" "bastion-internet" {
   type              = "egress"
 }
 
-# Find amis.
-data "aws_ami" "bastion" {
-  most_recent = true
-  owners      = ["amazon"]
-  filter {
-    name   = "name"
-    values = ["amzn2-ami-hvm-*-x86_64-ebs"]
-  }
-}
-
 # Create the bastion host.
 resource "aws_instance" "bastion" {
   count                       = var.bastion_host ? 1 : 0
-  ami                         = data.aws_ami.bastion.id
+  ami                         = data.aws_ami.default.id
   associate_public_ip_address = true
   instance_type               = "t3.micro"
   key_name                    = local.key_name
