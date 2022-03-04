@@ -431,10 +431,20 @@ resource "aws_security_group_rule" "bastion-internet" {
   type              = "egress"
 }
 
+# Find amis for the Bastion instance.
+data "aws_ami" "bastion" {
+  most_recent = true
+  owners      = ["amazon"]
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm-*-arm64-gp2"]
+  }
+}
+
 # Create the bastion host.
 resource "aws_instance" "bastion" {
   count                       = var.bastion_host ? 1 : 0
-  ami                         = data.aws_ami.default.id
+  ami                         = data.aws_ami.bastion.id
   associate_public_ip_address = true
   instance_type               = "t4g.nano"
   key_name                    = local.key_name
