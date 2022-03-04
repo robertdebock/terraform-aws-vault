@@ -466,13 +466,9 @@ resource "aws_instance" "bastion" {
   key_name                    = local.key_name
   monitoring                  = true
   subnet_id                   = tolist(local.aws_subnet_ids)[0]
-  tags                        = var.tags
+  tags                        = local.bastion_tags
   user_data                   = local_file.bastion.content
   vpc_security_group_ids      = [aws_security_group.bastion[0].id]
-  tag {
-    key   = "Name"
-    value = "bation-${var.name}-${random_string.default.result}"
-  }
 }
 
 # Collect the created vault instances.

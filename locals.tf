@@ -156,4 +156,11 @@ locals {
     z1d     = "amzn2-ami-hvm-*-x86_64-ebs"
   }
   ami_pattern = local._ami_pattern[split(".", local.instance_type)[0]]
+
+  bastion_tag = {
+    Name = "bastion-${var.name}-${random_string.default.result}"
+  }
+
+  bastion_tags = merge(local.bastion_tag, var.tags)
+
 }
