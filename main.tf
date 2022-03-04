@@ -61,7 +61,7 @@ resource "aws_iam_instance_profile" "default" {
   tags = var.tags
 }
 
-# Write user_data.sh.
+# Write user_data.sh for the Vault instances.
 resource "local_file" "default" {
   directory_permission = "0755"
   file_permission      = "0640"
@@ -441,6 +441,22 @@ data "aws_ami" "bastion" {
   }
 }
 
+# Write user_data.sh for the Bastion instance.
+resource "local_file" "bastion" {
+  directory_permission = "0755"
+  file_permission      = "0640"
+  filename             = "bastion_user_data.sh"
+  content = templatefile("${path.module}/bastion_user_data.sh.tpl",
+    {
+      api_addr          = coalesce(var.api_addr, "https://${aws_lb.api.dns_name}:8200")
+      vault_ca_cert     = file("tls/vault_ca.crt")
+      vault_version     = var.vault_version
+      vault_package     = local.vault_package
+      vault_path        = var.vault_path
+    }
+  )
+}
+
 # Create the bastion host.
 resource "aws_instance" "bastion" {
   count                       = var.bastion_host ? 1 : 0
@@ -451,6 +467,7 @@ resource "aws_instance" "bastion" {
   monitoring                  = true
   subnet_id                   = tolist(local.aws_subnet_ids)[0]
   tags                        = var.tags
+  user_data                   = local_file.bastion.content
   vpc_security_group_ids      = [aws_security_group.bastion[0].id]
 }
 
