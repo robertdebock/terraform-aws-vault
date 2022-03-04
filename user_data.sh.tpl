@@ -10,6 +10,9 @@ yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/has
 # Install a specific version of Vault.
 yum install -y ${vault_package}
 
+# Allow auto-completion.
+vault -autocomplete-install
+
 # Allow IPC lock capability to Vault.
 setcap cap_ipc_lock=+ep $(readlink -f $(which vault))
 

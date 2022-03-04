@@ -10,6 +10,9 @@ yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/has
 # Install a specific version of Vault.
 yum install -y ${vault_package}
 
+# Allow auto-completion.
+vault -autocomplete-install
+
 # Allow users to use `vault`.
 echo "export VAULT_ADDR=${api_addr}" >> /etc/profile.d/vault.sh
 # The common name in the certificate is not known to the instance.
