@@ -390,9 +390,9 @@ resource "aws_autoscaling_group" "default" {
     create_before_destroy = true
   }
   tag {
-    key                 = "name"
+    key                 = "Name"
     propagate_at_launch = true
-    value               = "${var.name}-${random_string.default.result}"
+    value               = "vault-${var.name}-${random_string.default.result}"
   }
   timeouts {
     delete = "15m"
@@ -469,6 +469,10 @@ resource "aws_instance" "bastion" {
   tags                        = var.tags
   user_data                   = local_file.bastion.content
   vpc_security_group_ids      = [aws_security_group.bastion[0].id]
+  tag {
+    key   = "Name"
+    value = "bation-${var.name}-${random_string.default.result}"
+  }
 }
 
 # Collect the created vault instances.
