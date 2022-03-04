@@ -6,3 +6,6 @@
 */id_rsa
 */id_rsa.pub
 */tls
+*/user_data.sh
+*/init.txt
+*/bastion_user_data.sh
