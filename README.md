@@ -7,26 +7,27 @@ This code spins up a HashiCorp Vault cluster:
 - Automatically finding other nodes.
 - With a load balancer.
 - An optional bastion host.
+- Either create a VPC or use an existing one.
 
 ## Overview
 
+
 ```text
-                 +--- lb --------+
-       +-------> | type: network |
-       |         +---------------+
-       |
-       |         +--- lb_target_group ---+
-       |   +---> | port: 8200            |  <-----------------------+
-       |   |     +-----------------------+                          |
-       |   |                                                        |
-       |   |    +--- listener ---+   +--- autoscaling_group ---+    |
-       +---+--- | port: 8200     |   |                         | ---+
-                +----------------+   +-------------------------+
-                                                   |
-                                                   V      
-                                     +--- launch_configuration ---+
-                                     |                            |
-                                     +----------------------------+
+
+    \0/        +--------------+
+     | ------> | loadbalancer |
+    / \        +--------------+
+    OPS               | :8200/tcp
+                      V
++---------+    +------------+
+| bastion | -> | instance 0 |+
++---------+    +------------+|+
+     ^          +------------+|
+     |           +------------+
+    \0/
+     |
+    / \
+    DEV             
 ```
 
 Details on the [network setup](NETWORK.MD).
