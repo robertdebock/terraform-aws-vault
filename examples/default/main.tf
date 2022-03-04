@@ -24,7 +24,7 @@ resource "cloudflare_record" "validation" {
 # Call the module.
 module "vault" {
   certificate_arn = aws_acm_certificate.default.arn
-  name            = "vltp"
+  name            = "dflt"
   source          = "../../"
   key_filename    = "id_rsa.pub"
   tags = {

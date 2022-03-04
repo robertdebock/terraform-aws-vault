@@ -29,6 +29,7 @@ module "vault" {
   key_filename      = "id_rsa.pub"
   log_level         = "Debug"
   max_lease_ttl     = "168h"
+  name              = "dvlpm"
   size              = "development"
   source            = "../../"
   spot_price        = 0.024

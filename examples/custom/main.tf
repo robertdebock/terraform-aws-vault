@@ -27,7 +27,7 @@ module "vault" {
   certificate_arn = aws_acm_certificate.default.arn
   instance_type   = "t3.large"
   key_filename    = "id_rsa.pub"
-  name            = "vltc"
+  name            = "cstm"
   size            = "custom"
   source          = "../../"
   vault_ui        = true

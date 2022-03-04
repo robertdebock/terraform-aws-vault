@@ -26,7 +26,7 @@ module "vault" {
   api_addr        = "https://myvpc.robertdebock.nl:8200"
   certificate_arn = aws_acm_certificate.default.arn
   key_filename    = "id_rsa.pub"
-  name            = "myvpc"
+  name            = "mvpc"
   source          = "../../"
   vpc_id          = "vpc-0fca255aad86da9a0"
   tags = {

@@ -26,7 +26,7 @@ module "vault" {
   allowed_cidr_blocks_replication = ["0.0.0.0/0"]
   api_addr        = "https://ent.robertdebock.nl:8200"
   certificate_arn = aws_acm_certificate.default.arn
-  name            = "ent"
+  name            = "ntrpr"
   source          = "../../"
   key_filename    = "id_rsa.pub"
   vault_type      = "enterprise"

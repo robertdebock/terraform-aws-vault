@@ -32,7 +32,7 @@ module "vault" {
   api_addr        = "https://mykey.robertdebock.nl:8200"
   certificate_arn = aws_acm_certificate.default.arn
   key_name        = aws_key_pair.default.id
-  name            = "mykey"
+  name            = "mk"
   source          = "../../"
   tags = {
     owner = "robertdebock"

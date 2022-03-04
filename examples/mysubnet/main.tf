@@ -26,7 +26,7 @@ module "vault" {
   api_addr        = "https://mysubnet.robertdebock.nl:8200"
   certificate_arn = aws_acm_certificate.default.arn
   key_filename    = "id_rsa.pub"
-  name            = "mysbt"
+  name            = "msbnt"
   source          = "../../"
   vpc_id          = "vpc-0ceae91a773a43365"
   subnet_ids      = ["subnet-01faa9046b9f58749", "subnet-0af54b5d0832d4f42", "subnet-0f9e5a02098bda2c2"]
