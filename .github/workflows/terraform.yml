@@ -19,9 +19,7 @@ jobs:
           - name: development
           - name: enterprise
           - name: graviton
-          - name: mykey
           - name: mysubnet
-          - name: myvpc
           - name: replication
     steps:
       - name: checkout
