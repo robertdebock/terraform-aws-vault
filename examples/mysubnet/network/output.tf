@@ -3,7 +3,12 @@ output "vpc_id" {
   value       = aws_vpc.default.id
 }
 
-output "subnet_ids" {
-  description = "The created subnet identifiers."
-  value       = aws_subnet.extra.*.id
+output "private_subnet_ids" {
+  description = "The created private subnet identifiers."
+  value       = aws_subnet.private.*.id
+}
+
+output "public_subnet_ids" {
+  description = "The created public subnet identifiers."
+  value       = aws_subnet.public.*.id
 }
