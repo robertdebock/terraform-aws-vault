@@ -62,11 +62,11 @@ resource "aws_iam_instance_profile" "default" {
 }
 
 # Write user_data.sh for the Vault instances.
-resource "local_file" "default" {
+resource "local_file" "vault" {
   directory_permission = "0755"
   file_permission      = "0640"
-  filename             = "user_data.sh"
-  content = templatefile("${path.module}/user_data.sh.tpl",
+  filename             = "user_data_vault.sh"
+  content = templatefile("${path.module}/user_data_vault.sh.tpl",
     {
       api_addr          = local.api_addr
       cluster_addr      = try(var.cluster_addr, null)
@@ -294,7 +294,7 @@ resource "aws_launch_configuration" "default" {
   name_prefix          = "${var.name}-"
   security_groups      = [aws_security_group.private.id, aws_security_group.public.id]
   spot_price           = var.size == "development" ? var.spot_price : null
-  user_data            = local_file.default.content
+  user_data            = local_file.vault.content
   root_block_device {
     encrypted   = false
     iops        = local.volume_iops
@@ -472,8 +472,8 @@ resource "local_file" "bastion" {
   count                = var.bastion_host ? 1 : 0
   directory_permission = "0755"
   file_permission      = "0640"
-  filename             = "bastion_user_data.sh"
-  content = templatefile("${path.module}/bastion_user_data.sh.tpl",
+  filename             = "user_data_bastion.sh"
+  content = templatefile("${path.module}/user_data_bastion.sh.tpl",
     {
       api_addr      = local.api_addr
       vault_ca_cert = file("tls/vault_ca.crt")
