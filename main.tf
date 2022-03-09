@@ -175,7 +175,7 @@ resource "aws_route_table_association" "private" {
 
 # Associate the public subnet to the public routing table.
 resource "aws_route_table_association" "public" {
-  count          = var.vpc_id == "" ? 1 : 0
+  count          = var.vpc_id == "" ? min(length(data.aws_availability_zones.default.names), var.amount) : 0
   route_table_id = aws_route_table.public[0].id
   subnet_id      = aws_subnet.public[count.index].id
 }
