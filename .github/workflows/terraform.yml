@@ -21,6 +21,7 @@ jobs:
           - name: graviton
           - name: mysubnet
           - name: replication
+      max-parallel: 3
     steps:
       - name: checkout
         uses: actions/checkout@v2
