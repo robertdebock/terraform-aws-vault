@@ -85,7 +85,7 @@ resource "aws_subnet" "public" {
 resource "aws_subnet" "extra" {
   count             = length(data.aws_availability_zones.default.names)
   vpc_id            = aws_vpc.default.id
-  cidr_block        = "192.168.${count.index + 127}.0/24"
+  cidr_block        = "192.168.${count.index + 192}.0/24"
   availability_zone = data.aws_availability_zones.default.names[count.index]
   tags = {
     owner = "robertdebock"
