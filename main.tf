@@ -1,7 +1,7 @@
 # Make a key for unsealing.
 resource "aws_kms_key" "default" {
   description = var.name
-  tags        = var.tags
+  tags        = local.tags
 }
 
 # Make a policy to allow role assumption.
@@ -44,7 +44,7 @@ data "aws_iam_policy_document" "join_unseal" {
 resource "aws_iam_role" "default" {
   assume_role_policy = data.aws_iam_policy_document.assumerole.json
   name               = var.name
-  tags               = var.tags
+  tags               = local.tags
 }
 
 # Link the default role to the join_unseal policy.
@@ -58,7 +58,7 @@ resource "aws_iam_role_policy" "default" {
 resource "aws_iam_instance_profile" "default" {
   name = var.name
   role = aws_iam_role.default.name
-  tags = var.tags
+  tags = local.tags
 }
 
 # Write user_data.sh for the Vault instances.
@@ -68,7 +68,7 @@ resource "local_file" "default" {
   filename             = "user_data.sh"
   content = templatefile("${path.module}/user_data.sh.tpl",
     {
-      api_addr          = coalesce(var.api_addr, "https://${aws_lb.api.dns_name}:8200")
+      api_addr          = local.api_addr
       cluster_addr      = try(var.cluster_addr, null)
       default_lease_ttl = var.default_lease_ttl
       kms_key_id        = aws_kms_key.default.id
@@ -92,66 +92,92 @@ resource "local_file" "default" {
 resource "aws_vpc" "default" {
   count      = var.vpc_id == "" ? 1 : 0
   cidr_block = local.cidr_block
-  tags       = var.tags
+  tags       = local.tags
 }
 
-# Create an internet gateway.
+# Create an internet gateway if the VPC is not provided.
 resource "aws_internet_gateway" "default" {
   count  = var.vpc_id == "" ? 1 : 0
-  tags   = var.tags
+  tags   = local.tags
   vpc_id = local.vpc_id
 }
 
-data "aws_internet_gateway" "default" {
-  count = var.vpc_id == "" ? 0 : 1
-  filter {
-    name   = "attachment.vpc-id"
-    values = [local.vpc_id]
-  }
+# Reserve external IP addresses. (It's for the NAT gateways.)
+resource "aws_eip" "default" {
+  count = var.vpc_id == "" ? 1 : 0
+  tags  = local.tags
+  vpc   = true
 }
 
-# Create a routing table for the internet gateway.
-resource "aws_route_table" "default" {
+# Make NAT gateways, for the Vault instances to reach the internet.
+resource "aws_nat_gateway" "default" {
+  count         = var.vpc_id == "" ? 1 : 0
+  allocation_id = aws_eip.default[0].id
+  subnet_id     = aws_subnet.public[count.index].id
+  tags          = local.tags
+  depends_on    = [aws_internet_gateway.default]
+}
+
+# Create a routing table for the Vault instances.
+resource "aws_route_table" "private" {
   count  = var.vpc_id == "" ? 1 : 0
+  tags   = local.private_tags
   vpc_id = local.vpc_id
 }
 
-data "aws_route_tables" "default" {
-  count  = var.vpc_id == "" ? 0 : 1
-  vpc_id = local.vpc_id
-}
-
-# Add an internet route to the internet gateway.
-resource "aws_route" "default" {
+# Add a route to the routing table for the Vault instances.
+resource "aws_route" "private" {
   count                  = var.vpc_id == "" ? 1 : 0
   destination_cidr_block = "0.0.0.0/0"
-  gateway_id             = local.internet_gateway_id
-  route_table_id         = local.aws_route_table_id
+  nat_gateway_id         = aws_nat_gateway.default[0].id
+  route_table_id         = aws_route_table.private[0].id
 }
 
-# Create the same amount of subnets as the amount of instances when we create the vpc.
-resource "aws_subnet" "default" {
+# Add a route table to pass traffic from "public" subnets to the internet gateway.
+resource "aws_route_table" "public" {
+  count  = var.vpc_id == "" ? 1 : 0
+  tags   = local.public_tags
+  vpc_id = local.vpc_id
+}
+
+# Add a route to the internet gateway for the public subnets.
+resource "aws_route" "public" {
+  count                  = var.vpc_id == "" ? 1 : 0
+  route_table_id         = aws_route_table.public[0].id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id             = aws_internet_gateway.default[0].id
+}
+
+# Create the same amount of (private) subnets as the amount of instances when we create the vpc.
+resource "aws_subnet" "private" {
   count             = var.vpc_id == "" ? min(length(data.aws_availability_zones.default.names), var.amount) : 0
   availability_zone = data.aws_availability_zones.default.names[count.index]
   cidr_block        = "${var.aws_vpc_cidr_block_start}.${count.index}.0/24"
-  tags              = var.tags
+  tags              = local.private_tags
   vpc_id            = local.vpc_id
 }
 
-# Find subnets if the vpc was specified.
-data "aws_subnets" "default" {
-  count = var.vpc_id == "" ? 0 : 1
-  filter {
-    name   = "vpc-id"
-    values = [local.vpc_id]
-  }
+# # Create (public) subnets to allow the loadbalancer to route traffic to intances.
+resource "aws_subnet" "public" {
+  count             = var.vpc_id == "" ? min(length(data.aws_availability_zones.default.names), var.amount) : 0
+  availability_zone = data.aws_availability_zones.default.names[count.index]
+  cidr_block        = "${var.aws_vpc_cidr_block_start}.${count.index + 64}.0/24"
+  tags              = local.public_tags
+  vpc_id            = local.vpc_id
 }
 
-# Associate the subnet to the routing table.
-resource "aws_route_table_association" "default" {
+# Associate the private subnet to the routing table.
+resource "aws_route_table_association" "private" {
   count          = var.vpc_id == "" ? min(length(data.aws_availability_zones.default.names), var.amount) : 0
-  route_table_id = local.aws_route_table_id
-  subnet_id      = local.aws_subnet_ids[count.index]
+  route_table_id = aws_route_table.private[0].id
+  subnet_id      = local.private_subnet_ids[count.index]
+}
+
+# Associate the public subnet to the public routing table.
+resource "aws_route_table_association" "public" {
+  count          = var.vpc_id == "" ? 1 : 0
+  route_table_id = aws_route_table.public[0].id
+  subnet_id      = aws_subnet.public[count.index].id
 }
 
 # Find availability_zones in this region.
@@ -164,7 +190,7 @@ resource "aws_key_pair" "default" {
   count      = var.key_filename == "" ? 0 : 1
   key_name   = var.name
   public_key = file(var.key_filename)
-  tags       = var.tags
+  tags       = local.tags
 }
 
 # Find amis for the Vault instances.
@@ -180,13 +206,14 @@ data "aws_ami" "default" {
 # Create a security group for the loadbalancer.
 resource "aws_security_group" "public" {
   name   = "${var.name}-public"
-  tags   = var.tags
+  tags   = local.public_tags
   vpc_id = local.vpc_id
 }
 
 # Allow the vault API to be accessed from the internet.
 resource "aws_security_group_rule" "api_public" {
-  cidr_blocks       = var.allowed_cidr_blocks
+  # cidr_blocks       = var.allowed_cidr_blocks
+  cidr_blocks       = ["0.0.0.0/0"]
   description       = "Vault API"
   from_port         = 8200
   protocol          = "TCP"
@@ -198,7 +225,7 @@ resource "aws_security_group_rule" "api_public" {
 # Create a security group for the instances.
 resource "aws_security_group" "private" {
   name   = "${var.name}-private"
-  tags   = var.tags
+  tags   = local.private_tags
   vpc_id = local.vpc_id
 }
 
@@ -260,15 +287,14 @@ resource "aws_security_group_rule" "internet" {
 
 # Create a launch configuration.
 resource "aws_launch_configuration" "default" {
-  associate_public_ip_address = true
-  iam_instance_profile        = aws_iam_instance_profile.default.name
-  image_id                    = data.aws_ami.default.id
-  instance_type               = local.instance_type
-  key_name                    = local.key_name
-  name_prefix                 = "${var.name}-"
-  security_groups             = [aws_security_group.private.id, aws_security_group.public.id]
-  spot_price                  = var.size == "development" ? var.spot_price : null
-  user_data                   = local_file.default.content
+  iam_instance_profile = aws_iam_instance_profile.default.name
+  image_id             = data.aws_ami.default.id
+  instance_type        = local.instance_type
+  key_name             = local.key_name
+  name_prefix          = "${var.name}-"
+  security_groups      = [aws_security_group.private.id, aws_security_group.public.id]
+  spot_price           = var.size == "development" ? var.spot_price : null
+  user_data            = local_file.default.content
   root_block_device {
     encrypted   = false
     iops        = local.volume_iops
@@ -284,7 +310,7 @@ resource "aws_launch_configuration" "default" {
 resource "aws_placement_group" "default" {
   name     = var.name
   strategy = "spread"
-  tags     = var.tags
+  tags     = local.tags
 }
 
 # Add a load balancer for the API/UI.
@@ -292,8 +318,8 @@ resource "aws_lb" "api" {
   load_balancer_type = "application"
   name               = "${var.name}-api"
   security_groups    = [aws_security_group.public.id, aws_security_group.private.id]
-  subnets            = local.aws_subnet_ids
-  tags               = var.tags
+  subnets            = local.public_subnet_ids
+  tags               = local.api_tags
 }
 
 # Add a load balancer for replication.
@@ -301,17 +327,16 @@ resource "aws_lb" "replication" {
   count              = var.vault_type == "enterprise" ? 1 : 0
   load_balancer_type = "network"
   name               = "${var.name}-replication"
-  subnets            = local.aws_subnet_ids
-  tags               = var.tags
+  subnets            = local.public_subnet_ids
+  tags               = local.replication_tags
 }
-
 
 # Create a load balancer target group for the API/UI.
 resource "aws_lb_target_group" "api" {
   name_prefix = "${var.name}-"
   port        = 8200
   protocol    = "HTTPS"
-  tags        = var.tags
+  tags        = local.api_tags
   vpc_id      = local.vpc_id
   health_check {
     interval = 5
@@ -323,11 +348,11 @@ resource "aws_lb_target_group" "api" {
 
 # Create a load balancer target group.
 resource "aws_lb_target_group" "replication" {
-  count              = var.vault_type == "enterprise" ? 1 : 0
+  count       = var.vault_type == "enterprise" ? 1 : 0
   name_prefix = "${var.name}-"
   port        = 8201
   protocol    = "TCP"
-  tags        = var.tags
+  tags        = local.replication_tags
   vpc_id      = local.vpc_id
 }
 
@@ -337,7 +362,7 @@ resource "aws_lb_listener" "api" {
   load_balancer_arn = aws_lb.api.arn
   port              = 8200
   protocol          = "HTTPS"
-  tags              = var.tags
+  tags              = local.api_tags
   default_action {
     target_group_arn = aws_lb_target_group.api.arn
     type             = "forward"
@@ -346,11 +371,11 @@ resource "aws_lb_listener" "api" {
 
 # Add a replication listener to the loadbalancer.
 resource "aws_lb_listener" "replication" {
-  count              = var.vault_type == "enterprise" ? 1 : 0
+  count             = var.vault_type == "enterprise" ? 1 : 0
   load_balancer_arn = aws_lb.replication[0].arn
   port              = 8201
   protocol          = "TCP"
-  tags              = var.tags
+  tags              = local.replication_tags
   default_action {
     target_group_arn = aws_lb_target_group.replication[0].arn
     type             = "forward"
@@ -377,8 +402,8 @@ resource "aws_autoscaling_group" "default" {
   min_size              = var.amount - 1
   name                  = var.name
   placement_group       = aws_placement_group.default.id
-  target_group_arns     = compact([aws_lb_target_group.api.arn, try(aws_lb_target_group.replication[0].arn, null)])
-  vpc_zone_identifier   = tolist(local.aws_subnet_ids)
+  target_group_arns     = local.target_group_arns
+  vpc_zone_identifier   = tolist(aws_subnet.private[*].id)
   instance_refresh {
     strategy = "Rolling"
     preferences {
@@ -392,7 +417,7 @@ resource "aws_autoscaling_group" "default" {
   tag {
     key                 = "Name"
     propagate_at_launch = true
-    value               = "vault-${var.name}-${random_string.default.result}"
+    value               = "${var.name}-${random_string.default.result}"
   }
   timeouts {
     delete = "15m"
@@ -403,7 +428,7 @@ resource "aws_autoscaling_group" "default" {
 resource "aws_security_group" "bastion" {
   count  = var.bastion_host ? 1 : 0
   name   = "${var.name}-bastion"
-  tags   = var.tags
+  tags   = local.bastion_tags
   vpc_id = local.vpc_id
 }
 
@@ -433,6 +458,7 @@ resource "aws_security_group_rule" "bastion-internet" {
 
 # Find amis for the Bastion instance.
 data "aws_ami" "bastion" {
+  count       = var.bastion_host ? 1 : 0
   most_recent = true
   owners      = ["amazon"]
   filter {
@@ -443,31 +469,72 @@ data "aws_ami" "bastion" {
 
 # Write user_data.sh for the Bastion instance.
 resource "local_file" "bastion" {
+  count                = var.bastion_host ? 1 : 0
   directory_permission = "0755"
   file_permission      = "0640"
   filename             = "bastion_user_data.sh"
   content = templatefile("${path.module}/bastion_user_data.sh.tpl",
     {
-      api_addr          = coalesce(var.api_addr, "https://${aws_lb.api.dns_name}:8200")
-      vault_ca_cert     = file("tls/vault_ca.crt")
-      vault_version     = var.vault_version
-      vault_package     = local.vault_package
-      vault_path        = var.vault_path
+      api_addr      = local.api_addr
+      vault_ca_cert = file("tls/vault_ca.crt")
+      vault_version = var.vault_version
+      vault_package = local.vault_package
+      vault_path    = var.vault_path
     }
   )
+}
+
+# Place the bastion host and the nat_gateway in it's own subnet.
+resource "aws_subnet" "bastion" {
+  count             = var.bastion_host ? 1 : 0
+  availability_zone = data.aws_availability_zones.default.names[0]
+  cidr_block        = "${var.aws_vpc_cidr_block_start}.127.0/24"
+  tags              = local.bastion_tags
+  vpc_id            = local.vpc_id
+}
+
+# Create a routing table for the bastion instance.
+resource "aws_route_table" "bastion" {
+  count  = var.bastion_host ? 1 : 0
+  tags   = local.bastion_tags
+  vpc_id = local.vpc_id
+}
+
+# Find internet gateways
+data "aws_internet_gateway" "default" {
+  count = var.bastion_host ? 1 : 0
+  filter {
+    name   = "attachment.vpc-id"
+    values = [local.vpc_id]
+  }
+}
+
+# Add an internet route to the internet gateway.
+resource "aws_route" "bastion" {
+  count                  = var.bastion_host ? 1 : 0
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id             = local.gateway_id
+  route_table_id         = aws_route_table.bastion[0].id
+}
+
+# Associate a route to the bastion subnet.
+resource "aws_route_table_association" "bastion" {
+  count          = var.bastion_host ? 1 : 0
+  route_table_id = aws_route_table.bastion[0].id
+  subnet_id      = aws_subnet.bastion[0].id
 }
 
 # Create the bastion host.
 resource "aws_instance" "bastion" {
   count                       = var.bastion_host ? 1 : 0
-  ami                         = data.aws_ami.bastion.id
+  ami                         = data.aws_ami.bastion[0].id
   associate_public_ip_address = true
   instance_type               = "t4g.nano"
   key_name                    = local.key_name
   monitoring                  = true
-  subnet_id                   = tolist(local.aws_subnet_ids)[0]
+  subnet_id                   = aws_subnet.bastion[0].id
   tags                        = local.bastion_tags
-  user_data                   = local_file.bastion.content
+  user_data                   = local_file.bastion[0].content
   vpc_security_group_ids      = [aws_security_group.bastion[0].id]
 }
 
@@ -475,7 +542,7 @@ resource "aws_instance" "bastion" {
 data "aws_instances" "default" {
   instance_state_names = ["running"]
   instance_tags = {
-    Name = "vault-${var.name}-${random_string.default.result}"
+    Name = "${var.name}-${random_string.default.result}"
   }
   depends_on = [aws_autoscaling_group.default]
 }

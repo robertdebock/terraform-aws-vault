@@ -1,4 +1,20 @@
 locals {
+
+  tags = merge({ Name = "${var.name}-${random_string.default.result}" }, var.tags)
+
+  bastion_tags = merge({ Name = "bastion-${var.name}-${random_string.default.result}" }, var.tags)
+
+  api_addr = coalesce(var.api_addr, "https://${aws_lb.api.dns_name}:8200")
+
+  private_tags = merge({ Name = "private-${var.name}-${random_string.default.result}" }, var.tags)
+
+  public_tags = merge({ Name = "public-${var.name}-${random_string.default.result}" }, var.tags)
+
+  api_tags = merge({ Name = "api-${var.name}-${random_string.default.result}" }, var.tags)
+
+  replication_tags = merge({ Name = "replication-${var.name}-${random_string.default.result}" }, var.tags)
+
+  target_group_arns = compact([aws_lb_target_group.api.arn, try(aws_lb_target_group.replication[0].arn, null)])
   # A map from `size` to `instance_type`.
   _instance_type = {
     custom      = var.instance_type
@@ -49,17 +65,17 @@ locals {
   # Form the cidr_block based on a variable.
   cidr_block = "${var.aws_vpc_cidr_block_start}.0.0/16"
 
-  # Set the `local.vpc_id` based on either the resource object or the variable object, whichever is available.
+  # Select the vpc_id, either created or set as a variable.
   vpc_id = try(aws_vpc.default[0].id, var.vpc_id)
 
-  # Set the `local.internet_gateway_id` based on either the resource object or the data object, whichever is set.
-  internet_gateway_id = try(aws_internet_gateway.default[0].id, data.aws_internet_gateway.default[0].id)
+  # Select the private_subnet_ids, either set as a variable or created.
+  private_subnet_ids = coalescelist(var.private_subnet_ids, aws_subnet.private[*].id)
 
-  # Set the `local.aws_route_table_id` based on either the resource object or the data object, whichever is set.
-  aws_route_table_id = try(aws_route_table.default[0].id, data.aws_route_tables.default[0].id)
+  # Select the public_subnet_ids, either created or set as a variable.
+  public_subnet_ids = coalescelist(var.public_subnet_ids, aws_subnet.public[*].id)
 
-  # Set the `aws_subnet_ids` based on either the resource object or the data object, whichever is set.
-  aws_subnet_ids = coalescelist(var.subnet_ids, aws_subnet.default[*].id, try(tolist(data.aws_subnets.default[0].ids), []))
+  # Select the gateway_id, either the created resource or the found resource.
+  gateway_id = try(aws_internet_gateway.default[0].id, data.aws_internet_gateway.default[0].id)
 
   # Compose the package name based on the `vault_type`.
   _vault_package = {
@@ -156,9 +172,4 @@ locals {
     z1d     = "amzn2-ami-hvm-*-x86_64-ebs"
   }
   ami_pattern = local._ami_pattern[split(".", local.instance_type)[0]]
-
-  tag = {
-    Name = "${var.name}-${random_string.default.result}"
-  }
-  tags = merge(local.tag, var.tags)
 }

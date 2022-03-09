@@ -196,8 +196,14 @@ variable "vault_path" {
   }
 }
 
-variable "subnet_ids" {
-  description = "The ids of the subnets to deploy to."
+variable "private_subnet_ids" {
+  description = "The ids of the private subnets to deploy to. These subnets should have a NAT gateway. Only required when `vpc_id` is set."
+  type        = list(string)
+  default     = []
+}
+
+variable "public_subnet_ids" {
+  description = "The ids of the private subnets to deploy to. These subnets should have in internet gateway. ßOnly required when `vpc_id` is set."
   type        = list(string)
   default     = []
 }
