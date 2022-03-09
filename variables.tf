@@ -159,10 +159,10 @@ variable "spot_price" {
 variable "log_level" {
   description = "Specifies the Vault log level to use."
   type        = string
-  default     = "Info"
+  default     = "info"
   validation {
-    condition     = contains(["Trace", "Debug", "Error", "Warn", "Info"], var.log_level)
-    error_message = "Please use \"Trace\", \"Debug\", \"Error\", \"Warn\" or \"Info\"."
+    condition     = contains(["trace", "debug", "error", "warn", "info"], var.log_level)
+    error_message = "Please use \"trace\", \"debug\", \"error\", \"warn\" or \"info\"."
   }
 }
 
