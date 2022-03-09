@@ -113,7 +113,7 @@ resource "aws_eip" "default" {
 resource "aws_nat_gateway" "default" {
   count         = var.vpc_id == "" ? 1 : 0
   allocation_id = aws_eip.default[0].id
-  subnet_id     = aws_subnet.public[count.index].id
+  subnet_id     = aws_subnet.public[0].id
   tags          = local.tags
   depends_on    = [aws_internet_gateway.default]
 }
