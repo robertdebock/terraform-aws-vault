@@ -1,17 +1,14 @@
 locals {
 
-  tags = merge({ Name = "${var.name}-${random_string.default.result}" }, var.tags)
-
-  bastion_tags = merge({ Name = "bastion-${var.name}-${random_string.default.result}" }, var.tags)
-
+  # Resolve the ip_addr, either set using `api_addr` or the created resource.
   api_addr = coalesce(var.api_addr, "https://${aws_lb.api.dns_name}:8200")
 
-  private_tags = merge({ Name = "private-${var.name}-${random_string.default.result}" }, var.tags)
-
-  public_tags = merge({ Name = "public-${var.name}-${random_string.default.result}" }, var.tags)
-
-  api_tags = merge({ Name = "api-${var.name}-${random_string.default.result}" }, var.tags)
-
+  # Combine the variable `tags` with specific prefixes.
+  tags             = merge({ Name = "${var.name}-${random_string.default.result}" }, var.tags)
+  bastion_tags     = merge({ Name = "bastion-${var.name}-${random_string.default.result}" }, var.tags)
+  private_tags     = merge({ Name = "private-${var.name}-${random_string.default.result}" }, var.tags)
+  public_tags      = merge({ Name = "public-${var.name}-${random_string.default.result}" }, var.tags)
+  api_tags         = merge({ Name = "api-${var.name}-${random_string.default.result}" }, var.tags)
   replication_tags = merge({ Name = "replication-${var.name}-${random_string.default.result}" }, var.tags)
 
   target_group_arns = compact([aws_lb_target_group.api.arn, try(aws_lb_target_group.replication[0].arn, null)])
