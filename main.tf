@@ -205,9 +205,10 @@ data "aws_ami" "default" {
 
 # Create a security group for the loadbalancer.
 resource "aws_security_group" "public" {
-  name   = "${var.name}-public"
-  tags   = local.public_tags
-  vpc_id = local.vpc_id
+  description = "Public"
+  name        = "${var.name}-public"
+  tags        = local.public_tags
+  vpc_id      = local.vpc_id
 }
 
 # Allow the vault API to be accessed from the internet.
@@ -224,9 +225,10 @@ resource "aws_security_group_rule" "api_public" {
 
 # Create a security group for the instances.
 resource "aws_security_group" "private" {
-  name   = "${var.name}-private"
-  tags   = local.private_tags
-  vpc_id = local.vpc_id
+  description = "Private"
+  name        = "${var.name}-private"
+  tags        = local.private_tags
+  vpc_id      = local.vpc_id
 }
 
 # Allow the Vault API to be accessed from clients.
@@ -251,9 +253,9 @@ resource "aws_security_group_rule" "raft" {
   type                     = "ingress"
 }
 
-# Allow other clusters to use Raft. (Required for "DR" and "PR", both enterprise features.)
+# Allow other clusters to use Raft. (Required when `cluster_addr` is set or for "DR" and "PR", both enterprise features.)
 resource "aws_security_group_rule" "clustertocluster" {
-  count             = var.vault_type == "enterprise" ? 1 : 0
+  count             = var.cluster_addr != "" ? 1 : 0
   cidr_blocks       = var.allowed_cidr_blocks_replication
   description       = "Vault Raft"
   from_port         = 8201
@@ -324,7 +326,7 @@ resource "aws_lb" "api" {
 
 # Add a load balancer for replication.
 resource "aws_lb" "replication" {
-  count              = var.vault_type == "enterprise" ? 1 : 0
+  count              = var.cluster_addr != "" ? 1 : 0
   load_balancer_type = "network"
   name               = "${var.name}-replication"
   subnets            = local.public_subnet_ids
@@ -348,7 +350,7 @@ resource "aws_lb_target_group" "api" {
 
 # Create a load balancer target group.
 resource "aws_lb_target_group" "replication" {
-  count       = var.vault_type == "enterprise" ? 1 : 0
+  count       = var.cluster_addr != "" ? 1 : 0
   name_prefix = "${var.name}-"
   port        = 8201
   protocol    = "TCP"
@@ -371,7 +373,7 @@ resource "aws_lb_listener" "api" {
 
 # Add a replication listener to the loadbalancer.
 resource "aws_lb_listener" "replication" {
-  count             = var.vault_type == "enterprise" ? 1 : 0
+  count             = var.cluster_addr != "" ? 1 : 0
   load_balancer_arn = aws_lb.replication[0].arn
   port              = 8201
   protocol          = "TCP"
@@ -426,10 +428,11 @@ resource "aws_autoscaling_group" "default" {
 
 # Create one security group in the single VPC.
 resource "aws_security_group" "bastion" {
-  count  = var.bastion_host ? 1 : 0
-  name   = "${var.name}-bastion"
-  tags   = local.bastion_tags
-  vpc_id = local.vpc_id
+  count       = var.bastion_host ? 1 : 0
+  description = "Bastion"
+  name        = "${var.name}-bastion"
+  tags        = local.bastion_tags
+  vpc_id      = local.vpc_id
 }
 
 # Allow SSH to the security group.
