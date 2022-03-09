@@ -536,6 +536,7 @@ resource "aws_instance" "bastion" {
   tags                        = local.bastion_tags
   user_data                   = local_file.bastion[0].content
   vpc_security_group_ids      = [aws_security_group.bastion[0].id]
+  depends_on                  = [local.gateway_id]
 }
 
 # Collect the created vault instances.
