@@ -294,6 +294,7 @@ resource "aws_launch_configuration" "default" {
   instance_type        = local.instance_type
   key_name             = local.key_name
   name_prefix          = "${var.name}-"
+  # TODO: Are both security groups required?
   security_groups      = [aws_security_group.private.id, aws_security_group.public.id]
   spot_price           = var.size == "development" ? var.spot_price : null
   user_data            = local_file.vault.content
@@ -329,6 +330,7 @@ resource "aws_lb" "replication" {
   count              = var.cluster_addr != "" ? 1 : 0
   load_balancer_type = "network"
   name               = "${var.name}-replication"
+  # TODO: No security groups?
   subnets            = local.public_subnet_ids
   tags               = local.replication_tags
 }
