@@ -27,7 +27,7 @@ module "vault" {
   certificate_arn   = aws_acm_certificate.default.arn
   default_lease_ttl = "24h"
   key_filename      = "id_rsa.pub"
-  log_level         = "Debug"
+  log_level         = "debug"
   max_lease_ttl     = "168h"
   name              = "dvlpm"
   size              = "development"
