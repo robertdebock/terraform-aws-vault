@@ -117,8 +117,8 @@ variable "bastion_host" {
   default     = true
 }
 
-variable "aws_vpc_cidr_block_start" {
-  description = "The first two octets of the VPC cidr. Only required when `vpc_id` is set to \"\"."
+variable "vpc_cidr_block_start" {
+  description = "The first two octets of the VPC cidr."
   type        = string
   default     = "172.16"
 }

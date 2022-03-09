@@ -11,6 +11,7 @@ To use existing network resources:
 - Set the `var.vpc_id`.
 - Set `var.private_subnet_ids` to a subnet with a NAT router.
 - Set `var.private_subnet_ids` to a subnet with an internet gateway.
+- Optionally set `var.vpc_cidr_block_start` to the first two CIDR octets available in the VPC.
 
 ## API and replication
 

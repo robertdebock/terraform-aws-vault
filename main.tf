@@ -152,7 +152,7 @@ resource "aws_route" "public" {
 resource "aws_subnet" "private" {
   count             = var.vpc_id == "" ? min(length(data.aws_availability_zones.default.names), var.amount) : 0
   availability_zone = data.aws_availability_zones.default.names[count.index]
-  cidr_block        = "${var.aws_vpc_cidr_block_start}.${count.index}.0/24"
+  cidr_block        = "${var.vpc_cidr_block_start}.${count.index}.0/24"
   tags              = local.private_tags
   vpc_id            = local.vpc_id
 }
@@ -161,7 +161,7 @@ resource "aws_subnet" "private" {
 resource "aws_subnet" "public" {
   count             = var.vpc_id == "" ? min(length(data.aws_availability_zones.default.names), var.amount) : 0
   availability_zone = data.aws_availability_zones.default.names[count.index]
-  cidr_block        = "${var.aws_vpc_cidr_block_start}.${count.index + 64}.0/24"
+  cidr_block        = "${var.vpc_cidr_block_start}.${count.index + 64}.0/24"
   tags              = local.public_tags
   vpc_id            = local.vpc_id
 }
@@ -488,7 +488,7 @@ resource "local_file" "bastion" {
 resource "aws_subnet" "bastion" {
   count             = var.bastion_host ? 1 : 0
   availability_zone = data.aws_availability_zones.default.names[0]
-  cidr_block        = "${var.aws_vpc_cidr_block_start}.127.0/24"
+  cidr_block        = "${var.vpc_cidr_block_start}.127.0/24"
   tags              = local.bastion_tags
   vpc_id            = local.vpc_id
 }
