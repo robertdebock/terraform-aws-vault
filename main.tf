@@ -206,9 +206,12 @@ data "aws_ami" "default" {
 # Create a security group for the loadbalancer.
 resource "aws_security_group" "public" {
   description = "Public"
-  name        = "${var.name}-public"
+  name_prefix = "${var.name}-public-"
   tags        = local.public_tags
   vpc_id      = local.vpc_id
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 # Allow the vault API to be accessed from the internet.
@@ -226,9 +229,12 @@ resource "aws_security_group_rule" "api_public" {
 # Create a security group for the instances.
 resource "aws_security_group" "private" {
   description = "Private"
-  name        = "${var.name}-private"
+  name_prefix = "${var.name}-private-"
   tags        = local.private_tags
   vpc_id      = local.vpc_id
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 # Allow the Vault API to be accessed from clients.
@@ -432,9 +438,12 @@ resource "aws_autoscaling_group" "default" {
 resource "aws_security_group" "bastion" {
   count       = var.bastion_host ? 1 : 0
   description = "Bastion"
-  name        = "${var.name}-bastion"
+  name_prefix = "${var.name}-bastion-"
   tags        = local.bastion_tags
   vpc_id      = local.vpc_id
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 # Allow SSH to the security group.
