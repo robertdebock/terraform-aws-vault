@@ -14,6 +14,7 @@ for scenario in * ; do
     ssh-keygen -b 2048 -f id_rsa -q -N ""
     ./vault-tls.sh
     terraform init
+    terraform fmt
     cd ../
   fi
 done
