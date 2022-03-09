@@ -22,5 +22,4 @@ Some scenarios have extra resources. Please read the `README.md` for the scenari
 Simply add your scenario on `.github/workflows/terraform.yml` under: `jobs.terraform.strategy.matrix.config`.
 
 Some scenarios are difficult to test in CI, because extra resources have to be created. For example:
-- `myvpc` required resources described in `examples/myvpc/network`.
-- `mysubnet` required resources described in `examples/myvpc/network`.
+- `mysubnet` required resources described in `examples/mysubnet/network`.
