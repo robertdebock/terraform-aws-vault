@@ -403,7 +403,7 @@ resource "aws_autoscaling_group" "default" {
   name                  = var.name
   placement_group       = aws_placement_group.default.id
   target_group_arns     = local.target_group_arns
-  vpc_zone_identifier   = tolist(aws_subnet.private[*].id)
+  vpc_zone_identifier   = local.private_subnet_ids
   instance_refresh {
     strategy = "Rolling"
     preferences {
