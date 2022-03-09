@@ -1,3 +1,9 @@
+# Emulate an exising key pair, outside of the module.
+resource "aws_key_pair" "default" {
+  key_name   = "mykey"
+  public_key = file("id_rsa.pub")
+}
+
 # Make a certificate.
 resource "aws_acm_certificate" "default" {
   domain_name = "custom.robertdebock.nl"
@@ -26,7 +32,7 @@ module "vault" {
   api_addr        = "https://custom.robertdebock.nl:8200"
   certificate_arn = aws_acm_certificate.default.arn
   instance_type   = "t3.large"
-  key_filename    = "id_rsa.pub"
+  key_name        = aws_key_pair.default.id
   name            = "cstm"
   size            = "custom"
   source          = "../../"
