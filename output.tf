@@ -3,6 +3,11 @@ output "aws_lb_dns_name" {
   value       = aws_lb.api.dns_name
 }
 
+output "aws_lb_zone_id" {
+  description = "The canonical hosted zone ID of the load balancer (to be used in a Route 53 Alias record)."
+  value       = aws_lb.api.zone_id
+}
+
 output "bastion_host_public_ip" {
   description = "The IP address of the bastion host."
   value       = try(aws_instance.bastion[0].public_ip, "No bastion host created.")
