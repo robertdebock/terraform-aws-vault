@@ -5,9 +5,16 @@ You can write "random" data to Vault.
 ```shell
 vault secrets enable -version=2 kv
 
-while [ 1 ] ; do
+# Start at 0.
+counter=0
+
+# Repeat this many times.
+count=2000000
+
+while [ $counter -lt $count ] ; do
   randomness=$(curl --insecure --header "X-Vault-Token: $(cat ~/.vault-token)" --request POST --data "format=hex" ${VAULT_ADDR}/v1/sys/tools/random/164 2> /dev/null)
-  vault kv put kv/my-$((1 + $RANDOM % 1024)) my-key=${randomness}
+  vault kv put kv/my-"${counter}" my-key=${randomness}
+  let counter=counter+1
 done
 ```
 
