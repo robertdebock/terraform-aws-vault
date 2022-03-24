@@ -11,7 +11,9 @@ locals {
   api_tags         = merge({ Name = "api-${var.name}-${random_string.default.result}" }, var.tags)
   replication_tags = merge({ Name = "replication-${var.name}-${random_string.default.result}" }, var.tags)
 
+  # Combine api arn and (optionally) replication arn.
   target_group_arns = compact([aws_lb_target_group.api.arn, try(aws_lb_target_group.replication[0].arn, null)])
+
   # A map from `size` to `instance_type`.
   _instance_type = {
     custom      = var.instance_type
@@ -56,7 +58,7 @@ locals {
   }
   volume_iops = local._volume_iops[var.size]
 
-  # Resolve the key, either set using `key_name` or place using `key_filename`.
+  # Resolve the key, either set using `key_name` or placed using `key_filename`.
   key_name = try(aws_key_pair.default[0].id, var.key_name)
 
   # Form the cidr_block based on a variable.
