@@ -26,6 +26,10 @@ variable "key_name" {
 variable "key_filename" {
   description = "The name of the file that has the public ssh key stored. Either specify \"key_name\" or \"key_filename\"."
   default     = ""
+  validation {
+    condition     = (var.key_filename != "" && fileexists(var.key_filename))
+    error_message = "The specified certificate file does not exist."
+  }
 }
 
 variable "region" {
