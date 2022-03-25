@@ -263,3 +263,23 @@ variable "cooldown" {
     error_message = "Please use a cooldown period between 60 and 600 seconds."
   }
 }
+
+variable "vault_ca_cert" {
+  description = "The CA certificate that Vault nodes will use to sign their certificate."
+  type        = string
+  default     = "tls/vault_ca.crt"
+  validation {
+    condition     = fileexists(var.vault_ca_cert)
+    error_message = "The specified certificate file does not exist."
+  }
+}
+
+variable "vault_ca_key" {
+  description = "The CA key that Vault nodes will use to sign their certificate."
+  type        = string
+  default     = "tls/vault_ca.pem"
+  validation {
+    condition     = fileexists(var.vault_ca_key)
+    error_message = "The specified key file does not exist."
+  }
+}

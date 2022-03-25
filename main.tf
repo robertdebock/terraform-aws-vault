@@ -77,8 +77,8 @@ resource "local_file" "vault" {
       name              = var.name
       random_string     = random_string.default.result
       region            = var.region
-      vault_ca_cert     = file("tls/vault_ca.crt")
-      vault_ca_key      = file("tls/vault_ca.pem")
+      vault_ca_cert     = file(var.vault_ca_cert)
+      vault_ca_key      = file(var.vault_ca_key)
       vault_path        = var.vault_path
       vault_ui          = var.vault_ui
       vault_version     = var.vault_version
