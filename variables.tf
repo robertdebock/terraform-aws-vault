@@ -20,11 +20,13 @@ variable "vault_version" {
 
 variable "key_name" {
   description = "The name of an existing ssh key. Either specify \"key_name\" or \"key_filename\"."
+  type        = string
   default     = ""
 }
 
 variable "key_filename" {
   description = "The name of the file that has the public ssh key stored. Either specify \"key_name\" or \"key_filename\"."
+  type        = string
   default     = ""
   validation {
     condition     = try((var.key_filename != "" && fileexists(var.key_filename)), var.key_filename == "")
@@ -80,7 +82,7 @@ variable "volume_size" {
 variable "volume_iops" {
   description = "When `size` is set to `custom`, specify your own volume iops here. (Maximum 50 times the `volume_size`.)"
   type        = number
-  default     = "400"
+  default     = 400
   validation {
     condition     = var.volume_iops >= 0
     error_message = "Please us a positive number, such as \"2500\"."
