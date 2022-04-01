@@ -3,6 +3,7 @@ resource "aws_vpc" "default" {
   cidr_block = "192.168.0.0/16"
   tags = {
     owner = "robertdebock"
+    purpose = "ci-testing"
   }
 }
 
@@ -11,6 +12,7 @@ resource "aws_internet_gateway" "default" {
   vpc_id = aws_vpc.default.id
   tags = {
     owner = "robertdebock"
+    purpose = "ci-testing"
   }
 }
 
@@ -45,6 +47,7 @@ resource "aws_subnet" "private" {
   availability_zone = data.aws_availability_zones.default.names[count.index]
   tags = {
     owner = "robertdebock"
+    purpose = "ci-testing"
   }
 }
 
@@ -53,7 +56,10 @@ resource "aws_subnet" "private" {
 # resource "aws_nat_gateway" "default" {
 #   allocation_id = aws_eip.default.id
 #   subnet_id     = aws_subnet.public[count.index].id
-#   tags          = local.tags
+#   tags = {
+#     owner = "robertdebock"
+#     purpose = "ci-testing"
+#   }
 #   depends_on    = [aws_internet_gateway.default]
 # }
 
@@ -78,6 +84,7 @@ resource "aws_subnet" "public" {
   availability_zone = data.aws_availability_zones.default.names[count.index]
   tags = {
     owner = "robertdebock"
+    purpose = "ci-testing"
   }
 }
 
@@ -89,6 +96,7 @@ resource "aws_subnet" "extra" {
   availability_zone = data.aws_availability_zones.default.names[count.index]
   tags = {
     owner = "robertdebock"
+    purpose = "ci-testing"
   }
 }
 

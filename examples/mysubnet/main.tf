@@ -29,9 +29,9 @@ module "vault" {
   name                 = "msbnt"
   source               = "../../"
   vpc_cidr_block_start = "192.168"
-  private_subnet_ids   = ["subnet-0375587643ecc9f85", "subnet-06017ca11fe1c6000", "subnet-0512bc3a4bf85455a"]
-  public_subnet_ids    = ["subnet-0f6578d991e7fc991", "subnet-05efa5fcce21b7caf", "subnet-06d1d0f490695c795"]
-  vpc_id               = "vpc-06a33ce8f2b6352fa"
+  private_subnet_ids   = ["subnet-0114a1bf19906728f", "subnet-0e245b9df1e54dade", "subnet-0f4c5b9df7227bd2c"]
+  public_subnet_ids    = ["subnet-09e2489480140e86a", "subnet-02d0623c59e455eea", "subnet-065a697a451e8b08c"]
+  vpc_id               = "vpc-04d8245ad1f1f546c"
   tags = {
     owner = "robertdebock"
   }
