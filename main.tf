@@ -43,6 +43,7 @@ data "aws_iam_policy_document" "join_unseal" {
 # Make a role to allow role assumption.
 resource "aws_iam_role" "default" {
   assume_role_policy = data.aws_iam_policy_document.assumerole.json
+  description        = "Vault role - ${var. name}"
   name               = var.name
   tags               = local.tags
 }
