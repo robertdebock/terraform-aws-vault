@@ -65,8 +65,8 @@ variable "volume_type" {
   type        = string
   default     = "io1"
   validation {
-    condition     = contains(["gp2", "io1"], var.volume_type)
-    error_message = "Please use \"gp2\" or \"io1\"."
+    condition     = contains(["gp2", "gp3", "io1", "io2"], var.volume_type)
+    error_message = "Please use \"gp3\", \"gp3\", \"io1\" or \"io2\"."
   }
 }
 variable "volume_size" {
