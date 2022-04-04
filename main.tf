@@ -1,6 +1,6 @@
 # Make a key for unsealing.
 resource "aws_kms_key" "default" {
-  description = var.name
+  description = "Vault unseal key - ${var.name}"
   tags        = local.tags
 }
 
