@@ -29,10 +29,10 @@ locals {
   _volume_type = {
     custom      = var.volume_type
     development = "gp2"
-    minimum     = "io1"
-    small       = "io1"
-    large       = "io1"
-    maximum     = "io1"
+    minimum     = "gp3"
+    small       = "gp3"
+    large       = "gp3"
+    maximum     = "gp3"
   }
   volume_type = local._volume_type[var.size]
 
