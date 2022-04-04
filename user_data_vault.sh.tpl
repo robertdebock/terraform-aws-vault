@@ -84,6 +84,9 @@ else
   cluster_addr="${cluster_addr}"
 fi
 
+# A single "$": passed from Terraform.
+# A double "$$": determined in the runtime of this script.
+
 # Place the Vault configuration.
 cat << EOF > /etc/vault.d/vault.hcl
 ui                = ${vault_ui}
