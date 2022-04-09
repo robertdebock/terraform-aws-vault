@@ -140,7 +140,7 @@ variable "tags" {
 variable "max_instance_lifetime" {
   description = "The amount of seconds after which to replace the instances."
   type        = number
-  default     = 86400
+  default     = 0
   validation {
     condition     = var.max_instance_lifetime == 0 || (var.max_instance_lifetime >= 86400 && var.max_instance_lifetime <= 31536000)
     error_message = "Use \"0\" to remove the parameter or a value between \"86400\" and \"31536000\"."
