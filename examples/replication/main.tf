@@ -44,6 +44,7 @@ module "vault_one" {
   allowed_cidr_blocks_replication = ["0.0.0.0/0"]
   api_addr                        = "https://one.robertdebock.nl:8200"
   certificate_arn                 = aws_acm_certificate.one.arn
+  cluster_addr                    = "https://replication-one.robertdebock.nl:8201"
   name                            = "one"
   instance_type                   = "m6g.large"
   size                            = "custom"
@@ -61,6 +62,7 @@ module "vault_two" {
   allowed_cidr_blocks_replication = ["0.0.0.0/0"]
   api_addr                        = "https://two.robertdebock.nl:8200"
   certificate_arn                 = aws_acm_certificate.two.arn
+  cluster_addr                    = "https://replication-two.robertdebock.nl:8201"
   name                            = "two"
   source                          = "../../"
   key_filename                    = "id_rsa.pub"
@@ -84,5 +86,21 @@ resource "cloudflare_record" "two" {
   name    = "two"
   type    = "CNAME"
   value   = module.vault_two.aws_lb_dns_name
+  zone_id = data.cloudflare_zone.default.id
+}
+
+# Add a loadbalancer record to DNS zone for cluster one.
+resource "cloudflare_record" "replication_one" {
+  name    = "replication-one"
+  type    = "CNAME"
+  value   = module.vault_one.aws_lb_replication_dns_name
+  zone_id = data.cloudflare_zone.default.id
+}
+
+# Add a loadbalancer record to DNS zone for cluster two.
+resource "cloudflare_record" "relication_two" {
+  name    = "replication-two"
+  type    = "CNAME"
+  value   = module.vault_two.aws_lb_replication_dns_name
   zone_id = data.cloudflare_zone.default.id
 }

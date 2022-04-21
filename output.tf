@@ -29,3 +29,8 @@ output "instructions" {
   6. Run: vault operator raft autopilot set-config -min-quorum=${var.amount} -cleanup-dead-servers=true -dead-server-last-contact-threshold=${var.cooldown / 2.5}
 EOF
 }
+
+output "aws_lb_replication_dns_name" {
+  description = "The DNS name of the replication loadbalancer."
+  value       = try(aws_lb.replication[0].dns_name, "No replication loadbalancer has been created.")
+}
