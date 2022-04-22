@@ -29,6 +29,7 @@ chmod 750 "${vault_path}"
 # 169.254.169.254 is an Amazon service to provide information about itself.
 my_hostname="$(curl http://169.254.169.254/latest/meta-data/hostname)"
 my_ipaddress="$(curl http://169.254.169.254/latest/meta-data/local-ipv4)"
+my_instance_id="$(curl http://169.254.169.254/latest/meta-data/instance-id)"
 
 # Place CA key and certificate.
 test -d ${vault_path}/tls || mkdir ${vault_path}/tls
@@ -89,6 +90,8 @@ fi
 
 # Place the Vault configuration.
 cat << EOF > /etc/vault.d/vault.hcl
+cluster_name      = ${name}
+disable_mlock     = true
 ui                = ${vault_ui}
 api_addr          = "${api_addr}"
 cluster_addr      = "$${cluster_addr}"
@@ -98,7 +101,7 @@ default_lease_ttl = "${default_lease_ttl}"
 
 storage "raft" {
   path    = "${vault_path}/data"
-  node_id = "$${my_hostname}"
+  node_id = "$${my_instance_id}"
   retry_join {
     auto_join               = "provider=aws tag_key=Name tag_value=${name}-${random_string} addr_type=private_v4 region=${region}"
     auto_join_scheme        = "https"
