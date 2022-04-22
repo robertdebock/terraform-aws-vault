@@ -18,7 +18,6 @@ jobs:
           - name: default
           - name: development
           - name: enterprise
-          - name: graviton
           - name: mysubnet
           - name: replication
       max-parallel: 3
