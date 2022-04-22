@@ -260,9 +260,9 @@ resource "aws_security_group_rule" "raft" {
   type                     = "ingress"
 }
 
-# Allow other clusters to use Raft. (Required when `cluster_addr` is set or for "DR" and "PR", both enterprise features.)
+# Allow other clusters to use Raft. (This is an enterprise feature.)
 resource "aws_security_group_rule" "clustertocluster" {
-  count             = var.cluster_addr != "" ? 1 : 0
+  count             = var.vault_replication ? 1 : 0
   cidr_blocks       = var.allowed_cidr_blocks_replication
   description       = "Vault Raft"
   from_port         = 8201
@@ -334,7 +334,7 @@ resource "aws_lb" "api" {
 
 # Add a load balancer for replication.
 resource "aws_lb" "replication" {
-  count              = var.cluster_addr != "" ? 1 : 0
+  count              = var.vault_replication ? 1 : 0
   load_balancer_type = "network"
   name               = "${var.name}-replication"
   # TODO: No security groups?
@@ -359,7 +359,7 @@ resource "aws_lb_target_group" "api" {
 
 # Create a load balancer target group.
 resource "aws_lb_target_group" "replication" {
-  count       = var.cluster_addr != "" ? 1 : 0
+  count       = var.vault_replication ? 1 : 0
   name_prefix = "${var.name}-"
   port        = 8201
   protocol    = "TCP"
@@ -382,7 +382,7 @@ resource "aws_lb_listener" "api" {
 
 # Add a replication listener to the loadbalancer.
 resource "aws_lb_listener" "replication" {
-  count             = var.cluster_addr != "" ? 1 : 0
+  count             = var.vault_replication ? 1 : 0
   load_balancer_arn = aws_lb.replication[0].arn
   port              = 8201
   protocol          = "TCP"

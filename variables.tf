@@ -289,3 +289,9 @@ variable "vault_ca_key" {
     error_message = "The specified key file does not exist."
   }
 }
+
+variable "vault_replication" {
+  description = "Allow Vault replication to be used."
+  type        = bool
+  default     = false
+}
