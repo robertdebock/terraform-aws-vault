@@ -90,7 +90,7 @@ fi
 
 # Place the Vault configuration.
 cat << EOF > /etc/vault.d/vault.hcl
-cluster_name      = ${name}
+cluster_name      = "${name}"
 disable_mlock     = true
 ui                = ${vault_ui}
 api_addr          = "${api_addr}"
