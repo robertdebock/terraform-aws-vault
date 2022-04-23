@@ -1,6 +1,6 @@
 # Replication
 
-An extra loadbalancer is created when `cluster_addr` is set.
+An extra loadbalancer is created when `vault_replication` is set to `true`.
 
 To setup Disaster Recovery (DR) or Performance Replication (PR), follow these steps.
 
