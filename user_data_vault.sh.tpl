@@ -78,7 +78,7 @@ chown vault:vault ${vault_path}/tls/*
 
 # Deterine the cluster_addr
 if [ -z "${cluster_addr}" ] ; then
-  echo "Setting the cluster_addr to https://$${my_hostname}:8201"
+  echo "Setting the cluster_addr to https://$${my_ipaddress}:8201"
   cluster_addr="https://$${my_ipaddress}:8201"
 else
   echo "Using cluster_addr ${cluster_addr}"
