@@ -104,5 +104,3 @@ resource "cloudflare_record" "replication_two" {
   value   = module.vault_two.aws_lb_replication_dns_name
   zone_id = data.cloudflare_zone.default.id
 }
-
-# TODO: Add a aws route53 health checked record.
