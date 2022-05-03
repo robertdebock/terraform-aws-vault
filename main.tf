@@ -351,7 +351,7 @@ resource "aws_lb_target_group" "api" {
   vpc_id      = local.vpc_id
   health_check {
     interval = 5
-    path     = "/v1/sys/health"
+    path     = "/v1/sys/health?standbyok=true"
     protocol = "HTTPS"
     timeout  = 2
   }
@@ -406,7 +406,7 @@ resource "aws_autoscaling_group" "default" {
   default_cooldown      = var.cooldown
   desired_capacity      = var.amount
   enabled_metrics       = ["GroupDesiredCapacity", "GroupInServiceCapacity", "GroupPendingCapacity", "GroupMinSize", "GroupMaxSize", "GroupInServiceInstances", "GroupPendingInstances", "GroupStandbyInstances", "GroupStandbyCapacity", "GroupTerminatingCapacity", "GroupTerminatingInstances", "GroupTotalCapacity", "GroupTotalInstances"]
-  health_check_type     = "EC2"
+  health_check_type     = "ELB"
   launch_configuration  = aws_launch_configuration.default.name
   max_instance_lifetime = var.max_instance_lifetime
   max_size              = var.amount + 1

@@ -8,10 +8,10 @@ When you set `vault_type` to `opensource`, you will get one target group for por
 
 ### Expected state
 
-- 1 healthy instance.
-- 2 unhealthy instances.
+- 3 healthy instance.
+- no unhealthy instances.
 
-Basically one node receives all the API and UI traffic.
+Basically all nodes receives all the API and UI traffic and the standby nodes forward traffic to the leader.
 
 ## Enterprise
 
@@ -24,8 +24,7 @@ When you set `vault_type` to `enterprise`, you will get two target groups:
 
 #### Port :8200/tcp
 
-- 1 healthy instance.
-- 2 unhealthy instances.
+- 3 healthy instance.
 
 Basically one node receives all the API and UI traffic.
 
