@@ -45,7 +45,7 @@ module "vault_one" {
   api_addr                        = "https://one.robertdebock.nl:8200"
   certificate_arn                 = aws_acm_certificate.one.arn
   name                            = "one"
-  instance_type                   = "m6g.large"
+  instance_type                   = "m6g.medium"
   size                            = "custom"
   source                          = "../../"
   key_filename                    = "id_rsa.pub"
@@ -63,6 +63,8 @@ module "vault_two" {
   api_addr                        = "https://two.robertdebock.nl:8200"
   certificate_arn                 = aws_acm_certificate.two.arn
   name                            = "two"
+  instance_type                   = "m6g.medium"
+  size                            = "custom"
   source                          = "../../"
   key_filename                    = "id_rsa.pub"
   vault_type                      = "enterprise"
@@ -103,4 +105,64 @@ resource "cloudflare_record" "replication_two" {
   type    = "CNAME"
   value   = module.vault_two.aws_lb_replication_dns_name
   zone_id = data.cloudflare_zone.default.id
+}
+
+# Create a (fake) route53 zone.
+resource "aws_route53_zone" "default" {
+  name = "voorbeeld.com"
+}
+
+# Add health checking for "one".
+resource "aws_route53_health_check" "one" {
+  fqdn              = module.vault_one.aws_lb_dns_name
+  port              = 8200
+  type              = "HTTPS"
+  resource_path     = "v1/sys/health"
+  failure_threshold = "3"
+  request_interval  = "10"
+  tags = {
+    owner = "robertdebock"
+    Name  = "vault-one"
+  }
+}
+
+# Add health checking for "two".
+resource "aws_route53_health_check" "two" {
+  fqdn              = module.vault_two.aws_lb_dns_name
+  port              = 8200
+  type              = "HTTPS"
+  resource_path     = "v1/sys/health"
+  failure_threshold = "3"
+  request_interval  = "10"
+  tags = {
+    owner = "robertdebock"
+    Name  = "vault-two"
+  }
+}
+# Create a "one" record in the fake zone.
+resource "aws_route53_record" "one" {
+  failover_routing_policy {
+    type = "PRIMARY"
+  }
+  health_check_id = aws_route53_health_check.one.id
+  name            = "vault.voorbeeld.com"
+  records         = [module.vault_one.aws_lb_dns_name]
+  set_identifier  = "one"
+  ttl             = "60"
+  type            = "CNAME"
+  zone_id         = aws_route53_zone.default.id
+}
+
+# Create a "two" record in the fake zone.
+resource "aws_route53_record" "two" {
+  failover_routing_policy {
+    type = "SECONDARY"
+  }
+  health_check_id = aws_route53_health_check.two.id
+  name            = "vault.voorbeeld.com"
+  records         = [module.vault_two.aws_lb_dns_name]
+  set_identifier  = "two"
+  ttl             = "60"
+  type            = "CNAME"
+  zone_id         = aws_route53_zone.default.id
 }
