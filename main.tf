@@ -70,7 +70,6 @@ resource "local_file" "vault" {
   content = templatefile("${path.module}/user_data_vault.sh.tpl",
     {
       api_addr          = local.api_addr
-      cluster_addr      = try(var.cluster_addr, null)
       default_lease_ttl = var.default_lease_ttl
       instance_name     = local.instance_name
       kms_key_id        = aws_kms_key.default.id

@@ -76,15 +76,6 @@ cat ${vault_path}/tls/vault_ca.crt >> ${vault_path}/tls/vault.crt
 # The TLS material is owned by Vault.
 chown vault:vault ${vault_path}/tls/*
 
-# Deterine the cluster_addr
-if [ -z "${cluster_addr}" ] ; then
-  echo "Setting the cluster_addr to https://$${my_ipaddress}:8201"
-  cluster_addr="https://$${my_ipaddress}:8201"
-else
-  echo "Using cluster_addr ${cluster_addr}"
-  cluster_addr="${cluster_addr}"
-fi
-
 # A single "$": passed from Terraform.
 # A double "$$": determined in the runtime of this script.
 
@@ -94,7 +85,7 @@ cluster_name      = "${name}"
 disable_mlock     = true
 ui                = ${vault_ui}
 api_addr          = "${api_addr}"
-cluster_addr      = "$${cluster_addr}"
+cluster_addr      = "https://$${my_ipaddress}:8201"
 log_level         = "${log_level}"
 max_lease_ttl     = "${max_lease_ttl}"
 default_lease_ttl = "${default_lease_ttl}"
