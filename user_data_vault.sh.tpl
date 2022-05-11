@@ -103,7 +103,7 @@ storage "raft" {
   path    = "${vault_path}/data"
   node_id = "$${my_instance_id}"
   retry_join {
-    auto_join               = "provider=aws tag_key=Name tag_value=${name}-${random_string} addr_type=private_v4 region=${region}"
+    auto_join               = "provider=aws tag_key=Name tag_value=${instance_name} addr_type=private_v4 region=${region}"
     auto_join_scheme        = "https"
     leader_ca_cert_file     = "${vault_path}/tls/vault_ca.crt"
     leader_client_cert_file = "${vault_path}/tls/vault.crt"
