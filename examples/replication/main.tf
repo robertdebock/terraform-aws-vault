@@ -117,7 +117,7 @@ resource "aws_route53_health_check" "one" {
   fqdn              = module.vault_one.aws_lb_dns_name
   port              = 8200
   type              = "HTTPS"
-  resource_path     = "v1/sys/health"
+  resource_path     = "v1/sys/health?performancestandbycode=200"
   failure_threshold = "3"
   request_interval  = "10"
   tags = {
@@ -131,7 +131,13 @@ resource "aws_route53_health_check" "two" {
   fqdn              = module.vault_two.aws_lb_dns_name
   port              = 8200
   type              = "HTTPS"
-  resource_path     = "v1/sys/health"
+  # Raft followers will return status 473, performance standby.
+  # Becasue we consider both leaders and followers healthy on the load
+  # balancer, we need Vault to return 200 for followers.
+  # Vault itself will redirect traffic from followers to a leader.
+  # "473": Raft standby nodes should be considered healthy.
+  # See https://www.vaultproject.io/api-docs/system/health
+  resource_path     = "v1/sys/health?performancestandbycode=200"
   failure_threshold = "3"
   request_interval  = "10"
   tags = {
