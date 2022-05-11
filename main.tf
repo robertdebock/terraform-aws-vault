@@ -43,7 +43,7 @@ data "aws_iam_policy_document" "join_unseal" {
 # Make a role to allow role assumption.
 resource "aws_iam_role" "default" {
   assume_role_policy = data.aws_iam_policy_document.assumerole.json
-  description        = "Vault role - ${var. name}"
+  description        = "Vault role - ${var.name}"
   name               = var.name
   tags               = local.tags
 }
@@ -72,6 +72,7 @@ resource "local_file" "vault" {
       api_addr          = local.api_addr
       cluster_addr      = try(var.cluster_addr, null)
       default_lease_ttl = var.default_lease_ttl
+      instance_name     = local.instance_name
       kms_key_id        = aws_kms_key.default.id
       log_level         = var.log_level
       max_lease_ttl     = var.max_lease_ttl
@@ -351,7 +352,13 @@ resource "aws_lb_target_group" "api" {
   vpc_id      = local.vpc_id
   health_check {
     interval = 5
-    path     = "/v1/sys/health?standbyok=true"
+    # "200": Raft leaders should not be replaced.
+    # "429": Raft standby nodes should not be replaced.
+    # "472": Nodes of Disaster recovery cluster should not be replaced.
+    # "473": Nodes of Performance replication cluster should not be replaced.
+    # See https://www.vaultproject.io/api-docs/system/health
+    matcher  = "200,429,472,473"
+    path     = "/v1/sys/health"
     protocol = "HTTPS"
     timeout  = 2
   }
@@ -428,7 +435,7 @@ resource "aws_autoscaling_group" "default" {
   tag {
     key                 = "Name"
     propagate_at_launch = true
-    value               = "${var.name}-${random_string.default.result}"
+    value               = local.instance_name
   }
   timeouts {
     delete = "15m"
@@ -558,7 +565,7 @@ resource "aws_instance" "bastion" {
 data "aws_instances" "default" {
   instance_state_names = ["running"]
   instance_tags = {
-    Name = "${var.name}-${random_string.default.result}"
+    Name = local.instance_name
   }
   depends_on = [aws_autoscaling_group.default]
 }
