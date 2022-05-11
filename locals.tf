@@ -11,6 +11,9 @@ locals {
   api_tags         = merge({ Name = "api-${var.name}-${random_string.default.result}" }, var.tags)
   replication_tags = merge({ Name = "replication-${var.name}-${random_string.default.result}" }, var.tags)
 
+  # Compose the name of the instances.
+  instance_name = "vault-${var.name}-${random_string.default.result}"
+
   # Combine api arn and (optionally) replication arn.
   target_group_arns = compact([aws_lb_target_group.api.arn, try(aws_lb_target_group.replication[0].arn, null)])
 
