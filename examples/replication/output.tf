@@ -17,3 +17,13 @@ output "instructions_two" {
   description = "How to initialize Vault."
   value       = module.vault_two.instructions
 }
+
+output "aws_lb_replication_dns_name_one" {
+  description = "The replication address for cluster one."
+  value       = module.vault_one.aws_lb_replication_dns_name
+}
+
+output "aws_lb_replication_dns_name_two" {
+  description = "The replication address for cluster two."
+  value       = module.vault_two.aws_lb_replication_dns_name
+}
