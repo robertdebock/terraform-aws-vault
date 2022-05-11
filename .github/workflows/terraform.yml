@@ -17,7 +17,6 @@ jobs:
           - name: custom
           - name: default
           - name: development
-          - name: enterprise
           - name: mysubnet
           - name: replication
       max-parallel: 3
