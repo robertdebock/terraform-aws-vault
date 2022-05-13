@@ -75,7 +75,7 @@ module "vault_two" {
   }
 }
 
-# Add a loadbalancer record to DNS zone for cluster one.
+# Add a load balancer record to DNS zone for cluster one.
 resource "cloudflare_record" "one" {
   name    = "one"
   type    = "CNAME"
@@ -83,7 +83,7 @@ resource "cloudflare_record" "one" {
   zone_id = data.cloudflare_zone.default.id
 }
 
-# Add a loadbalancer record to DNS zone for cluster two.
+# Add a load balancer record to DNS zone for cluster two.
 resource "cloudflare_record" "two" {
   name    = "two"
   type    = "CNAME"
@@ -91,7 +91,7 @@ resource "cloudflare_record" "two" {
   zone_id = data.cloudflare_zone.default.id
 }
 
-# Add a loadbalancer record to DNS zone for cluster one.
+# Add a load balancer record to DNS zone for cluster one.
 resource "cloudflare_record" "replication_one" {
   name    = "replication-one"
   type    = "CNAME"
@@ -99,7 +99,7 @@ resource "cloudflare_record" "replication_one" {
   zone_id = data.cloudflare_zone.default.id
 }
 
-# Add a loadbalancer record to DNS zone for cluster two.
+# Add a load balancer record to DNS zone for cluster two.
 resource "cloudflare_record" "replication_two" {
   name    = "replication-two"
   type    = "CNAME"
@@ -117,7 +117,7 @@ resource "aws_route53_health_check" "one" {
   fqdn              = module.vault_one.aws_lb_dns_name
   port              = 8200
   type              = "HTTPS"
-  resource_path     = "v1/sys/health?performancestandbycode=200"
+  resource_path     = "/v1/sys/health?performancestandbycode=200"
   failure_threshold = "3"
   request_interval  = "10"
   tags = {
@@ -137,7 +137,7 @@ resource "aws_route53_health_check" "two" {
   # Vault itself will redirect traffic from followers to a leader.
   # "473": Raft standby nodes should be considered healthy.
   # See https://www.vaultproject.io/api-docs/system/health
-  resource_path     = "v1/sys/health?performancestandbycode=200"
+  resource_path     = "/v1/sys/health?performancestandbycode=200"
   failure_threshold = "3"
   request_interval  = "10"
   tags = {
