@@ -325,7 +325,6 @@ resource "aws_placement_group" "default" {
 
 # Add a load balancer for the API/UI.
 resource "aws_lb" "api" {
-  load_balancer_type = "application"
   name               = "${var.name}-api"
   security_groups    = [aws_security_group.public.id, aws_security_group.private.id]
   subnets            = local.public_subnet_ids
