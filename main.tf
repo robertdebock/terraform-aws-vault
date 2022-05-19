@@ -310,7 +310,7 @@ resource "aws_launch_configuration" "default" {
   spot_price      = var.size == "development" ? var.spot_price : null
   user_data       = local_file.vault.content
   root_block_device {
-    encrypted   = false
+    encrypted   = true
     iops        = local.volume_iops
     volume_size = local.volume_size
     volume_type = local.volume_type
@@ -560,6 +560,12 @@ resource "aws_instance" "bastion" {
   tags                        = local.bastion_tags
   user_data                   = local_file.bastion[0].content
   vpc_security_group_ids      = [aws_security_group.bastion[0].id]
+  root_block_device {
+    volume_size           = "32"
+    volume_type           = "gp2"
+    encrypted             = true
+    delete_on_termination = true
+  }
   depends_on                  = [local.gateway_id]
 }
 
