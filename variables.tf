@@ -187,7 +187,7 @@ variable "max_lease_ttl" {
   type        = string
   default     = "768h"
   validation {
-    condition     = can(regex("^[1-9][0-9]*(s|m|h)", var.max_lease_ttl))
+    condition     = can(regex("^[1-9][0-9]*(s|m|h)$", var.max_lease_ttl))
     error_message = "Please use a positive number, followed by the duration indicator."
   }
 }
@@ -282,6 +282,33 @@ variable "vault_ca_key" {
 
 variable "vault_replication" {
   description = "Allow Vault replication to be used."
+  type        = bool
+  default     = false
+}
+
+variable "telemetry" {
+  description = "Enable telemetry."
+  type        = bool
+  default     = false
+}
+
+variable "prometheus_retention_time" {
+  description = "Specifies the amount of time that Prometheus metrics are retained in memory."
+  type        = string
+  default     = "24h"
+  validation {
+    condition     = try(can(regex("^[1-9][0-9]*(s|m|h)$", var.prometheus_retention_time)), var.prometheus_retention_time == 0)
+    error_message = "Please use time indicator, starting with a number, ending in s, m or h. 0 can also be used to disable retention."
+  }
+}
+variable "prometheus_disable_hostname" {
+  description = "It is recommended to also enable the option disable_hostname to avoid having prefixed metrics with hostname."
+  type        = bool
+  default     = false
+}
+
+variable "telemetry_unauthenticated_metrics_access" {
+  description = "If set to true, allows unauthenticated access to the /v1/sys/metrics endpoint."
   type        = bool
   default     = false
 }

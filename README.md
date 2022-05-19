@@ -34,6 +34,7 @@ This code spins up a HashiCorp Vault cluster:
 - Details on the [target groups](TARGET_GROUPS.md).
 - Details on [testing](TESTING.md).
 - Details on [upgrading](UPGRADING.md).
+- Detauls on [telemetry](TELEMETRY.md).
 
 These variables can be used.
 

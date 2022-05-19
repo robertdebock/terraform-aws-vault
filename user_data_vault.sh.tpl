@@ -116,6 +116,17 @@ seal "awskms" {
 }
 EOF
 
+if [ "${telemetry}" = true ] ; then
+cat << EOF >> /etc/vault.d/vault.hcl
+
+telemetry {
+  unauthenticated_metrics_access = ${unauthenticated_metrics_access}
+  prometheus_retention_time      = "${prometheus_retention_time}"
+  disable_hostname               = ${prometheus_disable_hostname}
+}
+EOF
+fi
+
 # Expose the license.
 if [ ! -z "${vault_license}" ] ; then
   echo "VAULT_LICENSE=${vault_license}" >> /etc/vault.d/vault.env
