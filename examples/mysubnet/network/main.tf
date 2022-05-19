@@ -2,7 +2,7 @@
 resource "aws_vpc" "default" {
   cidr_block = "192.168.0.0/16"
   tags = {
-    owner = "robertdebock"
+    owner   = "robertdebock"
     purpose = "ci-testing"
   }
 }
@@ -11,7 +11,7 @@ resource "aws_vpc" "default" {
 resource "aws_internet_gateway" "default" {
   vpc_id = aws_vpc.default.id
   tags = {
-    owner = "robertdebock"
+    owner   = "robertdebock"
     purpose = "ci-testing"
   }
 }
@@ -46,7 +46,7 @@ resource "aws_subnet" "private" {
   cidr_block        = "192.168.${count.index + 64}.0/24"
   availability_zone = data.aws_availability_zones.default.names[count.index]
   tags = {
-    owner = "robertdebock"
+    owner   = "robertdebock"
     purpose = "ci-testing"
   }
 }
@@ -83,7 +83,7 @@ resource "aws_subnet" "public" {
   cidr_block        = "192.168.${count.index}.0/24"
   availability_zone = data.aws_availability_zones.default.names[count.index]
   tags = {
-    owner = "robertdebock"
+    owner   = "robertdebock"
     purpose = "ci-testing"
   }
 }
@@ -95,7 +95,7 @@ resource "aws_subnet" "extra" {
   cidr_block        = "192.168.${count.index + 192}.0/24"
   availability_zone = data.aws_availability_zones.default.names[count.index]
   tags = {
-    owner = "robertdebock"
+    owner   = "robertdebock"
     purpose = "ci-testing"
   }
 }

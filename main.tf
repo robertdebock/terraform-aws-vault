@@ -69,22 +69,26 @@ resource "local_file" "vault" {
   filename             = "user_data_vault.sh"
   content = templatefile("${path.module}/user_data_vault.sh.tpl",
     {
-      api_addr          = local.api_addr
-      default_lease_ttl = var.default_lease_ttl
-      instance_name     = local.instance_name
-      kms_key_id        = aws_kms_key.default.id
-      log_level         = var.log_level
-      max_lease_ttl     = var.max_lease_ttl
-      name              = var.name
-      random_string     = random_string.default.result
-      region            = var.region
-      vault_ca_cert     = file(var.vault_ca_cert)
-      vault_ca_key      = file(var.vault_ca_key)
-      vault_path        = var.vault_path
-      vault_ui          = var.vault_ui
-      vault_version     = var.vault_version
-      vault_package     = local.vault_package
-      vault_license     = try(var.vault_license, null)
+      api_addr                       = local.api_addr
+      default_lease_ttl              = var.default_lease_ttl
+      instance_name                  = local.instance_name
+      kms_key_id                     = aws_kms_key.default.id
+      log_level                      = var.log_level
+      max_lease_ttl                  = var.max_lease_ttl
+      name                           = var.name
+      prometheus_disable_hostname    = var.prometheus_disable_hostname
+      prometheus_retention_time      = var.prometheus_retention_time
+      random_string                  = random_string.default.result
+      region                         = var.region
+      telemetry                      = var.telemetry
+      unauthenticated_metrics_access = var.telemetry_unauthenticated_metrics_access
+      vault_ca_cert                  = file(var.vault_ca_cert)
+      vault_ca_key                   = file(var.vault_ca_key)
+      vault_path                     = var.vault_path
+      vault_ui                       = var.vault_ui
+      vault_version                  = var.vault_version
+      vault_package                  = local.vault_package
+      vault_license                  = try(var.vault_license, null)
     }
   )
 }
@@ -302,9 +306,9 @@ resource "aws_launch_configuration" "default" {
   key_name             = local.key_name
   name_prefix          = "${var.name}-"
   # TODO: Are both security groups required?
-  security_groups      = [aws_security_group.private.id, aws_security_group.public.id]
-  spot_price           = var.size == "development" ? var.spot_price : null
-  user_data            = local_file.vault.content
+  security_groups = [aws_security_group.private.id, aws_security_group.public.id]
+  spot_price      = var.size == "development" ? var.spot_price : null
+  user_data       = local_file.vault.content
   root_block_device {
     encrypted   = false
     iops        = local.volume_iops
@@ -325,10 +329,10 @@ resource "aws_placement_group" "default" {
 
 # Add a load balancer for the API/UI.
 resource "aws_lb" "api" {
-  name               = "${var.name}-api"
-  security_groups    = [aws_security_group.public.id, aws_security_group.private.id]
-  subnets            = local.public_subnet_ids
-  tags               = local.api_tags
+  name            = "${var.name}-api"
+  security_groups = [aws_security_group.public.id, aws_security_group.private.id]
+  subnets         = local.public_subnet_ids
+  tags            = local.api_tags
 }
 
 # Add a load balancer for replication.
@@ -337,8 +341,8 @@ resource "aws_lb" "replication" {
   load_balancer_type = "network"
   name               = "${var.name}-replication"
   # TODO: No security groups?
-  subnets            = local.public_subnet_ids
-  tags               = local.replication_tags
+  subnets = local.public_subnet_ids
+  tags    = local.replication_tags
 }
 
 # Create a load balancer target group for the API/UI.
