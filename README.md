@@ -30,7 +30,7 @@ This code spins up a HashiCorp Vault cluster:
     DEV             
 ```
 
-- Details on the [network setup](NETWORK.md).
+- Details on the [network setup](NETWORK.MD).
 - Details on the [target groups](TARGET_GROUPS.md).
 - Details on [testing](TESTING.md).
 - Details on [upgrading](UPGRADING.md).
