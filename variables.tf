@@ -290,7 +290,7 @@ variable "vault_replication" {
 }
 
 variable "telemetry" {
-  description = "Enable telemetry."
+  description = "Enable telemetry; uses a weaker health check on the ASG."
   type        = bool
   default     = false
 }

@@ -359,7 +359,7 @@ resource "aws_lb_target_group" "api" {
     # "472": Nodes of Disaster recovery cluster should not be replaced.
     # "473": Nodes of Performance replication cluster should not be replaced.
     # See https://www.vaultproject.io/api-docs/system/health
-    matcher  = "200,429,472,473"
+    matcher  = var.telemetry ? "200,472,473" : "200,429,472,473"
     path     = "/v1/sys/health"
     protocol = "HTTPS"
     timeout  = 2
@@ -380,6 +380,7 @@ resource "aws_lb_target_group" "replication" {
 resource "aws_lb_listener" "api" {
   certificate_arn   = var.certificate_arn
   load_balancer_arn = aws_lb.api.arn
+  # TODO: make this port variable.
   port              = 8200
   protocol          = "HTTPS"
   tags              = local.api_tags
@@ -415,7 +416,7 @@ resource "aws_autoscaling_group" "default" {
   default_cooldown      = var.cooldown
   desired_capacity      = var.amount
   enabled_metrics       = ["GroupDesiredCapacity", "GroupInServiceCapacity", "GroupPendingCapacity", "GroupMinSize", "GroupMaxSize", "GroupInServiceInstances", "GroupPendingInstances", "GroupStandbyInstances", "GroupStandbyCapacity", "GroupTerminatingCapacity", "GroupTerminatingInstances", "GroupTotalCapacity", "GroupTotalInstances"]
-  health_check_type     = "ELB"
+  health_check_type     = var.telemetry ? "EC2" : "ELB"
   launch_configuration  = aws_launch_configuration.default.name
   max_instance_lifetime = var.max_instance_lifetime
   max_size              = var.amount + 1
