@@ -103,11 +103,14 @@ storage "raft" {
 }
 
 listener "tcp" {
-  address            = "$${my_ipaddress}:8200"
-  cluster_address    = "$${my_ipaddress}:8201"
-  tls_key_file       = "${vault_path}/tls/vault.pem"
-  tls_cert_file      = "${vault_path}/tls/vault.crt"
-  tls_client_ca_file = "${vault_path}/tls/vault_ca.crt"
+  address                        = "$${my_ipaddress}:8200"
+  cluster_address                = "$${my_ipaddress}:8201"
+  tls_key_file                   = "${vault_path}/tls/vault.pem"
+  tls_cert_file                  = "${vault_path}/tls/vault.crt"
+  tls_client_ca_file             = "${vault_path}/tls/vault_ca.crt"
+  telemetry {
+    unauthenticated_metrics_access = ${unauthenticated_metrics_access}
+  }
 }
 
 seal "awskms" {
@@ -120,7 +123,6 @@ if [ "${telemetry}" = true ] ; then
 cat << EOF >> /etc/vault.d/vault.hcl
 
 telemetry {
-  unauthenticated_metrics_access = ${unauthenticated_metrics_access}
   prometheus_retention_time      = "${prometheus_retention_time}"
   disable_hostname               = ${prometheus_disable_hostname}
 }
