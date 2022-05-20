@@ -1,6 +1,6 @@
-# Default scenario for Vault
+# No bastion host scenario for Vault
 
-Spin up a HashiCorp Vault cluster that automatically unseals and members joins based on AWS tags.
+Spin up a HashiCorp Vault cluster that automatically unseals and members joins based on AWS tags, but without a bastion host. This scenario would be applicable if you want to use this module to deploy Vault to your own VPC.
 
 ## Setup
 
