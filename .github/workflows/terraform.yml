@@ -24,7 +24,7 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v2
-      - name: generate ssh keys
+      - name: generate ssh keys and tls material.
         run: |
           cd ./examples/${{ matrix.config.name }}
           ssh-keygen -f id_rsa -q -N ""
