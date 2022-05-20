@@ -18,6 +18,7 @@ jobs:
           - name: default
           - name: development
           - name: mysubnet
+          - name: nobastion
           - name: replication
       max-parallel: 3
     steps:
