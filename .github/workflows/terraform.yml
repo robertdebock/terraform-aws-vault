@@ -20,6 +20,7 @@ jobs:
           - name: mysubnet
           - name: nobastion
           - name: replication
+          - name: telemetry
       max-parallel: 3
     steps:
       - name: checkout
