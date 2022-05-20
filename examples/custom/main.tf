@@ -38,8 +38,6 @@ module "vault" {
   prometheus_retention_time                = "30m"
   size                                     = "custom"
   source                                   = "../../"
-  telemetry                                = true
-  telemetry_unauthenticated_metrics_access = true
   volume_iops                              = "3200"
   volume_size                              = "64"
   volume_type                              = "io1"
