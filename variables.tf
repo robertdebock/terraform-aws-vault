@@ -1,3 +1,6 @@
+# You can overwrite the default values for the variables below, typically
+# variable values are set when calling the module. See on of the `examples/`.
+
 variable "name" {
   description = "The name of the vault cluster in 3 to 5 characters. Changes in runtime would re-deploy a new cluster, data from the old cluster would be lost."
   type        = string
