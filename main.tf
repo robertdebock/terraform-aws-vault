@@ -354,20 +354,7 @@ resource "aws_lb_target_group" "api" {
   vpc_id      = local.vpc_id
   health_check {
     interval = 5
-    # "200": Raft leaders should not be replaced.
-    # "429": Raft standby nodes should not be replaced.
-    # "472": Nodes of Disaster recovery cluster should not be replaced.
-    # "473": Nodes of Performance replication cluster should not be replaced.
-    # See https://www.vaultproject.io/api-docs/system/health
-    # if telemetry is enabled, AND telemetry_unauthenticated_metrics_access is disabled,
-    # don't consider raft followers healthy, only send traffic to the leader.
-    #
-    # | telemetry | telemetry_unauthenticated_metrics_access | vault nodes |
-    # |-----------|------------------------------------------|-------------|
-    # | true      | true                                     | any         |
-    # | true      | false                                    | leader      |
-    # | false     | false                                    | any         |
-    # | false     | true                                     | any         |
+    # See TELEMETRY.md for an explanation.
     matcher  = var.telemetry && !var.telemetry_unauthenticated_metrics_access ? "200,472,473" : "200,429,472,473"
     path     = "/v1/sys/health"
     protocol = "HTTPS"
