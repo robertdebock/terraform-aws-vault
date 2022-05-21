@@ -359,16 +359,16 @@ resource "aws_lb_target_group" "api" {
     # "472": Nodes of Disaster recovery cluster should not be replaced.
     # "473": Nodes of Performance replication cluster should not be replaced.
     # See https://www.vaultproject.io/api-docs/system/health
-    # if telemetry is enabled, AND unauthenticated_metrics_access is disabled,
+    # if telemetry is enabled, AND telemetry_unauthenticated_metrics_access is disabled,
     # don't consider raft followers healthy, only send traffic to the leader.
     #
-    # | telemetry | unauthenticated_metrics_access | vault nodes to use   |
-    # |-----------|--------------------------------|----------------------|
-    # | true      | true                           | leader and followers |
-    # | true      | false                          | leader only          |
-    # | false     | false                          | leader and followers |
-    # | false     | true                           | leader and followers |
-    matcher  = var.telemetry && !var.unauthenticated_metrics_access ? "200,472,473" : "200,429,472,473"
+    # | telemetry | telemetry_unauthenticated_metrics_access | vault nodes |
+    # |-----------|------------------------------------------|-------------|
+    # | true      | true                                     | any         |
+    # | true      | false                                    | leader      |
+    # | false     | false                                    | any         |
+    # | false     | true                                     | any         |
+    matcher  = var.telemetry && !var.telemetry_unauthenticated_metrics_access ? "200,472,473" : "200,429,472,473"
     path     = "/v1/sys/health"
     protocol = "HTTPS"
     timeout  = 2
@@ -425,7 +425,7 @@ resource "aws_autoscaling_group" "default" {
   default_cooldown      = var.cooldown
   desired_capacity      = var.amount
   enabled_metrics       = ["GroupDesiredCapacity", "GroupInServiceCapacity", "GroupPendingCapacity", "GroupMinSize", "GroupMaxSize", "GroupInServiceInstances", "GroupPendingInstances", "GroupStandbyInstances", "GroupStandbyCapacity", "GroupTerminatingCapacity", "GroupTerminatingInstances", "GroupTotalCapacity", "GroupTotalInstances"]
-  health_check_type     = var.telemetry && !var.unauthenticated_metrics_access ? "EC2" : "ELB"
+  health_check_type     = var.telemetry && !var.telemetry_unauthenticated_metrics_access ? "EC2" : "ELB"
   launch_configuration  = aws_launch_configuration.default.name
   max_instance_lifetime = var.max_instance_lifetime
   max_size              = var.amount + 1
