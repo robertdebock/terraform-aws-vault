@@ -10,7 +10,7 @@ Enabling this has a couple of effects:
 
 These limitation are required, because only the leader can be used to request telemetry data on.
 
-Vault has a policy that prevents unauthenticated access to "/v1/sys/metrics". Setting `telemetry_unauthenticated_metrics_access` to `true`, allows anybody to access metrics on any Vault node.
+Vault has a policy that prevents unauthenticated access to "/v1/sys/metrics". Setting `telemetry_unauthenticated_metrics_access` to `true`, allows anybody to access metrics on any Vault node. The side-effect is that any node will be used in the load balancing configuration, and ELB health checks can be used for the auto-scaling group.
 
 ## Testing
 
