@@ -60,6 +60,12 @@ resource "aws_instance" "grafana" {
   }
 }
 
+# Give the grafana instance time to run cloud-init.
+resource "time_sleep" "default" {
+  depends_on = [aws_instance.grafana]
+  create_duration = "60s"
+}
+
 # Show the Grafana public IP.
 output "grafana_url" {
   description = "The Grafana URL."
@@ -76,13 +82,17 @@ resource "grafana_data_source" "prometheus" {
   type = "prometheus"
   name = "prometheus"
   url  = "http://${aws_instance.prometheus.private_ip}:9090"
+  depends_on = [time_sleep.default]
 }
 
 # Configure Grafana with a Vault dashboard.
 resource "grafana_dashboard" "one" {
   config_json = file("grafana-vault-one.json")
+  depends_on = [time_sleep.default]
 }
 
+# Configure Grafana with a Vault dashboard.
 resource "grafana_dashboard" "two" {
   config_json = file("grafana-vault-two.json")
+  depends_on = [time_sleep.default]
 }
