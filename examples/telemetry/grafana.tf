@@ -61,15 +61,15 @@ resource "aws_instance" "grafana" {
 }
 
 # Show the Grafana public IP.
-output "grafana_public_ip" {
-  description = "The Grafana public IP address."
-  value       = aws_instance.grafana.public_ip
+output "grafana_url" {
+  description = "The Grafana URL."
+  value       = "http://${aws_instance.grafana.public_ip}:3000"
 }
 
-output "grafana_private_ip" {
-  description = "The Grafana private IP address."
-  value       = aws_instance.grafana.private_ip
-}
+# output "grafana_private_ip" {
+#   description = "The Grafana private IP address."
+#   value       = aws_instance.grafana.private_ip
+# }
 
 # Configure Grafana to use Prometheus.
 resource "grafana_data_source" "prometheus" {

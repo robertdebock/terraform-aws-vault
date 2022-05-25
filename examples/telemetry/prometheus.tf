@@ -90,14 +90,14 @@ resource "aws_instance" "prometheus" {
   }
 }
 
-# Show the Prometheus public IP.
-output "prometheus_public_ip" {
-  description = "The Prometheus public IP address."
-  value       = aws_instance.prometheus.public_ip
-}
-
-# Show the Prometheus private IP.
-output "prometheus_private_ip" {
-  description = "The Prometheus private IP address."
-  value       = aws_instance.prometheus.private_ip
-}
+# # Show the Prometheus public IP.
+# output "prometheus_public_ip" {
+#   description = "The Prometheus public IP address."
+#   value       = aws_instance.prometheus.public_ip
+# }
+#
+# # Show the Prometheus private IP.
+# output "prometheus_private_ip" {
+#   description = "The Prometheus private IP address."
+#   value       = aws_instance.prometheus.private_ip
+# }
