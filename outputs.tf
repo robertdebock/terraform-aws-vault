@@ -34,3 +34,13 @@ output "aws_lb_replication_dns_name" {
   description = "The DNS name of the replication loadbalancer."
   value       = try(aws_lb.replication[0].dns_name, "No replication loadbalancer has been created.")
 }
+
+output "bastion_subnet_id" {
+  description = "The subnet of the bastion host."
+  value       = try(aws_subnet.bastion[0].id, "no bastion subnet created.")
+}
+
+output "vpc_id" {
+  description = "The VPC identifier where Vault is deployed."
+  value       = local.vpc_id
+}
