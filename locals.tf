@@ -79,6 +79,12 @@ locals {
   # Select the gateway_id, either the created resource or the found resource.
   gateway_id = try(aws_internet_gateway.default[0].id, data.aws_internet_gateway.default[0].id)
 
+  # Set the key id, based on either the created key or the specified key.
+  aws_kms_key_id = try(aws_kms_key.default[0].id, var.aws_kms_key_id)
+
+  # Set the key arn, based on either the created key or the specified key.
+  aws_kms_key_arn = try(aws_kms_key.default[0].arn, data.aws_kms_key.default[0].arn)
+
   # Compose the package name based on the `vault_type`.
   _vault_package = {
     enterprise = "vault-enterprise-${var.vault_version}+ent-1"

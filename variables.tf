@@ -315,3 +315,9 @@ variable "telemetry_unauthenticated_metrics_access" {
   type        = bool
   default     = false
 }
+
+variable "aws_kms_key_id" {
+  description = "You can optionally bring your own AWS KMS key."
+  type        = string
+  default     = ""
+}

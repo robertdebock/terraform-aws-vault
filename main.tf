@@ -1,7 +1,14 @@
 # Make a key for unsealing.
 resource "aws_kms_key" "default" {
+  count       = var.aws_kms_key_id == "" ? 1 : 0
   description = "Vault unseal key - ${var.name}"
   tags        = local.tags
+}
+
+# Find the key for unsealing.
+data "aws_kms_key" "default" {
+  count  = var.aws_kms_key_id == "" ? 0 : 1
+  key_id = var.aws_kms_key_id
 }
 
 # Make a policy to allow role assumption.
@@ -35,7 +42,7 @@ data "aws_iam_policy_document" "join_unseal" {
       "kms:Encrypt",
     ]
     resources = [
-      aws_kms_key.default.arn
+      local.aws_kms_key_arn
     ]
   }
 }
@@ -72,7 +79,7 @@ resource "local_file" "vault" {
       api_addr                       = local.api_addr
       default_lease_ttl              = var.default_lease_ttl
       instance_name                  = local.instance_name
-      kms_key_id                     = aws_kms_key.default.id
+      kms_key_id                     = local.aws_kms_key_id
       log_level                      = var.log_level
       max_lease_ttl                  = var.max_lease_ttl
       name                           = var.name

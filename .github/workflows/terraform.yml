@@ -17,6 +17,7 @@ jobs:
           - name: custom
           - name: default
           - name: development
+          - name: mykey
           - name: mysubnet
           - name: nobastion
           - name: replication
