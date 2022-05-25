@@ -1,6 +1,6 @@
 # Emulate an exising key pair, outside of the module.
 resource "aws_key_pair" "default" {
-  key_name   = "mykey"
+  key_name   = "custom"
   public_key = file("id_rsa.pub")
 }
 
