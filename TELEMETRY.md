@@ -6,7 +6,7 @@ Enabling this has a couple of effects:
 
 - The `vault.hcl` is changed to include telemetry stanza.
 - The health check on the target group only allows leader to be healthy.
-- The auto-scale-group bases the health of instances on "EC2", which is a much weaker check.
+- The auto-scale-group bases the health of instances on "EC2", which is a check based on a script.
 
 These limitation are required, because only the leader can be used to request telemetry data on.
 
@@ -40,7 +40,7 @@ This table explains the different settings and its effects.
 
 Having `any` or `leader only` has an effect on the auto scaling group:
 
-- `ELB` or `EC2` health checks are used to determine what nodes are healty.
+- `ELB` or `EC2` health checks are used to determine what nodes are healthy.
 
 ELB health checks are preferred, because they reflect the health of the application. EC2 health checks do not consider how an application is running, just the health of the instance.
 

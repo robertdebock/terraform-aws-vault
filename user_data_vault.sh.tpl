@@ -30,6 +30,7 @@ chmod 750 "${vault_path}"
 my_hostname="$(curl http://169.254.169.254/latest/meta-data/hostname)"
 my_ipaddress="$(curl http://169.254.169.254/latest/meta-data/local-ipv4)"
 my_instance_id="$(curl http://169.254.169.254/latest/meta-data/instance-id)"
+my_region="$(curl http://169.254.169.254/latest/dynamic/instance-identity/document | grep region | cut -d\" -f4)"
 
 # Place CA key and certificate.
 test -d ${vault_path}/tls || mkdir ${vault_path}/tls
@@ -140,3 +141,23 @@ systemctl --now enable vault
 # Allow users to use `vault`.
 echo "export VAULT_ADDR=https://$${my_ipaddress}:8200" >> /etc/profile.d/vault.sh
 echo "export VAULT_CACERT=${vault_path}/tls/vault_ca.crt" >> /etc/profile.d/vault.sh
+
+# Place an AWS EC2 health check script.
+cat << EOF >> /usr/local/bin/vault_aws_health.sh
+#!/bin/sh
+
+# This script checks that status of Vault and reports that status to the ASG.
+# If vault fails, the instance is replaced.
+
+if vault status > /dev/null 2>&1 ; then
+  aws --region $${my_region} autoscaling set-instance-health --instance-id $${my_instance_id} --health-status Healthy
+else
+  aws --region $${my_region} autoscaling set-instance-health --instance-id $${my_instance_id} --health-status Unhealthy
+fi
+EOF
+
+# Make the AWS EC2 health check script executable.
+chmod 754 /usr/local/bin/vault_aws_health.sh
+
+# Run the AWS EC2 health check every minute.
+crontab -l | { cat; echo "* * * * * /usr/local/bin/vault_aws_health.sh"; } | crontab -

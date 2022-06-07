@@ -25,8 +25,8 @@ data "aws_iam_policy_document" "assumerole" {
   }
 }
 
-# Make a policy to allow auto joining and auto unsealing.
-data "aws_iam_policy_document" "join_unseal" {
+# Make a policy to allow auto joining, auto unsealing and update health state.
+data "aws_iam_policy_document" "default" {
   statement {
     effect = "Allow"
     actions = [
@@ -45,6 +45,13 @@ data "aws_iam_policy_document" "join_unseal" {
       local.aws_kms_key_arn
     ]
   }
+  statement {
+    effect = "Allow"
+    actions = [
+      "autoscaling:SetInstanceHealth",
+    ]
+    resources = ["*"]
+  }
 }
 
 # Make a role to allow role assumption.
@@ -57,8 +64,8 @@ resource "aws_iam_role" "default" {
 
 # Link the default role to the join_unseal policy.
 resource "aws_iam_role_policy" "default" {
-  name   = "${var.name}-join_unseal"
-  policy = data.aws_iam_policy_document.join_unseal.json
+  name   = "${var.name}-vault"
+  policy = data.aws_iam_policy_document.default.json
   role   = aws_iam_role.default.id
 }
 
