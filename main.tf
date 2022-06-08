@@ -76,38 +76,6 @@ resource "aws_iam_instance_profile" "default" {
   tags = local.tags
 }
 
-# Write user_data.sh for the Vault instances.
-resource "local_file" "vault" {
-  directory_permission = "0755"
-  file_permission      = "0640"
-  filename             = "user_data_vault.sh"
-  content = templatefile("${path.module}/user_data_vault.sh.tpl",
-    {
-      api_addr                       = local.api_addr
-      default_lease_ttl              = var.default_lease_ttl
-      instance_name                  = local.instance_name
-      kms_key_id                     = local.aws_kms_key_id
-      log_level                      = var.log_level
-      max_lease_ttl                  = var.max_lease_ttl
-      name                           = var.name
-      prometheus_disable_hostname    = var.prometheus_disable_hostname
-      prometheus_retention_time      = var.prometheus_retention_time
-      random_string                  = random_string.default.result
-      region                         = var.region
-      telemetry                      = var.telemetry
-      unauthenticated_metrics_access = var.telemetry_unauthenticated_metrics_access
-      vault_ca_cert                  = file(var.vault_ca_cert)
-      vault_ca_key                   = file(var.vault_ca_key)
-      vault_path                     = var.vault_path
-      vault_ui                       = var.vault_ui
-      vault_version                  = var.vault_version
-      vault_package                  = local.vault_package
-      vault_license                  = try(var.vault_license, null)
-      warmup                         = var.warmup
-    }
-  )
-}
-
 # Create a VPC.
 resource "aws_vpc" "default" {
   count      = var.vpc_id == "" ? 1 : 0
@@ -236,6 +204,7 @@ resource "aws_security_group" "public" {
 
 # Allow the vault API to be accessed from the internet.
 resource "aws_security_group_rule" "api_public" {
+  # TODO: Is this static or variable?
   # cidr_blocks       = var.allowed_cidr_blocks
   cidr_blocks       = ["0.0.0.0/0"]
   description       = "Vault API"
@@ -323,7 +292,31 @@ resource "aws_launch_configuration" "default" {
   # TODO: Are both security groups required?
   security_groups = [aws_security_group.private.id, aws_security_group.public.id]
   spot_price      = var.size == "development" ? var.spot_price : null
-  user_data       = local_file.vault.content
+  user_data       = templatefile("${path.module}/user_data_vault.sh.tpl",
+    {
+      api_addr                       = local.api_addr
+      default_lease_ttl              = var.default_lease_ttl
+      instance_name                  = local.instance_name
+      kms_key_id                     = local.aws_kms_key_id
+      log_level                      = var.log_level
+      max_lease_ttl                  = var.max_lease_ttl
+      name                           = var.name
+      prometheus_disable_hostname    = var.prometheus_disable_hostname
+      prometheus_retention_time      = var.prometheus_retention_time
+      random_string                  = random_string.default.result
+      region                         = var.region
+      telemetry                      = var.telemetry
+      unauthenticated_metrics_access = var.telemetry_unauthenticated_metrics_access
+      vault_ca_cert                  = file(var.vault_ca_cert)
+      vault_ca_key                   = file(var.vault_ca_key)
+      vault_path                     = var.vault_path
+      vault_ui                       = var.vault_ui
+      vault_version                  = var.vault_version
+      vault_package                  = local.vault_package
+      vault_license                  = try(var.vault_license, null)
+      warmup                         = var.warmup
+    }
+  )
   root_block_device {
     encrypted   = true
     iops        = local.volume_iops
@@ -503,23 +496,6 @@ data "aws_ami" "bastion" {
   }
 }
 
-# Write user_data.sh for the Bastion instance.
-resource "local_file" "bastion" {
-  count                = var.bastion_host ? 1 : 0
-  directory_permission = "0755"
-  file_permission      = "0640"
-  filename             = "user_data_bastion.sh"
-  content = templatefile("${path.module}/user_data_bastion.sh.tpl",
-    {
-      api_addr      = local.api_addr
-      vault_ca_cert = file("tls/vault_ca.crt")
-      vault_version = var.vault_version
-      vault_package = local.vault_package
-      vault_path    = var.vault_path
-    }
-  )
-}
-
 # Place the bastion host and the nat_gateway in it's own subnet.
 resource "aws_subnet" "bastion" {
   count             = var.bastion_host ? 1 : 0
@@ -570,7 +546,15 @@ resource "aws_instance" "bastion" {
   monitoring                  = true
   subnet_id                   = aws_subnet.bastion[0].id
   tags                        = local.bastion_tags
-  user_data                   = local_file.bastion[0].content
+  user_data                   = templatefile("${path.module}/user_data_bastion.sh.tpl",
+    {
+      api_addr      = local.api_addr
+      vault_ca_cert = file("tls/vault_ca.crt")
+      vault_version = var.vault_version
+      vault_package = local.vault_package
+      vault_path    = var.vault_path
+    }
+  )
   vpc_security_group_ids      = [aws_security_group.bastion[0].id]
   root_block_device {
     volume_size           = "32"
