@@ -143,12 +143,17 @@ echo "export VAULT_ADDR=https://$${my_ipaddress}:8200" >> /etc/profile.d/vault.s
 echo "export VAULT_CACERT=${vault_path}/tls/vault_ca.crt" >> /etc/profile.d/vault.sh
 
 # Place an AWS EC2 health check script.
-cat << EOF >> /usr/local/bin/vault_aws_health.sh
+cat << EOF >> /usr/local/bin/aws_health.sh
 #!/bin/sh
 
 # This script checks that status of Vault and reports that status to the ASG.
 # If vault fails, the instance is replaced.
 
+# Tell vault how to connect.
+export VAULT_ADDR=https://$${my_ipaddress}:8200
+export VAULT_CACERT=${vault_path}/tls/vault_ca.crt
+
+# Get the status of Vault and report to AWS ASG.
 if vault status > /dev/null 2>&1 ; then
   aws --region $${my_region} autoscaling set-instance-health --instance-id $${my_instance_id} --health-status Healthy
 else
@@ -157,7 +162,7 @@ fi
 EOF
 
 # Make the AWS EC2 health check script executable.
-chmod 754 /usr/local/bin/vault_aws_health.sh
+chmod 754 /usr/local/bin/aws_health.sh
 
 # Run the AWS EC2 health check every minute, 5 minutes after provisioning.
-sleep ${warmup} && crontab -l | { cat; echo "* * * * * /usr/local/bin/vault_aws_health.sh"; } | crontab -
+sleep ${warmup} && crontab -l | { cat; echo "* * * * * /usr/local/bin/aws_health.sh"; } | crontab -
