@@ -321,3 +321,13 @@ variable "aws_kms_key_id" {
   type        = string
   default     = ""
 }
+
+variable "warmup" {
+  description = "The warm period in seconds to use for the autoscaling group and health check."
+  type        = number
+  default     = 300
+  validation {
+    condition     = var.warmup >= 60 && var.warmup <= 600
+    error_message = "Please use a warmup period between 60 and 600 seconds."
+  }
+}

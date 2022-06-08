@@ -159,5 +159,5 @@ EOF
 # Make the AWS EC2 health check script executable.
 chmod 754 /usr/local/bin/vault_aws_health.sh
 
-# Run the AWS EC2 health check every minute.
-crontab -l | { cat; echo "* * * * * /usr/local/bin/vault_aws_health.sh"; } | crontab -
+# Run the AWS EC2 health check every minute, 5 minutes after provisioning.
+sleep ${warmup} && crontab -l | { cat; echo "* * * * * /usr/local/bin/vault_aws_health.sh"; } | crontab -

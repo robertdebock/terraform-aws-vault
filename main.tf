@@ -103,6 +103,7 @@ resource "local_file" "vault" {
       vault_version                  = var.vault_version
       vault_package                  = local.vault_package
       vault_license                  = try(var.vault_license, null)
+      warmup                         = var.warmup
     }
   )
 }
@@ -438,7 +439,7 @@ resource "aws_autoscaling_group" "default" {
   instance_refresh {
     strategy = "Rolling"
     preferences {
-      instance_warmup        = 300
+      instance_warmup        = var.warmup
       min_healthy_percentage = 90
     }
   }
