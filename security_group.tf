@@ -11,9 +11,7 @@ resource "aws_security_group" "public" {
 
 # Allow the vault API to be accessed from the internet.
 resource "aws_security_group_rule" "api_public" {
-  # TODO: Is this static or variable?
-  # cidr_blocks       = var.allowed_cidr_blocks
-  cidr_blocks       = ["0.0.0.0/0"]
+  cidr_blocks       = var.allowed_cidr_blocks
   description       = "Vault API"
   from_port         = var.api_port
   protocol          = "TCP"
