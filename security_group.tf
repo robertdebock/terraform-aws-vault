@@ -15,10 +15,10 @@ resource "aws_security_group_rule" "api_public" {
   # cidr_blocks       = var.allowed_cidr_blocks
   cidr_blocks       = ["0.0.0.0/0"]
   description       = "Vault API"
-  from_port         = 8200
+  from_port         = var.api_port
   protocol          = "TCP"
   security_group_id = aws_security_group.public.id
-  to_port           = 8200
+  to_port           = var.api_port
   type              = "ingress"
 }
 
@@ -60,10 +60,10 @@ resource "aws_security_group_rule" "clustertocluster" {
   count             = var.vault_replication ? 1 : 0
   cidr_blocks       = var.allowed_cidr_blocks_replication
   description       = "Vault Raft"
-  from_port         = 8201
+  from_port         = var.replication_port
   protocol          = "TCP"
   security_group_id = aws_security_group.public.id
-  to_port           = 8201
+  to_port           = var.replication_port
   type              = "ingress"
 }
 

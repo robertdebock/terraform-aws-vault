@@ -18,9 +18,8 @@ resource "aws_lb" "replication" {
   count              = var.vault_replication ? 1 : 0
   load_balancer_type = "network"
   name               = "${var.name}-replication"
-  # TODO: No security groups?
-  subnets = local.public_subnet_ids
-  tags    = local.replication_tags
+  subnets            = local.public_subnet_ids
+  tags               = local.replication_tags
 }
 
 # Create a load balancer target group for the API/UI.
@@ -54,8 +53,7 @@ resource "aws_lb_target_group" "replication" {
 resource "aws_lb_listener" "api" {
   certificate_arn   = var.certificate_arn
   load_balancer_arn = aws_lb.api.arn
-  # TODO: make this port variable.
-  port              = 8200
+  port              = var.api_port
   protocol          = "HTTPS"
   tags              = local.api_tags
   default_action {
@@ -68,7 +66,7 @@ resource "aws_lb_listener" "api" {
 resource "aws_lb_listener" "replication" {
   count             = var.vault_replication ? 1 : 0
   load_balancer_arn = aws_lb.replication[0].arn
-  port              = 8201
+  port              = var.replication_port
   protocol          = "TCP"
   tags              = local.replication_tags
   default_action {

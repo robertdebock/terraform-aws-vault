@@ -1,7 +1,7 @@
 locals {
 
   # Resolve the ip_addr, either set using `api_addr` or the created resource.
-  api_addr = coalesce(var.api_addr, "https://${aws_lb.api.dns_name}:8200")
+  api_addr = coalesce(var.api_addr, "https://${aws_lb.api.dns_name}:${var.api_port}")
 
   # Combine the variable `tags` with specific prefixes.
   tags             = merge({ Name = "${var.name}-${random_string.default.result}" }, var.tags)

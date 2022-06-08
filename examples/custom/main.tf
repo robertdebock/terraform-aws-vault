@@ -29,7 +29,8 @@ resource "cloudflare_record" "validation" {
 
 # Call the module.
 module "vault" {
-  api_addr                                 = "https://custom.robertdebock.nl:8200"
+  api_addr                                 = "https://custom.robertdebock.nl"
+  api_port                                 = 443
   certificate_arn                          = aws_acm_certificate.default.arn
   instance_type                            = "t3.medium"
   key_name                                 = aws_key_pair.default.id

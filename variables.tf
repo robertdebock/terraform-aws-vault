@@ -331,3 +331,23 @@ variable "warmup" {
     error_message = "Please use a warmup period between 60 and 600 seconds."
   }
 }
+
+variable "api_port" {
+  description = "The TCP port where the API should listen."
+  type        = number
+  default     = 8200
+  validation {
+    condition     = var.api_port >= 1 && var.api_port <= 65535
+    error_message = "Please choose a port number between 1 and 65535."
+  }
+}
+
+variable "replication_port" {
+  description = "The TCP port where replication should listen."
+  type        = number
+  default     = 8201
+  validation {
+    condition     = var.replication_port >= 1 && var.replication_port <= 65535
+    error_message = "Please choose a port number between 1 and 65535."
+  }
+}
