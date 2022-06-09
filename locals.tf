@@ -109,4 +109,8 @@ locals {
     x2gd    = "amzn2-ami-hvm-*-arm64-gp2"
   }
   ami_pattern = try(local._ami_pattern[split(".", local.instance_type)[0]], local._ami_pattern["default"])
+
+  # Set the security groups to allow port 8201 to be accessed.
+  # With replication, more ports should be opened.
+  security_groups = var.vault_replication ? [aws_security_group.private.id, aws_security_group.public.id] : [aws_security_group.private.id]
 }
