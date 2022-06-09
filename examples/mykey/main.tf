@@ -23,12 +23,12 @@ resource "cloudflare_record" "validation" {
 
 # Call the module.
 module "vault" {
-  api_addr             = "https://mykey.robertdebock.nl:8200"
-  certificate_arn      = aws_acm_certificate.default.arn
-  key_filename         = "id_rsa.pub"
-  aws_kms_key_id       = "1ab9192d-efb5-4220-b130-30445bc9bf93"
-  name                 = "mykey"
-  source               = "../../"
+  api_addr        = "https://mykey.robertdebock.nl:8200"
+  certificate_arn = aws_acm_certificate.default.arn
+  key_filename    = "id_rsa.pub"
+  aws_kms_key_id  = "1ab9192d-efb5-4220-b130-30445bc9bf93"
+  name            = "mykey"
+  source          = "../../"
   tags = {
     owner = "robertdebock"
   }

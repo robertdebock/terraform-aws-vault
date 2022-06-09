@@ -5,7 +5,7 @@ terraform {
       version = "3.9.1"
     }
     grafana = {
-      source = "grafana/grafana"
+      source  = "grafana/grafana"
       version = "1.23.0"
     }
   }

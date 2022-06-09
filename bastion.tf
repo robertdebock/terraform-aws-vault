@@ -95,7 +95,7 @@ resource "aws_instance" "bastion" {
   monitoring                  = true
   subnet_id                   = aws_subnet.bastion[0].id
   tags                        = local.bastion_tags
-  user_data                   = templatefile("${path.module}/user_data_bastion.sh.tpl",
+  user_data = templatefile("${path.module}/user_data_bastion.sh.tpl",
     {
       api_addr      = local.api_addr
       vault_ca_cert = file("tls/vault_ca.crt")
@@ -104,12 +104,12 @@ resource "aws_instance" "bastion" {
       vault_path    = var.vault_path
     }
   )
-  vpc_security_group_ids      = [aws_security_group.bastion[0].id]
+  vpc_security_group_ids = [aws_security_group.bastion[0].id]
   root_block_device {
     volume_size           = "32"
     volume_type           = "gp2"
     encrypted             = true
     delete_on_termination = true
   }
-  depends_on                  = [local.gateway_id]
+  depends_on = [local.gateway_id]
 }
