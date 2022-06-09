@@ -23,6 +23,7 @@ data "aws_iam_policy_document" "default" {
     resources = ["*"]
   }
   statement {
+    effect = "Allow"
     actions = [
       "kms:Decrypt",
       "kms:DescribeKey",
@@ -37,7 +38,14 @@ data "aws_iam_policy_document" "default" {
     actions = [
       "autoscaling:SetInstanceHealth",
     ]
-    resources = ["*"]
+    resources = [aws_autoscaling_group.default.arn]
+  }
+  statement {
+    effect = "Allow"
+    actions = [
+      "elasticloadbalancing:DeregisterTargets",
+    ]
+    resources = [aws_lb_target_group.api.arn]
   }
 }
 

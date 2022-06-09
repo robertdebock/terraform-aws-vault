@@ -170,9 +170,21 @@ chmod 754 /usr/local/bin/aws_health.sh
 # Run the AWS EC2 health check every minute, 5 minutes after provisioning.
 sleep ${warmup} && crontab -l | { cat; echo "* * * * * /usr/local/bin/aws_health.sh"; } | crontab -
 
-# TODO: Make a script to step down.
-# curl http://169.254.169.254/latest/meta-data/autoscaling/target-lifecycle-state
-# Either:
-# - InService
-# - Terminated
-# ISSUE: `vault operator step-down` is an authenticated call...
+# Place a script to discover if this instance is terminated.
+
+cat << EOF >> /usr/local/bin/aws_deregister.sh
+#!/bin/sh
+
+# If an instance is terminated, de-register the instance from the target group.
+# This means no traffic is sent to the node that is being terminated.
+# After this deregistration, it's safe to destroy the instance.
+
+if (curl --silent http://169.254.169.254/latest/meta-data/autoscaling/target-lifecycle-state | grep Terminated) ; then
+  deregister-targets --target-group-arn ${target_group_arn} --targets $${my_instance_id}
+fi
+EOF
+
+# Make the AWS Target Group script executable.
+chmod 754 /usr/local/bin/aws_deregister.sh
+
+crontab -l | { cat; echo "* * * * * /usr/local/bin/aws_deregister.sh"; } | crontab -

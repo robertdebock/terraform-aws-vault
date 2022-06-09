@@ -24,11 +24,12 @@ resource "aws_lb" "replication" {
 
 # Create a load balancer target group for the API/UI.
 resource "aws_lb_target_group" "api" {
-  name_prefix = "${var.name}-"
-  port        = 8200
-  protocol    = "HTTPS"
-  tags        = local.api_tags
-  vpc_id      = local.vpc_id
+  deregistration_delay = 10
+  name_prefix          = "${var.name}-"
+  port                 = 8200
+  protocol             = "HTTPS"
+  tags                 = local.api_tags
+  vpc_id               = local.vpc_id
   health_check {
     interval = 5
     # See TELEMETRY.md for an explanation.

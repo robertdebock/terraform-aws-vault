@@ -54,6 +54,7 @@ resource "aws_launch_configuration" "default" {
       prometheus_retention_time      = var.prometheus_retention_time
       random_string                  = random_string.default.result
       region                         = var.region
+      target_group_arn               = aws_lb_target_group.api.arn
       telemetry                      = var.telemetry
       unauthenticated_metrics_access = var.telemetry_unauthenticated_metrics_access
       vault_ca_cert                  = file(var.vault_ca_cert)
