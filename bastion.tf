@@ -1,7 +1,7 @@
 # Create one security group in the single VPC.
 resource "aws_security_group" "bastion" {
   count       = var.bastion_host ? 1 : 0
-  description = "Bastion"
+  description = "Bastion - Traffic to bastion host"
   name_prefix = "${var.name}-bastion-"
   tags        = local.bastion_tags
   vpc_id      = local.vpc_id
