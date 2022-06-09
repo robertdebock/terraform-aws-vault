@@ -39,9 +39,9 @@ resource "aws_launch_configuration" "default" {
   instance_type        = local.instance_type
   key_name             = local.key_name
   name_prefix          = "${var.name}-"
-  security_groups = local.security_groups
-  spot_price      = var.size == "development" ? var.spot_price : null
-  user_data       = templatefile("${path.module}/user_data_vault.sh.tpl",
+  security_groups      = [aws_security_group.private.id, aws_security_group.public.id]
+  spot_price           = var.size == "development" ? var.spot_price : null
+  user_data = templatefile("${path.module}/user_data_vault.sh.tpl",
     {
       api_addr                       = local.api_addr
       default_lease_ttl              = var.default_lease_ttl
