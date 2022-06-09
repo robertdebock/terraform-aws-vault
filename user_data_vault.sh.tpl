@@ -10,8 +10,8 @@ yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/has
 # Install a specific version of Vault.
 yum install -y ${vault_package}
 
-# Allow auto-completion.
-vault -autocomplete-install
+# Allow auto-completion for the ec2-user.
+runuser -l ec2-user -c "vault -autocomplete-install"
 
 # Allow IPC lock capability to Vault.
 setcap cap_ipc_lock=+ep $(readlink -f $(which vault))
@@ -35,11 +35,11 @@ my_region="$(curl http://169.254.169.254/latest/dynamic/instance-identity/docume
 # Place CA key and certificate.
 test -d ${vault_path}/tls || mkdir ${vault_path}/tls
 chown vault:vault ${vault_path}/tls
-chmod 700 ${vault_path}/tls
+chmod 750 ${vault_path}/tls
 echo "${vault_ca_key}" > ${vault_path}/tls/vault_ca.pem
 echo "${vault_ca_cert}" > ${vault_path}/tls/vault_ca.crt
 chmod 600 ${vault_path}/tls/vault_ca.pem
-chmod 600 ${vault_path}/tls/vault_ca.crt
+chmod 640 ${vault_path}/tls/vault_ca.crt
 
 # Place request.cfg.
 cat << EOF > ${vault_path}/tls/request.cfg
@@ -142,6 +142,9 @@ systemctl --now enable vault
 echo "export VAULT_ADDR=https://$${my_ipaddress}:8200" >> /etc/profile.d/vault.sh
 echo "export VAULT_CACERT=${vault_path}/tls/vault_ca.crt" >> /etc/profile.d/vault.sh
 
+# Allow ec2-user access to Vault files.
+usermod -G vault ec2-user
+
 # Place an AWS EC2 health check script.
 cat << EOF >> /usr/local/bin/aws_health.sh
 #!/bin/sh
@@ -166,3 +169,10 @@ chmod 754 /usr/local/bin/aws_health.sh
 
 # Run the AWS EC2 health check every minute, 5 minutes after provisioning.
 sleep ${warmup} && crontab -l | { cat; echo "* * * * * /usr/local/bin/aws_health.sh"; } | crontab -
+
+# TODO: Make a script to step down.
+# curl http://169.254.169.254/latest/meta-data/autoscaling/target-lifecycle-state
+# Either:
+# - InService
+# - Terminated
+# ISSUE: `vault operator step-down` is an authenticated call...

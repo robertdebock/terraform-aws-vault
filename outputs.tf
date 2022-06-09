@@ -23,10 +23,9 @@ output "instructions" {
   value       = <<EOF
   1. Run: ssh ec2-user@${try(aws_instance.bastion[0].public_ip, "some-host-you-already-have")}
   2. Run: ssh ${flatten(data.aws_instances.default[*].private_ips)[0]}
-  3. Run: sudo su -
-  4. Run: vault operator init
-  5. Run: vault login
-  6. Run: vault operator raft autopilot set-config -min-quorum=${var.amount} -cleanup-dead-servers=true -dead-server-last-contact-threshold=${var.cooldown / 2.5}
+  3. Run: vault operator init
+  4. Run: vault login
+  5. Run: vault operator raft autopilot set-config -min-quorum=${var.amount} -cleanup-dead-servers=true -dead-server-last-contact-threshold=${var.cooldown / 2.5}
 EOF
 }
 

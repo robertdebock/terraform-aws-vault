@@ -10,8 +10,8 @@ yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/has
 # Install a specific version of Vault.
 yum install -y ${vault_package}
 
-# Allow auto-completion.
-vault -autocomplete-install
+# Allow auto-completion for the ec2-user.
+runuser -l ec2-user -c "vault -autocomplete-install"
 
 # Allow users to use `vault`.
 echo "export VAULT_ADDR=${api_addr}" >> /etc/profile.d/vault.sh
