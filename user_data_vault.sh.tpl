@@ -171,7 +171,6 @@ chmod 754 /usr/local/bin/aws_health.sh
 sleep ${warmup} && crontab -l | { cat; echo "* * * * * /usr/local/bin/aws_health.sh"; } | crontab -
 
 # Place a script to discover if this instance is terminated.
-
 cat << EOF >> /usr/local/bin/aws_deregister.sh
 #!/bin/sh
 
