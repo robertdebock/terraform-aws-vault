@@ -14,6 +14,7 @@ jobs:
       fail-fast: false
       matrix:
         config:
+          - name: autosnapshot
           - name: custom
           - name: default
           - name: development

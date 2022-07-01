@@ -351,3 +351,14 @@ variable "replication_port" {
     error_message = "Please choose a port number between 1 and 65535."
   }
 }
+
+variable "vault_aws_s3_snapshots_bucket" {
+  description = "Specify an AWS S3 bucket to store snapshots in."
+  type        = string
+  default     = ""
+  validation {
+    condition     = (length(var.vault_aws_s3_snapshots_bucket) >= 3 && length(var.vault_aws_s3_snapshots_bucket) <= 63) || var.vault_aws_s3_snapshots_bucket == ""
+    error_message = "Please use a bucket name between 3 and 63 characters."
+  }
+}
+
