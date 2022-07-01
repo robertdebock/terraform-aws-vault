@@ -9,17 +9,15 @@ To actually setup autosnapshots, you can apply a terraform code as such:
 ```hcl
 data "aws_region" "current" {}
 
-resource "vault_raft_snapshot_agent_config" "s3_backups" {
-  name             = "s3"
-  interval_seconds = 86400 # 24h
-  retain           = 7
-  path_prefix      = "/path/in/bucket"
-  storage_type     = "aws-s3"
-
-  # Storage Type Configuration
-  aws_s3_bucket         = "vault-snapshots"
-  aws_s3_region         = data.aws_region.current.name
-  aws_s3_enable_kms     = true
+resource "vault_raft_snapshot_agent_config" "hourly" {
+  name              = "hourly"
+  interval_seconds  = 3600 # 1h
+  retain            = 24
+  path_prefix       = "/hourly"
+  storage_type      = "aws-s3"
+  aws_s3_bucket     = "vault-snapshots"
+  aws_s3_region     = data.aws_region.current.name
+  aws_s3_enable_kms = true
 }
 ```
 

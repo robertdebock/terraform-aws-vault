@@ -1,21 +1,10 @@
-resource "vault_raft_snapshot_agent_config" "minutely" {
-  name              = "minutely"
-  interval_seconds  = 60 # 1h
-  retain            = 60
-  path_prefix       = "/minutely"
-  storage_type      = "aws-s3"
-  aws_s3_bucket     = "vault-snapshots"
-  aws_s3_region     = "eu-west-1"
-  aws_s3_enable_kms = true
-}
-
 resource "vault_raft_snapshot_agent_config" "hourly" {
   name              = "hourly"
   interval_seconds  = 3600 # 1h
   retain            = 24
   path_prefix       = "/hourly"
   storage_type      = "aws-s3"
-  aws_s3_bucket     = "vault-snapshots"
+  aws_s3_bucket     = "vault-snapshots-syzaip"
   aws_s3_region     = "eu-west-1"
   aws_s3_enable_kms = true
 }
@@ -26,7 +15,7 @@ resource "vault_raft_snapshot_agent_config" "daily" {
   retain            = 7
   path_prefix       = "/daily"
   storage_type      = "aws-s3"
-  aws_s3_bucket     = "vault-snapshots"
+  aws_s3_bucket     = "vault-snapshots-syzaip"
   aws_s3_region     = "eu-west-1"
   aws_s3_enable_kms = true
 }
@@ -37,7 +26,7 @@ resource "vault_raft_snapshot_agent_config" "weekly" {
   retain            = 4
   path_prefix       = "/weekly"
   storage_type      = "aws-s3"
-  aws_s3_bucket     = "vault-snapshots"
+  aws_s3_bucket     = "vault-snapshots-syzaip"
   aws_s3_region     = "eu-west-1"
   aws_s3_enable_kms = true
 }
@@ -48,7 +37,7 @@ resource "vault_raft_snapshot_agent_config" "monthly" {
   retain            = 12
   path_prefix       = "/monthly"
   storage_type      = "aws-s3"
-  aws_s3_bucket     = "vault-snapshots"
+  aws_s3_bucket     = "vault-snapshots-syzaip"
   aws_s3_region     = "eu-west-1"
   aws_s3_enable_kms = true
 }
