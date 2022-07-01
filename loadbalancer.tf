@@ -8,6 +8,7 @@ resource "aws_placement_group" "default" {
 # Add a load balancer for the API/UI.
 resource "aws_lb" "api" {
   name            = "${var.name}-api"
+  internal        = var.aws_lb_internal
   security_groups = [aws_security_group.public.id, aws_security_group.private.id]
   subnets         = local.public_subnet_ids
   tags            = local.api_tags

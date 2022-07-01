@@ -362,3 +362,8 @@ variable "vault_aws_s3_snapshots_bucket" {
   }
 }
 
+variable "aws_lb_internal" {
+  description = "Specify if the loadbalancer is exposed to the internet or not."
+  type        = bool
+  default     = false
+}
