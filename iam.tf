@@ -70,6 +70,7 @@ data "aws_iam_policy_document" "autosnapshot" {
       "s3:PutObject",
       "s3:DeleteObject"
     ]
+    # TODO: This path is missing `path_prefix`, for example "hourly".
     resources = ["arn:aws:s3:::${var.vault_aws_s3_snapshots_bucket}/*.snap"]
   }
   statement {
@@ -101,6 +102,7 @@ data "aws_iam_policy_document" "autosnapshot" {
     ]
     resources = ["*"]
   }
+  # TODO: Input from Richard; create before destroy may help here.
 }
 
 # Make a role to allow role assumption.
