@@ -82,7 +82,7 @@ resource "aws_launch_configuration" "default" {
 # Create a random string to make tags more unique.
 resource "random_string" "default" {
   length  = 6
-  number  = false
+  numeric = false
   special = false
   upper   = false
 }
