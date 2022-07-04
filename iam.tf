@@ -104,7 +104,6 @@ data "aws_iam_policy_document" "autosnapshot" {
     ]
     resources = ["*"]
   }
-  # TODO: Input from Richard; create before destroy may help here.
 }
 
 # Make a role to allow role assumption.
