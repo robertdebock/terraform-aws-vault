@@ -34,12 +34,14 @@ my_region="$(curl http://169.254.169.254/latest/dynamic/instance-identity/docume
 
 # Place CA key and certificate.
 test -d ${vault_path}/tls || mkdir ${vault_path}/tls
+chmod 0755 ${vault_path}/tls
 chown vault:vault ${vault_path}/tls
-chmod 750 ${vault_path}/tls
 echo "${vault_ca_key}" > ${vault_path}/tls/vault_ca.pem
 echo "${vault_ca_cert}" > ${vault_path}/tls/vault_ca.crt
-chmod 600 ${vault_path}/tls/vault_ca.pem
-chmod 640 ${vault_path}/tls/vault_ca.crt
+chmod 0600 ${vault_path}/tls/vault_ca.pem
+chown root:root ${vault_path}/tls/vault_ca.pem
+chmod 0644 ${vault_path}/tls/vault_ca.crt
+chown root:root ${vault_path}/tls/vault_ca.crt
 
 # Place request.cfg.
 cat << EOF > ${vault_path}/tls/request.cfg
@@ -66,10 +68,13 @@ EOF
 
 # Create a private key and certificate signing request for this instance.
 openssl req -config ${vault_path}/tls/request.cfg -new -newkey rsa:2048 -nodes -keyout ${vault_path}/tls/vault.pem -extensions ext -out ${vault_path}/tls/vault.csr
-chmod 640 ${vault_path}/tls/vault.pem
+chmod 0640 ${vault_path}/tls/vault.pem
+chown root:vault ${vault_path}/tls/vault.pem
 
 # Sign the certificate signing request using the distributed CA.
 openssl x509 -extfile ${vault_path}/tls/request.cfg -extensions ext -req -in ${vault_path}/tls/vault.csr -CA ${vault_path}/tls/vault_ca.crt -CAkey ${vault_path}/tls/vault_ca.pem -CAcreateserial -out ${vault_path}/tls/vault.crt -days 7300
+chmod 0644 ${vault_path}/tls/vault.crt
+chown root:root ${vault_path}/tls/vault.crt
 
 # Concatenate CA and server certificate.
 cat ${vault_path}/tls/vault_ca.crt >> ${vault_path}/tls/vault.crt
