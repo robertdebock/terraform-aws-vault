@@ -8,13 +8,13 @@ yum install -y yum-utils
 yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
 
 # Install a specific version of Vault.
-yum install -y ${vault_package}
+yum install -y "${vault_package}"
 
 # Allow auto-completion for the ec2-user.
 runuser -l ec2-user -c "vault -autocomplete-install"
 
 # Allow IPC lock capability to Vault.
-setcap cap_ipc_lock=+ep $(readlink -f $(which vault))
+setcap cap_ipc_lock=+ep "$(readlink -f "$(which vault)")"
 
 # Disable core dumps.
 echo '* hard core 0' >> /etc/security/limits.d/vault.conf
@@ -33,18 +33,18 @@ my_instance_id="$(curl http://169.254.169.254/latest/meta-data/instance-id)"
 my_region="$(curl http://169.254.169.254/latest/dynamic/instance-identity/document | grep region | cut -d\" -f4)"
 
 # Place CA key and certificate.
-test -d ${vault_path}/tls || mkdir ${vault_path}/tls
-chmod 0755 ${vault_path}/tls
-chown vault:vault ${vault_path}/tls
-echo "${vault_ca_key}" > ${vault_path}/tls/vault_ca.pem
-echo "${vault_ca_cert}" > ${vault_path}/tls/vault_ca.crt
-chmod 0600 ${vault_path}/tls/vault_ca.pem
-chown root:root ${vault_path}/tls/vault_ca.pem
-chmod 0644 ${vault_path}/tls/vault_ca.crt
-chown root:root ${vault_path}/tls/vault_ca.crt
+test -d "${vault_path}/tls" || mkdir "${vault_path}/tls"
+chmod 0755 "${vault_path}/tls"
+chown vault:vault "${vault_path}/tls"
+echo "${vault_ca_key}" > "${vault_path}/tls/vault_ca.pem"
+echo "${vault_ca_cert}" > "${vault_path}/tls/vault_ca.crt"
+chmod 0600 "${vault_path}/tls/vault_ca.pem"
+chown root:root "${vault_path}/tls/vault_ca.pem"
+chmod 0644 "${vault_path}/tls/vault_ca.crt"
+chown root:root "${vault_path}/tls/vault_ca.crt"
 
 # Place request.cfg.
-cat << EOF > ${vault_path}/tls/request.cfg
+cat << EOF > "${vault_path}/tls/request.cfg"
 [req]
 distinguished_name = dn
 req_extensions     = ext
@@ -67,20 +67,20 @@ DNS.1 = $${my_hostname}
 EOF
 
 # Create a private key and certificate signing request for this instance.
-openssl req -config ${vault_path}/tls/request.cfg -new -newkey rsa:2048 -nodes -keyout ${vault_path}/tls/vault.pem -extensions ext -out ${vault_path}/tls/vault.csr
-chmod 0640 ${vault_path}/tls/vault.pem
-chown root:vault ${vault_path}/tls/vault.pem
+openssl req -config "${vault_path}/tls/request.cfg" -new -newkey rsa:2048 -nodes -keyout "${vault_path}/tls/vault.pem" -extensions ext -out "${vault_path}/tls/vault.csr"
+chmod 0640 "${vault_path}/tls/vault.pem"
+chown root:vault "${vault_path}/tls/vault.pem"
 
 # Sign the certificate signing request using the distributed CA.
-openssl x509 -extfile ${vault_path}/tls/request.cfg -extensions ext -req -in ${vault_path}/tls/vault.csr -CA ${vault_path}/tls/vault_ca.crt -CAkey ${vault_path}/tls/vault_ca.pem -CAcreateserial -out ${vault_path}/tls/vault.crt -days 7300
-chmod 0644 ${vault_path}/tls/vault.crt
-chown root:root ${vault_path}/tls/vault.crt
+openssl x509 -extfile "${vault_path}/tls/request.cfg" -extensions ext -req -in "${vault_path}/tls/vault.csr" -CA "${vault_path}/tls/vault_ca.crt" -CAkey "${vault_path}/tls/vault_ca.pem" -CAcreateserial -out "${vault_path}/tls/vault.crt" -days 7300
+chmod 0644 "${vault_path}/tls/vault.crt"
+chown root:root "${vault_path}/tls/vault.crt"
 
 # Concatenate CA and server certificate.
-cat ${vault_path}/tls/vault_ca.crt >> ${vault_path}/tls/vault.crt
+cat "${vault_path}/tls/vault_ca.crt" >> "${vault_path}/tls/vault.crt"
 
 # The TLS material is owned by Vault.
-chown vault:vault ${vault_path}/tls/*
+chown vault:vault "${vault_path}/tls/*"
 
 # A single "$": passed from Terraform.
 # A double "$$": determined in the runtime of this script.
@@ -136,7 +136,7 @@ EOF
 fi
 
 # Expose the license.
-if [ ! -z "${vault_license}" ] ; then
+if [ -n "${vault_license}" ] ; then
   echo "VAULT_LICENSE=${vault_license}" >> /etc/vault.d/vault.env
 fi
 
@@ -159,7 +159,7 @@ cat << EOF >> /usr/local/bin/aws_health.sh
 
 # Tell vault how to connect.
 export VAULT_ADDR=https://$${my_ipaddress}:8200
-export VAULT_CACERT=${vault_path}/tls/vault_ca.crt
+export VAULT_CACERT="${vault_path}/tls/vault_ca.crt"
 
 # Get the status of Vault and report to AWS ASG.
 if vault status > /dev/null 2>&1 ; then
@@ -173,7 +173,7 @@ EOF
 chmod 754 /usr/local/bin/aws_health.sh
 
 # Run the AWS EC2 health check every minute, 5 minutes after provisioning.
-sleep ${warmup} && crontab -l | { cat; echo "* * * * * /usr/local/bin/aws_health.sh"; } | crontab -
+sleep "${warmup}" && crontab -l | { cat; echo "* * * * * /usr/local/bin/aws_health.sh"; } | crontab -
 
 # Place a script to discover if this instance is terminated.
 cat << EOF >> /usr/local/bin/aws_deregister.sh
@@ -184,7 +184,7 @@ cat << EOF >> /usr/local/bin/aws_deregister.sh
 # After this deregistration, it's safe to destroy the instance.
 
 if (curl --silent http://169.254.169.254/latest/meta-data/autoscaling/target-lifecycle-state | grep Terminated) ; then
-  deregister-targets --target-group-arn ${target_group_arn} --targets $${my_instance_id}
+  deregister-targets --target-group-arn "${target_group_arn}" --targets $${my_instance_id}
 fi
 EOF
 
