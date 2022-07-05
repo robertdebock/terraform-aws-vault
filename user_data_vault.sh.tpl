@@ -184,7 +184,9 @@ cat << EOF >> /usr/local/bin/aws_deregister.sh
 # After this deregistration, it's safe to destroy the instance.
 
 if (curl --silent http://169.254.169.254/latest/meta-data/autoscaling/target-lifecycle-state | grep Terminated) ; then
+%{ for target_group_arn in target_group_arns }
   deregister-targets --target-group-arn "${target_group_arn}" --targets $${my_instance_id}
+%{ endfor }
 fi
 EOF
 
