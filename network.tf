@@ -72,7 +72,7 @@ resource "aws_subnet" "private" {
   vpc_id            = local.vpc_id
 }
 
-# # Create (public) subnets to allow the loadbalancer to route traffic to intances.
+# Create (public) subnets to allow the loadbalancer to route traffic to intances.
 resource "aws_subnet" "public" {
   count             = var.vpc_id == "" ? min(length(data.aws_availability_zones.default.names), var.amount) : 0
   availability_zone = data.aws_availability_zones.default.names[count.index]
