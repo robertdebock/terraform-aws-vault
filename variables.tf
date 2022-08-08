@@ -368,8 +368,8 @@ variable "aws_lb_internal" {
   default     = false
 }
 
-variable "extra_security_groups" {
-  description = "Specify the security groups that should also have access to Vault."
+variable "extra_security_group_ids" {
+  description = "Specify the security group ids that should also have access to Vault."
   type        = list(string)
   default     = []
 }

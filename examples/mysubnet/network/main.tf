@@ -106,3 +106,10 @@ resource "aws_route_table_association" "public" {
   subnet_id      = aws_subnet.public[count.index].id
   route_table_id = aws_route_table.public.id
 }
+
+# Create a security group that will be given access to Vault later.
+resource "aws_security_group" "default" {
+  name        = "My extra security group"
+  description = "Allow Vault accesss"
+  vpc_id      = aws_vpc.default.id
+}

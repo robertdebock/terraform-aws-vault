@@ -23,15 +23,16 @@ resource "cloudflare_record" "validation" {
 
 # Call the module.
 module "vault" {
-  api_addr             = "https://mysubnet.robertdebock.nl:8200"
-  certificate_arn      = aws_acm_certificate.default.arn
-  key_filename         = "id_rsa.pub"
-  name                 = "msbnt"
-  source               = "../../"
-  vpc_cidr_block_start = "192.168"
-  private_subnet_ids   = ["subnet-0114a1bf19906728f", "subnet-0e245b9df1e54dade", "subnet-0f4c5b9df7227bd2c"]
-  public_subnet_ids    = ["subnet-09e2489480140e86a", "subnet-02d0623c59e455eea", "subnet-065a697a451e8b08c"]
-  vpc_id               = "vpc-04d8245ad1f1f546c"
+  api_addr                 = "https://mysubnet.robertdebock.nl:8200"
+  certificate_arn          = aws_acm_certificate.default.arn
+  extra_security_group_ids = ["sg-085ccc8092c78627c"]
+  key_filename             = "id_rsa.pub"
+  name                     = "msbnt"
+  source                   = "../../"
+  vpc_cidr_block_start     = "192.168"
+  private_subnet_ids       = ["subnet-0114a1bf19906728f", "subnet-0e245b9df1e54dade", "subnet-0f4c5b9df7227bd2c"]
+  public_subnet_ids        = ["subnet-09e2489480140e86a", "subnet-02d0623c59e455eea", "subnet-065a697a451e8b08c"]
+  vpc_id                   = "vpc-04d8245ad1f1f546c"
   tags = {
     owner = "robertdebock"
   }
