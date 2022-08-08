@@ -20,6 +20,18 @@ resource "aws_security_group_rule" "api_public" {
   type              = "ingress"
 }
 
+# Allow specified security groups to have access as well.
+resource "aws_security_group_rule" "extra" {
+  count                    = length(var.extra_security_groups)
+  description              = "User specified security_group"
+  from_port                = 8200
+  to_port                  = 8200
+  protocol                 = "TCP"
+  security_group_id        = aws_security_group.public.id
+  source_security_group_id = var.extra_security_groups[count.index]
+  type                     = "ingress"
+}
+
 # Create a security group for the instances.
 resource "aws_security_group" "private" {
   description = "Private - Traffic to Vault nodes"

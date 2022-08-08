@@ -14,7 +14,7 @@ variable "name" {
 variable "vault_version" {
   description = "The version of Vault to install."
   type        = string
-  default     = "1.10.3"
+  default     = "1.11.2"
   validation {
     condition     = can(regex("^1\\.", var.vault_version))
     error_message = "Please use a SemVer version, where the major version is \"1\". Use \"1.2.7\" or newer."
@@ -366,4 +366,10 @@ variable "aws_lb_internal" {
   description = "Specify if the loadbalancer is exposed to the internet or not."
   type        = bool
   default     = false
+}
+
+variable "extra_security_groups" {
+  description = "Specify the security groups that should also have access to Vault."
+  type        = list(string)
+  default     = []
 }
