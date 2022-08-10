@@ -24,11 +24,11 @@ resource "aws_security_group_rule" "api_public" {
 resource "aws_security_group_rule" "extra" {
   count                    = length(var.extra_security_group_ids)
   description              = "User specified security_group"
-  from_port                = 8200
-  to_port                  = 8200
+  from_port                = var.api_port
   protocol                 = "TCP"
   security_group_id        = aws_security_group.public.id
   source_security_group_id = var.extra_security_group_ids[count.index]
+  to_port                  = var.api_port
   type                     = "ingress"
 }
 
