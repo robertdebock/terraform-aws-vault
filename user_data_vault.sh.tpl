@@ -3,6 +3,13 @@
 # Always update packages installed.
 yum update -y
 
+# Make a directory for Raft, certificates and init information.
+mkdir -p "${vault_path}"
+chown vault:vault "${vault_path}"
+mkfs.ext4 /dev/sda1
+mount /dev/sda1 "${vault_path}"
+chmod 750 "${vault_path}"
+
 # Add the HashiCorp RPM repository.
 yum install -y yum-utils
 yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
@@ -20,11 +27,6 @@ setcap cap_ipc_lock=+ep "$(readlink -f "$(which vault)")"
 echo '* hard core 0' >> /etc/security/limits.d/vault.conf
 echo '* soft core 0' >> /etc/security/limits.d/vault.conf
 ulimit -c 0
-
-# Make a directory for Raft, certificates and init information.
-mkdir -p "${vault_path}"
-chown vault:vault "${vault_path}"
-chmod 750 "${vault_path}"
 
 # 169.254.169.254 is an Amazon service to provide information about itself.
 my_hostname="$(curl http://169.254.169.254/latest/meta-data/hostname)"
@@ -80,6 +82,8 @@ chown root:root "${vault_path}/tls/vault.crt"
 cat "${vault_path}/tls/vault_ca.crt" >> "${vault_path}/tls/vault.crt"
 
 # The TLS material is owned by Vault.
+# TODO: This gives an error:
+# chown: cannot access '/opt/vault/tls/STAR': No such file or directory
 chown vault:vault "${vault_path}/tls/*"
 
 # A single "$": passed from Terraform.

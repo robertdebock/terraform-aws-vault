@@ -99,7 +99,6 @@ Changing this value after the cluster has been deployed has effect after:
 The `size`: `development` should be considered non-production:
 
 - It's smaller than the HashiCorp Vault reference architecture recommends.
-- It's using spot instances, which may be destroyed on price increases.
 
 ### amount
 

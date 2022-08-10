@@ -32,7 +32,6 @@ module "vault" {
   name              = "dvlpm"
   size              = "development"
   source            = "../../"
-  spot_price        = 0.024
   tags = {
     owner = "robertdebock"
   }

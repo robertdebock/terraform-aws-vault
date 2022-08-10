@@ -1,6 +1,6 @@
 # Development scenario for Vault
 
-Spin up a HashiCorp Vault cluster that automatically unseals and members joins based on AWS tags on spot instances. Cheap for development, not for production.
+Spin up a HashiCorp Vault cluster that automatically unseals and members joins based on AWS tags. Cheap for development, not for production.
 
 ## Setup
 

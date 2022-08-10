@@ -32,16 +32,17 @@ data "aws_ami" "default" {
   }
 }
 
-# Create a launch configuration.
-resource "aws_launch_configuration" "default" {
-  iam_instance_profile = aws_iam_instance_profile.default.name
-  image_id             = data.aws_ami.default.id
-  instance_type        = local.instance_type
-  key_name             = local.key_name
-  name_prefix          = "${var.name}-"
-  security_groups      = [aws_security_group.private.id, aws_security_group.public.id]
-  spot_price           = var.size == "development" ? var.spot_price : null
-  user_data = templatefile("${path.module}/user_data_vault.sh.tpl",
+# Create a launch template.
+resource "aws_launch_template" "default" {
+  iam_instance_profile {
+    name = aws_iam_instance_profile.default.name
+  }
+  image_id               = data.aws_ami.default.id
+  instance_type          = local.instance_type
+  key_name               = local.key_name
+  name_prefix            = "${var.name}-"
+  vpc_security_group_ids = [aws_security_group.private.id, aws_security_group.public.id]
+  user_data = base64encode(templatefile("${path.module}/user_data_vault.sh.tpl",
     {
       api_addr                       = local.api_addr
       default_lease_ttl              = var.default_lease_ttl
@@ -66,18 +67,23 @@ resource "aws_launch_configuration" "default" {
       vault_license                  = try(var.vault_license, null)
       warmup                         = var.warmup
     }
-  )
-  root_block_device {
-    encrypted   = true
-    iops        = local.volume_iops
-    volume_size = local.volume_size
-    volume_type = local.volume_type
+  ))
+  block_device_mappings {
+    device_name = "/dev/sda1"
+
+    ebs {
+      encrypted   = true
+      iops        = local.volume_iops
+      volume_size = local.volume_size
+      volume_type = local.volume_type
+    }
   }
+
   lifecycle {
     create_before_destroy = true
   }
-}
 
+}
 
 # Create a random string to make tags more unique.
 resource "random_string" "default" {
@@ -93,7 +99,10 @@ resource "aws_autoscaling_group" "default" {
   desired_capacity      = var.amount
   enabled_metrics       = ["GroupDesiredCapacity", "GroupInServiceCapacity", "GroupPendingCapacity", "GroupMinSize", "GroupMaxSize", "GroupInServiceInstances", "GroupPendingInstances", "GroupStandbyInstances", "GroupStandbyCapacity", "GroupTerminatingCapacity", "GroupTerminatingInstances", "GroupTotalCapacity", "GroupTotalInstances"]
   health_check_type     = var.telemetry && !var.telemetry_unauthenticated_metrics_access ? "EC2" : "ELB"
-  launch_configuration  = aws_launch_configuration.default.name
+  launch_template {
+    id      = aws_launch_template.default.id
+    version = "$Latest"
+  }
   max_instance_lifetime = var.max_instance_lifetime
   max_size              = var.amount + 1
   min_size              = var.amount - 1
