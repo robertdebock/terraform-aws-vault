@@ -7,7 +7,7 @@ resource "aws_placement_group" "default" {
 
 # Add a load balancer for the API/UI.
 resource "aws_lb" "api" {
-  name            = "${var.name}-api"
+  name            = "${var.name}-api-${random_string.default.result}"
   internal        = var.aws_lb_internal
   security_groups = [aws_security_group.public.id, aws_security_group.private.id]
   subnets         = local.public_subnet_ids
@@ -50,6 +50,8 @@ resource "aws_lb_target_group" "replication" {
   tags        = local.replication_tags
   vpc_id      = local.vpc_id
 }
+
+# TODO: Add a listener on :80/tcp that redirects to `var.api_port`. (Don't forget about the security groups.)
 
 # Add a API listener to the loadbalancer.
 resource "aws_lb_listener" "api" {
