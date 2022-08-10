@@ -2,19 +2,19 @@
 
 This example tests the module in an existing VPC with multiple subnets in a VPC. To mimic that existing VPC with extra subnets, this code spins up a (network mostly) environment that can be used to test the module.
 
-# Setup
+## Setup
 
 ```shell
 terraform init
 ```
 
-# Deploying
+## Deploying
 
 ```shell
 terraform apply
 ```
 
-# Cleanup
+## Cleanup
 
 Although these resources cost no money:
 

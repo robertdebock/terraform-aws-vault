@@ -3,11 +3,13 @@
 This module can either create all network resources, or use subnets that are already existing.
 
 To create all network resources:
+
 - Don't set `var.vpc_id`.
 - Don't set `var.private_subnet_ids`.
 - Don't set `var.private_subnet_ids`.
 
 To use existing network resources:
+
 - Set the `var.vpc_id`.
 - Set `var.private_subnet_ids` to a subnet with a NAT router.
 - Set `var.private_subnet_ids` to a subnet with an internet gateway.

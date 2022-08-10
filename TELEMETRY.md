@@ -21,7 +21,7 @@ The vault health endpoint will return these values under these conditions:
 - "472": Nodes of Disaster recovery cluster should not be replaced.
 - "473": Nodes of Performance replication cluster should not be replaced.
 
-See https://www.vaultproject.io/api-docs/system/health
+See [documentation on the health endpoint](https://www.vaultproject.io/api-docs/system/health).
 
 ## Load balancing considerations
 
@@ -46,6 +46,6 @@ ELB health checks are preferred, because they reflect the health of the applicat
 
 ## Testing
 
-```
+```shell
 curl -k -H "X-Vault-Token: ${VAULT_TOKEN}" https://FQDN:8200/v1/sys/metrics
 ```

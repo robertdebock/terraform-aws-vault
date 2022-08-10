@@ -11,7 +11,6 @@ This code spins up a HashiCorp Vault cluster:
 
 ## Overview
 
-
 ```text
 
     \0/        +--------------+
@@ -158,6 +157,7 @@ To understand the cost for this service, you can use cost.modules.tf:
 terraform apply
 terraform state pull | curl -s -X POST -H "Content-Type: application/json" -d @- https://cost.modules.tf/
 ```
+
 Here is a table relating `size` to a monthly price. (Date: Feb 2022)
 
 | Size (`size`) | Monthly price x86_64 ($) | Monthly price arm64 ($) |
@@ -170,6 +170,7 @@ Here is a table relating `size` to a monthly price. (Date: Feb 2022)
 | `maximum`     | 1875.31                  | `size` != `custom` ***  |
 
 When `size` is set to `custom`, these parameters determine the price:
+
 - `volume_iops`
 - `volume_size`
 - `volume_type`

@@ -33,7 +33,7 @@ When you set `vault_type` to `enterprise`, you will get two target groups:
 1. Port `:8200/tcp` - The API and UI can be accessed on this port.
 2. Port `:8201/tcp` - Vault replication (cluster to cluster, for DR and PR) can be used.
 
-#### Port :8201/tcp
+### Port :8201/tcp
 
 - 3 healthy instances.
 

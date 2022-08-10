@@ -2,19 +2,19 @@
 
 Here you can make a key, outside of the module of the root-module.
 
-# Setup
+## Setup
 
 ```shell
 terraform init
 ```
 
-# Deploying
+## Deploying
 
 ```shell
 terraform apply
 ```
 
-# Cleanup
+## Cleanup
 
 Although these resources cost no money:
 
