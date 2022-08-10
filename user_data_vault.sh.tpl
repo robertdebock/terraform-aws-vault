@@ -81,11 +81,6 @@ chown root:root "${vault_path}/tls/vault.crt"
 # Concatenate CA and server certificate.
 cat "${vault_path}/tls/vault_ca.crt" >> "${vault_path}/tls/vault.crt"
 
-# The TLS material is owned by Vault.
-# TODO: This gives an error:
-# chown: cannot access '/opt/vault/tls/STAR': No such file or directory
-chown vault:vault "${vault_path}/tls/*"
-
 # A single "$": passed from Terraform.
 # A double "$$": determined in the runtime of this script.
 
