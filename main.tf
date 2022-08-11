@@ -14,6 +14,10 @@ data "aws_kms_key" "default" {
   key_id = var.aws_kms_key_id
 }
 
+# Find the region.
+data "aws_region" "default" {}
+
+
 # Place an SSH key.
 resource "aws_key_pair" "default" {
   count      = var.key_filename == "" ? 0 : 1
@@ -54,7 +58,7 @@ resource "aws_launch_template" "default" {
       prometheus_disable_hostname    = var.prometheus_disable_hostname
       prometheus_retention_time      = var.prometheus_retention_time
       random_string                  = random_string.default.result
-      region                         = var.region
+      region                         = data.aws_region.default.name
       target_group_arns              = local.target_group_arns
       telemetry                      = var.telemetry
       unauthenticated_metrics_access = var.telemetry_unauthenticated_metrics_access
@@ -111,11 +115,12 @@ resource "aws_autoscaling_group" "default" {
   target_group_arns     = local.target_group_arns
   vpc_zone_identifier   = local.private_subnet_ids
   instance_refresh {
-    strategy = "Rolling"
     preferences {
       instance_warmup        = var.warmup
       min_healthy_percentage = 90
     }
+    strategy = "Rolling"
+    triggers = ["tag"]
   }
   lifecycle {
     create_before_destroy = true
