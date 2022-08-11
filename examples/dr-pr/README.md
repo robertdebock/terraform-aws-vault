@@ -28,7 +28,7 @@ Generate a CA key and certificate.
 terraform apply
 ```
 
-## Setting up replication.
+## Setting up replication
 
 ### Performance replication (PR)
 
