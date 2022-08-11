@@ -103,7 +103,14 @@ resource "aws_autoscaling_group" "default" {
   default_cooldown      = var.cooldown
   desired_capacity      = var.amount
   enabled_metrics       = ["GroupDesiredCapacity", "GroupInServiceCapacity", "GroupPendingCapacity", "GroupMinSize", "GroupMaxSize", "GroupInServiceInstances", "GroupPendingInstances", "GroupStandbyInstances", "GroupStandbyCapacity", "GroupTerminatingCapacity", "GroupTerminatingInstances", "GroupTotalCapacity", "GroupTotalInstances"]
-  health_check_type     = var.telemetry && !var.telemetry_unauthenticated_metrics_access ? "EC2" : "ELB"
+  # Base the health check on weaker "EC2" if:
+  # - var.telemetry is enabled AND var.telemetry_unauthenticated_metrics_access is disabled.
+  # Or if:
+  # - var.vault_replication is enabled.
+  # Otherwise, use "ELB", which is stronger, but not always applicable..
+  # health_check_type   = var.telemetry && !var.telemetry_unauthenticated_metrics_access ? "EC2" : "ELB"
+  health_check_type     = var.vault_replication || (var.telemetry && !var.telemetry_unauthenticated_metrics_access) ? "EC2" : "ELB"
+
   launch_template {
     id      = aws_launch_template.default.id
     version = "$Latest"
