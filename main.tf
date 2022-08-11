@@ -135,12 +135,3 @@ resource "aws_autoscaling_group" "default" {
     delete = "15m"
   }
 }
-
-# Collect the created vault instances.
-data "aws_instances" "default" {
-  instance_state_names = ["running"]
-  instance_tags = {
-    Name = local.instance_name
-  }
-  depends_on = [aws_autoscaling_group.default]
-}
