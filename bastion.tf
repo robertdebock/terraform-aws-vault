@@ -104,7 +104,8 @@ resource "aws_instance" "bastion" {
       vault_path    = var.vault_path
     }
   )
-  vpc_security_group_ids = [aws_security_group.bastion[0].id]
+  user_data_replace_on_change = true
+  vpc_security_group_ids      = [aws_security_group.bastion[0].id]
   root_block_device {
     volume_size           = "32"
     volume_type           = "gp2"
