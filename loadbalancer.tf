@@ -29,6 +29,10 @@ resource "aws_lb_target_group" "api" {
   name_prefix          = "${var.name}-"
   port                 = 8200
   protocol             = "HTTPS"
+  stickiness {
+    enabled = true
+    type    = "lb_cookie"
+  }
   tags                 = local.api_tags
   vpc_id               = local.vpc_id
   health_check {
