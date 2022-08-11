@@ -49,6 +49,14 @@ resource "aws_lb_target_group" "replication" {
   protocol    = "TCP"
   tags        = local.replication_tags
   vpc_id      = local.vpc_id
+  # Traffic for 8201 should only go to the active Vault node.
+  # https://support.hashicorp.com/hc/en-us/articles/4408887865363-Troubleshooting-Replication-Problems-During-Initial-Bootstrap
+  health_check {
+    interval = 10
+    path     = "/v1/sys/health"
+    port     = 8200
+    protocol = "HTTPS"
+  }
 }
 
 # TODO: Add a listener on :80/tcp that redirects to `var.api_port`. (Don't forget about the security groups.)
