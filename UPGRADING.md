@@ -21,4 +21,4 @@ You can also change the `volume_type` on the fly. (This is applicable for `devel
 
 ## Downtime
 
-There will be some (seconds) downtime during the changes. The service will be restored automatically.
+There will be no downtime during the changes.
