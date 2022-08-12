@@ -35,6 +35,7 @@ When you set `vault_type` to `enterprise`, you will get two target groups:
 
 ### Port :8201/tcp
 
-- 3 healthy instances.
+- 1 healthy instances.
+- 2 unhealthy instances.
 
 Basically any node can be used to setup replication. The load balancer will pick one node.
