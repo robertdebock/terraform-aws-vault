@@ -20,6 +20,18 @@ resource "aws_security_group_rule" "api_public" {
   type              = "ingress"
 }
 
+# Allow the redirection from port 80 to `var.api_port` from the internet.
+resource "aws_security_group_rule" "api_public_redirect" {
+  cidr_blocks       = var.allowed_cidr_blocks
+  description       = "Vault API redirection"
+  from_port         = 80
+  protocol          = "TCP"
+  security_group_id = aws_security_group.public.id
+  to_port           = 80
+  type              = "ingress"
+}
+
+
 # Allow specified security groups to have access as well.
 resource "aws_security_group_rule" "extra" {
   count                    = length(var.extra_security_group_ids)

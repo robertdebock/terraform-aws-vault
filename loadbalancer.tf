@@ -7,9 +7,9 @@ resource "aws_placement_group" "default" {
 
 # Add a load balancer for the API/UI.
 resource "aws_lb" "api" {
-  name            = "${var.name}-api-${random_string.default.result}"
   internal        = var.aws_lb_internal
-  security_groups = [aws_security_group.public.id, aws_security_group.private.id]
+  name            = "${var.name}-api-${random_string.default.result}"
+  security_groups = concat([aws_security_group.public.id, aws_security_group.private.id], var.extra_security_group_ids)
   subnets         = local.public_subnet_ids
   tags            = local.api_tags
 }
@@ -17,8 +17,9 @@ resource "aws_lb" "api" {
 # Add a load balancer for replication.
 resource "aws_lb" "replication" {
   count              = var.vault_replication ? 1 : 0
+  internal           = var.aws_lb_internal
   load_balancer_type = "network"
-  name               = "${var.name}-replication"
+  name               = "${var.name}-replication-${random_string.default.result}"
   subnets            = local.public_subnet_ids
   tags               = local.replication_tags
 }
@@ -63,8 +64,6 @@ resource "aws_lb_target_group" "replication" {
   }
 }
 
-# TODO: Add a listener on :80/tcp that redirects to `var.api_port`. (Don't forget about the security groups.)
-
 # Add a API listener to the loadbalancer.
 resource "aws_lb_listener" "api" {
   certificate_arn   = var.certificate_arn
@@ -77,6 +76,23 @@ resource "aws_lb_listener" "api" {
     type             = "forward"
   }
 }
+
+resource "aws_lb_listener" "api_redirect" {
+  load_balancer_arn = aws_lb.api.arn
+  port              = "80"
+  protocol          = "HTTP"
+
+  default_action {
+    type = "redirect"
+
+    redirect {
+      port        = "${var.api_port}"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
+  }
+}
+
 
 # Add a replication listener to the loadbalancer.
 resource "aws_lb_listener" "replication" {
