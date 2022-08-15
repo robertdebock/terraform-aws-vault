@@ -116,7 +116,7 @@ resource "aws_autoscaling_group" "default" {
 
   launch_template {
     id      = aws_launch_template.default.id
-    version = "$Latest"
+    version = aws_launch_template.default.latest_version
   }
   max_instance_lifetime = var.max_instance_lifetime
   max_size              = var.amount + 1
@@ -131,15 +131,9 @@ resource "aws_autoscaling_group" "default" {
       min_healthy_percentage = 90
     }
     strategy = "Rolling"
-    triggers = ["tag"]
   }
   lifecycle {
     create_before_destroy = true
-  }
-  tag {
-    key                 = "Name"
-    propagate_at_launch = true
-    value               = local.instance_name
   }
   timeouts {
     delete = "15m"
