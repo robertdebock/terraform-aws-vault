@@ -315,6 +315,7 @@ variable "warmup" {
 variable "api_port" {
   description = "The TCP port where the API should listen."
   type        = number
+  # TODO: Any other value than the default, will result in the API+UI being unavailable.
   default     = 8200
   validation {
     condition     = var.api_port >= 1 && var.api_port <= 65535
@@ -384,4 +385,10 @@ variable "audit_device_path" {
     condition     = can(regex("^/", var.audit_device_path))
     error_message = "Please specify an absolute path."
   }
+}
+
+variable "allow_ssh" {
+  description = "You can (dis-) allow SSH access to the Vault nodes."
+  type        = bool
+  default     = false
 }
