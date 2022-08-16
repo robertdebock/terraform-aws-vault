@@ -17,7 +17,6 @@ data "aws_kms_key" "default" {
 # Find the region.
 data "aws_region" "default" {}
 
-
 # Place an SSH key.
 resource "aws_key_pair" "default" {
   count      = var.key_filename == "" ? 0 : 1
