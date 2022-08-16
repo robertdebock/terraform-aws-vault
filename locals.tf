@@ -109,4 +109,39 @@ locals {
     x2gd    = "amzn2-ami-hvm-*-arm64-gp2"
   }
   ami_pattern = try(local._ami_pattern[split(".", local.instance_type)[0]], local._ami_pattern["default"])
+
+  # A map of disks, if `var.audit_device` is disabled, this list is used.
+  disks_without_audit = [
+    {
+      device_name = "/dev/sda1"
+      ebs = {
+        encrypted   = true
+        iops        = local.volume_iops
+        volume_size = local.volume_size
+        volume_type = local.volume_type
+      }
+    }
+  ]
+
+  # A map of disks, if `var.audit_device` is enabled, this list is used.
+  disks_with_audit = [
+    {
+      device_name = "/dev/sda1"
+      ebs = {
+        encrypted   = true
+        iops        = local.volume_iops
+        volume_size = local.volume_size
+        volume_type = local.volume_type
+      }
+    },
+    {
+      device_name = "/dev/sdb"
+      ebs = {
+        delete_on_termination = true
+        encrypted             = true
+        volume_size           = var.audit_device_size
+        volume_type           = "gp3" 
+      }
+    }
+  ]
 }

@@ -53,6 +53,8 @@ resource "aws_launch_template" "default" {
   user_data = base64encode(templatefile("${path.module}/user_data_vault.sh.tpl",
     {
       api_addr                       = local.api_addr
+      audit_device                   = var.audit_device
+      audit_device_path              = var.audit_device_path
       default_lease_ttl              = var.default_lease_ttl
       instance_name                  = local.instance_name
       kms_key_id                     = local.aws_kms_key_id
@@ -76,14 +78,22 @@ resource "aws_launch_template" "default" {
       warmup                         = var.warmup
     }
   ))
-  block_device_mappings {
-    device_name = "/dev/sda1"
+  dynamic "block_device_mappings" {
+    for_each = var.audit_device ? local.disks_with_audit : local.disks_without_audit
+    content {
+      device_name  = block_device_mappings.value.device_name
 
-    ebs {
-      encrypted   = true
-      iops        = local.volume_iops
-      volume_size = local.volume_size
-      volume_type = local.volume_type
+      dynamic "ebs" {
+        for_each = flatten([try(block_device_mappings.value.ebs, [])])
+
+        content {
+          delete_on_termination = try(ebs.value.delete_on_termination, null)
+          encrypted             = try(ebs.value.encrypted, null)
+          iops                  = try(ebs.value.iops, null)
+          volume_size           = try(ebs.value.volume_size, null)
+          volume_type           = try(ebs.value.volume_type, null)
+        }
+      }
     }
   }
 
@@ -123,6 +133,11 @@ resource "aws_autoscaling_group" "default" {
   min_size              = var.amount - 1
   name                  = var.name
   placement_group       = aws_placement_group.default.id
+  tag {
+    key                 = "Name"
+    propagate_at_launch = true
+    value               = local.instance_name
+  }
   target_group_arns     = local.target_group_arns
   vpc_zone_identifier   = local.private_subnet_ids
   instance_refresh {

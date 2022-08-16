@@ -32,6 +32,8 @@ module "vault" {
   advanced_monitoing          = false
   api_addr                    = "https://custom.robertdebock.nl"
   api_port                    = 443
+  audit_device                = true
+  audit_device_size           = 64
   aws_lb_internal             = true
   certificate_arn             = aws_acm_certificate.default.arn
   instance_type               = "t3.medium"
@@ -41,8 +43,8 @@ module "vault" {
   prometheus_retention_time   = "30m"
   size                        = "custom"
   source                      = "../../"
-  volume_iops                 = "3200"
-  volume_size                 = "64"
+  volume_iops                 = 3200
+  volume_size                 = 64
   volume_type                 = "io1"
   tags = {
     owner = "robertdebock"

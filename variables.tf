@@ -359,3 +359,29 @@ variable "advanced_monitoing" {
   type        = bool
   default     = true
 }
+
+variable "audit_device" {
+  description = "You can specify an audit device to be created. This will create a mount on the Vault nodes."
+  type        = bool
+  default     = false
+}
+
+variable "audit_device_size" {
+  description = "The size (in GB) of the audit device when `var.audit_device` is enabled."
+  type        = number
+  default     = 32
+  validation {
+    condition = var.audit_device_size >= 16
+    error_message = "Please use 16 (GB) or more."
+  }
+}
+
+variable "audit_device_path" {
+  description = "The absolute pah to where Vault can store audit logs."
+  type        = string
+  default     = "/var/log/vault"
+  validation {
+    condition     = can(regex("^/", var.audit_device_path))
+    error_message = "Please specify an absolute path."
+  }
+}

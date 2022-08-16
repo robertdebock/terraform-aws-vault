@@ -5,10 +5,17 @@ yum update -y
 
 # Make a directory for Raft, certificates and init information.
 mkdir -p "${vault_path}"
-chown vault:vault "${vault_path}"
 mkfs.ext4 /dev/sda1
 mount /dev/sda1 "${vault_path}"
 chmod 750 "${vault_path}"
+
+# Make a directory for audit logs.
+if [ "${audit_device}" = true ] ; then
+  mkdir -p "${audit_device_path}"
+  mkfs.ext4 /dev/sdb
+  mount /dev/sdb "${audit_device_path}"
+  chmod 750 "${audit_device_path}"
+fi
 
 # Add the HashiCorp RPM repository.
 yum install -y yum-utils
@@ -16,6 +23,14 @@ yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/has
 
 # Install a specific version of Vault.
 yum install -y "${vault_package}"
+
+# Change ownership for the `vault_path``.
+chown vault:vault "${vault_path}"
+
+# Optionally change ownership for `audit_device_path`.
+if [ -d "${audit_device_path}" ] ; then
+  chown vault:vault "${audit_device_path}"
+fi
 
 # Allow auto-completion for the ec2-user.
 runuser -l ec2-user -c "vault -autocomplete-install"
