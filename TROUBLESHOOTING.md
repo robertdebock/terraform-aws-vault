@@ -62,7 +62,6 @@ The solution is to wait a minute and retry.
 
 ### Situation 4
 
-
 This can happen directly after `vault operator init`.
 
 ### Cause 4
