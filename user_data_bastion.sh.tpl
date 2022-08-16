@@ -17,3 +17,6 @@ runuser -l ec2-user -c "vault -autocomplete-install"
 echo "export VAULT_ADDR=${api_addr}" >> /etc/profile.d/vault.sh
 # The common name in the certificate is not known to the instance.
 echo "export VAULT_SKIP_VERIFY=1" >> /etc/profile.d/vault.sh
+
+# Set the history to ignore all commands that start with vault.
+export HISTIGNORE="&:vault*"

@@ -161,6 +161,9 @@ systemctl --now enable vault
 echo "export VAULT_ADDR=https://$${my_ipaddress}:8200" >> /etc/profile.d/vault.sh
 echo "export VAULT_CACERT=${vault_path}/tls/vault_ca.crt" >> /etc/profile.d/vault.sh
 
+# Set the history to ignore all commands that start with vault.
+export HISTIGNORE="&:vault*"
+
 # Allow ec2-user access to Vault files.
 usermod -G vault ec2-user
 
@@ -174,6 +177,9 @@ cat << EOF >> /usr/local/bin/aws_health.sh
 # Tell vault how to connect.
 export VAULT_ADDR=https://$${my_ipaddress}:8200
 export VAULT_CACERT="${vault_path}/tls/vault_ca.crt"
+
+# Set the history to ignore all commands that start with vault.
+export HISTIGNORE="&:vault*"
 
 # Get the status of Vault and report to AWS ASG.
 if vault status > /dev/null 2>&1 ; then
