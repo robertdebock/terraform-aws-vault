@@ -30,6 +30,7 @@ resource "cloudflare_record" "validation" {
 # Call the module.
 module "vault" {
   advanced_monitoing          = false
+  allow_ssh                   = true
   api_addr                    = "https://custom.robertdebock.nl"
   api_port                    = 443
   audit_device                = true

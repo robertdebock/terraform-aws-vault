@@ -23,6 +23,7 @@ resource "cloudflare_record" "validation" {
 
 # Call the module.
 module "vault" {
+  allow_ssh         = true
   api_addr          = "https://dev.robertdebock.nl:8200"
   certificate_arn   = aws_acm_certificate.default.arn
   default_lease_ttl = "24h"
