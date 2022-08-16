@@ -29,6 +29,7 @@ resource "cloudflare_record" "validation" {
 
 # Call the module.
 module "vault" {
+  advanced_monitoing          = false
   api_addr                    = "https://custom.robertdebock.nl"
   api_port                    = 443
   aws_lb_internal             = true

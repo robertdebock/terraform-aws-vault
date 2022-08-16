@@ -45,7 +45,7 @@ resource "aws_launch_template" "default" {
   instance_type          = local.instance_type
   key_name               = local.key_name
   monitoring {
-    enabled = true
+    enabled = var.advanced_monitoing
   }
   name_prefix            = "${var.name}-"
   update_default_version = true

@@ -92,7 +92,7 @@ resource "aws_instance" "bastion" {
   associate_public_ip_address = true
   instance_type               = "t4g.nano"
   key_name                    = local.key_name
-  monitoring                  = true
+  monitoring                  = var.advanced_monitoing
   subnet_id                   = aws_subnet.bastion[0].id
   tags                        = local.bastion_tags
   user_data = templatefile("${path.module}/user_data_bastion.sh.tpl",

@@ -353,3 +353,9 @@ variable "extra_security_group_ids" {
   type        = list(string)
   default     = []
 }
+
+variable "advanced_monitoing" {
+  description = "Specify of the instances will use advanced monitoring. Makes graphs update more frequently, comes at a price."
+  type        = bool
+  default     = true
+}
