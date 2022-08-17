@@ -34,8 +34,8 @@ module "vault" {
   api_addr                    = "https://custom.robertdebock.nl"
   api_port                    = 443
   audit_device                = true
-  audit_device_size           = 64
-  aws_lb_internal             = true
+  audit_device_size           = 16
+  aws_lb_internal             = false
   certificate_arn             = aws_acm_certificate.default.arn
   instance_type               = "t3.medium"
   key_name                    = aws_key_pair.default.id
