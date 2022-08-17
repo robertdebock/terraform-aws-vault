@@ -85,6 +85,19 @@ locals {
   # Set the key arn, based on either the created key or the specified key.
   aws_kms_key_arn = try(aws_kms_key.default[0].arn, data.aws_kms_key.default[0].arn)
 
+  # Calculate the amount of instances in the ASG. A user can overrule this by setting `var.amount`.
+  # Because of the complexity, here a bit of a break up of the components.
+  #
+  # `index` returns the first field that matches an argument. (`true` in this example.)
+  # `floor` returns the rounded-down number.
+  # `length` returns the amount of items in a list.
+  # `try` returns the first result that does not produce an error. In this case, the number of availability zones can be less than 3. In that case, spin up 3 instances anyway.
+  # So basically:
+  # - Either use the `var.amount`. (If specified.)
+  # - Or use 5 for "large" regions. (5 or more availability zones)
+  # - Or use 3 for "small" regions. (3 or less availability zones)
+  amount = var.amount != null ? var.amount : try(index([floor(length(data.aws_availability_zones.default)/5) >= 1, floor(length(data.aws_availability_zones.default)/3) >=1], true) == 0 ? 5 : 3, 3)
+
   # Compose the package name based on the `vault_type`.
   _vault_package = {
     enterprise = "vault-enterprise-${var.vault_version}+ent-1"

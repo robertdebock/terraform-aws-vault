@@ -113,7 +113,7 @@ resource "random_string" "default" {
 # Create an auto scaling group.
 resource "aws_autoscaling_group" "default" {
   default_cooldown      = var.cooldown
-  desired_capacity      = var.amount
+  desired_capacity      = local.amount
   enabled_metrics       = ["GroupDesiredCapacity", "GroupInServiceCapacity", "GroupPendingCapacity", "GroupMinSize", "GroupMaxSize", "GroupInServiceInstances", "GroupPendingInstances", "GroupStandbyInstances", "GroupStandbyCapacity", "GroupTerminatingCapacity", "GroupTerminatingInstances", "GroupTotalCapacity", "GroupTotalInstances"]
   # Base the health check on weaker "EC2" if:
   # - var.telemetry is enabled AND var.telemetry_unauthenticated_metrics_access is disabled.
@@ -128,8 +128,8 @@ resource "aws_autoscaling_group" "default" {
     version = aws_launch_template.default.latest_version
   }
   max_instance_lifetime = var.max_instance_lifetime
-  max_size              = var.amount + 1
-  min_size              = var.amount - 1
+  max_size              = local.amount + 1
+  min_size              = local.amount - 1
   name                  = var.name
   placement_group       = aws_placement_group.default.id
   tag {

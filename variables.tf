@@ -83,11 +83,11 @@ variable "volume_iops" {
 }
 
 variable "amount" {
-  description = "The amount of instances to deploy."
+  description = "The amount of instances to deploy, by not specifying the value, the optimum amount is calculated."
   type        = number
-  default     = 3
+  default     = null
   validation {
-    condition     = var.amount % 2 == 1 && var.amount >= 3 && var.amount <= 5
+    condition     = var.amount == null ? true : var.amount % 2 == 1 && var.amount >= 3 && var.amount <= 5
     error_message = "Please use an odd number for amount, like 3 or 5."
   }
 }

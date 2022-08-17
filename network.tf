@@ -61,11 +61,13 @@ resource "aws_route" "public" {
 # Find availability_zones in this region.
 data "aws_availability_zones" "default" {
   state = "available"
+  # The availability zone "us-east-1e" does not have all instance_types available.
+  exclude_names = ["us-east-1e"]
 }
 
 # Create the same amount of (private) subnets as the amount of instances when we create the vpc.
 resource "aws_subnet" "private" {
-  count             = var.vpc_id == "" ? min(length(data.aws_availability_zones.default.names), var.amount) : 0
+  count             = var.vpc_id == "" ? min(length(data.aws_availability_zones.default.names), local.amount) : 0
   availability_zone = data.aws_availability_zones.default.names[count.index]
   cidr_block        = "${var.vpc_cidr_block_start}.${count.index}.0/24"
   tags              = local.private_tags
@@ -74,7 +76,7 @@ resource "aws_subnet" "private" {
 
 # Create (public) subnets to allow the loadbalancer to route traffic to intances.
 resource "aws_subnet" "public" {
-  count             = var.vpc_id == "" ? min(length(data.aws_availability_zones.default.names), var.amount) : 0
+  count             = var.vpc_id == "" ? min(length(data.aws_availability_zones.default.names), local.amount) : 0
   availability_zone = data.aws_availability_zones.default.names[count.index]
   cidr_block        = "${var.vpc_cidr_block_start}.${count.index + 64}.0/24"
   tags              = local.public_tags
@@ -83,14 +85,14 @@ resource "aws_subnet" "public" {
 
 # Associate the private subnet to the routing table.
 resource "aws_route_table_association" "private" {
-  count          = var.vpc_id == "" ? min(length(data.aws_availability_zones.default.names), var.amount) : 0
+  count          = var.vpc_id == "" ? min(length(data.aws_availability_zones.default.names), local.amount) : 0
   route_table_id = aws_route_table.private[0].id
   subnet_id      = local.private_subnet_ids[count.index]
 }
 
 # Associate the public subnet to the public routing table.
 resource "aws_route_table_association" "public" {
-  count          = var.vpc_id == "" ? min(length(data.aws_availability_zones.default.names), var.amount) : 0
+  count          = var.vpc_id == "" ? min(length(data.aws_availability_zones.default.names), local.amount) : 0
   route_table_id = aws_route_table.public[0].id
   subnet_id      = aws_subnet.public[count.index].id
 }
