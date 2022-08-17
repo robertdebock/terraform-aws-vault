@@ -10,7 +10,7 @@ mount /dev/sda1 "${vault_path}"
 chmod 750 "${vault_path}"
 
 # Make a directory for audit logs.
-if [ "${audit_device}" = true ] ; then
+if [ "${audit_device}" = "true" ] ; then
   mkdir -p "${audit_device_path}"
   mkfs.ext4 /dev/sdb
   mount /dev/sdb "${audit_device_path}"
@@ -157,6 +157,21 @@ fi
 # Start and enable Vault.
 systemctl --now enable vault
 
+# Setup logrotate if the audit_device is enabled.
+if [ "${audit_device}" = "true" ] ; then
+  cat << EOF > /etc/logrotate.d/vault
+${audit_device_path}/*.log {
+  rotate $[${audit_device_size}*4]
+  missingok
+  compress
+  size 512M
+  postrotate
+    /usr/bin/systemctl reload vault 2> /dev/null || true
+  endscript
+}
+EOF
+fi
+
 # Allow users to use `vault`.
 echo "export VAULT_ADDR=https://$${my_ipaddress}:8200" >> /etc/profile.d/vault.sh
 echo "export VAULT_CACERT=${vault_path}/tls/vault_ca.crt" >> /etc/profile.d/vault.sh
@@ -177,9 +192,6 @@ cat << EOF >> /usr/local/bin/aws_health.sh
 # Tell vault how to connect.
 export VAULT_ADDR=https://$${my_ipaddress}:8200
 export VAULT_CACERT="${vault_path}/tls/vault_ca.crt"
-
-# Set the history to ignore all commands that start with vault.
-export HISTIGNORE="&:vault*"
 
 # Get the status of Vault and report to AWS ASG.
 if vault status > /dev/null 2>&1 ; then
