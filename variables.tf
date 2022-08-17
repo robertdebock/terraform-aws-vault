@@ -315,7 +315,6 @@ variable "warmup" {
 variable "api_port" {
   description = "The TCP port where the API should listen."
   type        = number
-  # TODO: Any other value than the default, will result in the API+UI being unavailable.
   default     = 8200
   validation {
     condition     = var.api_port >= 1 && var.api_port <= 65535
