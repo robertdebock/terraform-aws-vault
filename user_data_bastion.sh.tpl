@@ -19,4 +19,4 @@ echo "export VAULT_ADDR=${api_addr}" >> /etc/profile.d/vault.sh
 echo "export VAULT_SKIP_VERIFY=1" >> /etc/profile.d/vault.sh
 
 # Set the history to ignore all commands that start with vault.
-export HISTIGNORE="&:vault*"
+echo "export HISTIGNORE=\"&:vault*\"" >> /etc/profile.d/vault.sh

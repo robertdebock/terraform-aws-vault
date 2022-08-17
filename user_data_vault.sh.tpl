@@ -162,7 +162,7 @@ echo "export VAULT_ADDR=https://$${my_ipaddress}:8200" >> /etc/profile.d/vault.s
 echo "export VAULT_CACERT=${vault_path}/tls/vault_ca.crt" >> /etc/profile.d/vault.sh
 
 # Set the history to ignore all commands that start with vault.
-export HISTIGNORE="&:vault*"
+echo "export HISTIGNORE=\"&:vault*\"" >> /etc/profile.d/vault.sh
 
 # Allow ec2-user access to Vault files.
 usermod -G vault ec2-user
