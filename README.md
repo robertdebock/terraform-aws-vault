@@ -35,14 +35,11 @@ This code spins up a HashiCorp Vault cluster:
 - Details on [upgrading](UPGRADING.md).
 - Detauls on [telemetry](TELEMETRY.md).
 
-These variables can be used.
+These (most important) variables can be used.
 
-- `name` - default: `"vault"`.
-- `vault_version` - default `"1.8.5"`.
-- `region` - default: `"eu-central-1"`.
-- `size` - default: `"small"`.
-- `amount` - default: `3`.
-- `bastion_host` - default: `true`.
+- `name` - default: `"unset"`.
+- `certificate_arn` - The AWS certificate ARN that can be installed on the load balancer.
+- `key_name` - The key to use to login. (Conflicts wiht `key_filename`. Use either, not both.)
 
 More variables can be found in [variables.tf](variables.tf).
 
@@ -66,51 +63,13 @@ vault operator raft autopilot set-config \
   -dead-server-last-contact-threshold=120
 ```
 
-The value of `dead-server-last-contact-threshold` has a relation to the `autoscaling_group.default.cooldown` (default: `300`); `dead-server-last-contact-threshold` must be lower than the `autoscaling_group.default.cooldown` period to allow the old node to be removed, so consensus can be achieved.
+> NOTE: There are some variable values in the above example, please have a look at the output of the module, it instructs the specific command to run.
 
-## Variables
+## Network
 
-Some more details about the variables below.
+You can **not** specify a `vpc_id`. In that case, this module will create all required network resources.
 
-### name
-
-The `name` is used in nearly any resource.
-
-You can't change this value after a deployment is done, without loosing service.
-
-### vault_version
-
-This determines the version of Vault to install. Pick a version from [this](https://releases.hashicorp.com/vault/) list. The first Vault version packaged into an RPM was `1.2.7`.
-
-Changing this value after the cluster has been deployed has effect after:
-
-- The `max_instance_lifetime` has passed and a instance is replaced.
-- Manually triggering an instance refresh in the AWS console.
-
-### size
-
-The `size` variable makes is a little simpler to pick a size for the Vault cluster. For example `small` is the smallest size as recommended in the HashiCorp Vault reference architecture.
-
-Changing this value after the cluster has been deployed has effect after:
-
-- The `max_instance_lifetime` has passed and a instance is replaced.
-- Manually triggering an instance refresh in the AWS console.
-
-The `size`: `development` should be considered non-production:
-
-- It's smaller than the HashiCorp Vault reference architecture recommends.
-
-### amount
-
-The `amount` of machines that make up the cluster can be changed. Use `3` or `5`.
-
-Changes to the `amount` variable have immediate effect, without refreshing the instances.
-
-### vpc_id
-
-If you have an existing VPC, you can deploy this Vault installation in that VPC by setting this variable. The default is `""`, which means this code will create (and manage) a VPC (and all it's dependencies) for you.
-
-Things that will be deployed when not specifying a VPC:
+If you **do** specify a `vpc_id`, you will need to have:
 
 - `aws_vpc`
 - `aws_internet_gateway`
@@ -118,21 +77,6 @@ Things that will be deployed when not specifying a VPC:
 - `aws_route`
 - `aws_subnet`
 - `aws_route_table_association`
-
-When you do provide a value for the variable `vpc_id`, it should have:
-
-- A subnet for all availability zones.
-- An internet gateway and all routing to the internet setup.
-
-You can't change this value after a deployment is done, without loosing service.
-
-### max_instance_lifetime
-
-Instance of the autoscale group will be destroyed and recreated after this value in seconds. This ensures you are using a "new" instance every time and you are not required to patch the instances, they will be recreated instead with the most recent image.
-
-### bastion_host
-
-You can have this module spin up a bastion host. If you have not set `vpc_id`, or it's set to `vpc_id`; you can only access then instances through a bastion host, so set `bastion_host` to `true`, which is default.
 
 ## Backup & restore
 
@@ -161,7 +105,7 @@ Here is a table relating `size` to a monthly price. (Date: Feb 2022)
 
 | Size (`size`) | Monthly price x86_64 ($) | Monthly price arm64 ($) |
 |---------------|--------------------------|-------------------------|
-| `custom`      | Varies: 223.34 *        | Varies: +- 193.00 **     |
+| `custom`      | Varies: 223.34 *         | Varies: +- 193.00 **    |
 | `development` | 50.98                    | `size` != `custom` ***  |
 | `minimum`     | 257.47                   | `size` != `custom` ***  |
 | **`small`**   | 488.59                   | `size` != `custom` ***  |

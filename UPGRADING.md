@@ -8,8 +8,8 @@ And eventually update the variable `vault_version`:
 module "vault" {
   source  = "robertdebock/vault/aws"
   certificate_arn = aws_acm_certificate.default.arn
-  version = "2.4.0"
-  vault_version = "1.9.4"
+  version = "8.0.1"
+  vault_version = "1.11.2"
 }
 ```
 
