@@ -12,7 +12,7 @@ resource "aws_security_group" "public" {
 # Allow the vault API to be accessed from the internet.
 resource "aws_security_group_rule" "api_public" {
   cidr_blocks       = var.allowed_cidr_blocks
-  description       = "Vault API"
+  description       = "Vault API/UI"
   from_port         = var.api_port
   protocol          = "TCP"
   security_group_id = aws_security_group.public.id
@@ -23,7 +23,7 @@ resource "aws_security_group_rule" "api_public" {
 # Allow the redirection from port 80 to `var.api_port` from the internet.
 resource "aws_security_group_rule" "api_public_redirect" {
   cidr_blocks       = var.allowed_cidr_blocks
-  description       = "Vault API redirection"
+  description       = "Vault API/UI redirection"
   from_port         = 80
   protocol          = "TCP"
   security_group_id = aws_security_group.public.id
@@ -57,7 +57,7 @@ resource "aws_security_group" "private" {
 
 # Allow the Vault API to be accessed from clients.
 resource "aws_security_group_rule" "api_private" {
-  description              = "vault api"
+  description              = "Vault API/UI"
   from_port                = 8200
   protocol                 = "TCP"
   security_group_id        = aws_security_group.private.id
@@ -68,7 +68,7 @@ resource "aws_security_group_rule" "api_private" {
 
 # Allow instances to use Raft.
 resource "aws_security_group_rule" "raft" {
-  description              = "server to server"
+  description              = "Vault Raft"
   from_port                = 8201
   protocol                 = "TCP"
   security_group_id        = aws_security_group.private.id
@@ -81,7 +81,7 @@ resource "aws_security_group_rule" "raft" {
 resource "aws_security_group_rule" "clustertocluster" {
   count             = var.vault_replication ? 1 : 0
   cidr_blocks       = var.allowed_cidr_blocks_replication
-  description       = "Vault Raft"
+  description       = "Vault Raft Replication"
   from_port         = var.replication_port
   protocol          = "TCP"
   security_group_id = aws_security_group.public.id
@@ -93,7 +93,7 @@ resource "aws_security_group_rule" "clustertocluster" {
 resource "aws_security_group_rule" "ssh" {
   count             = var.allow_ssh ? 1 : 0
   cidr_blocks       = [local.cidr_block]
-  description       = "ssh"
+  description       = "SSH from bastion"
   from_port         = 22
   protocol          = "TCP"
   security_group_id = aws_security_group.private.id
@@ -104,7 +104,7 @@ resource "aws_security_group_rule" "ssh" {
 # Allow internet from the instances. Required for package installations.
 resource "aws_security_group_rule" "internet" {
   cidr_blocks       = ["0.0.0.0/0"]
-  description       = "internet"
+  description       = "Internet"
   from_port         = 0
   protocol          = "-1"
   security_group_id = aws_security_group.private.id
