@@ -10,6 +10,9 @@ yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/has
 # Install a specific version of Vault.
 yum install -y ${vault_package}
 
+# Install Apache Benchmark.
+yum install -y httpd
+
 # Allow auto-completion for the ec2-user.
 runuser -l ec2-user -c "vault -autocomplete-install"
 
