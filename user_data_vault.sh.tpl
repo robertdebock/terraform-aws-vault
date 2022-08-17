@@ -172,6 +172,9 @@ ${audit_device_path}/*.log {
 EOF
 fi
 
+# Run logrotate hourly.
+cp /etc/cron.daily/logrotate /etc/cron.hourly/logrotate
+
 # Allow users to use `vault`.
 echo "export VAULT_ADDR=https://$${my_ipaddress}:8200" >> /etc/profile.d/vault.sh
 echo "export VAULT_CACERT=${vault_path}/tls/vault_ca.crt" >> /etc/profile.d/vault.sh
