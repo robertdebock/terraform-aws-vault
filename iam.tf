@@ -73,7 +73,7 @@ data "aws_iam_policy_document" "autosnapshot" {
     resources = [
       "arn:aws:s3:::${var.vault_aws_s3_snapshots_bucket}/*.snap",
       "arn:aws:s3:::${var.vault_aws_s3_snapshots_bucket}/*/*.snap"
-      ]
+    ]
   }
   statement {
     effect = "Allow"

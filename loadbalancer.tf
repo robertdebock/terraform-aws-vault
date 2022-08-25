@@ -34,8 +34,8 @@ resource "aws_lb_target_group" "api" {
     enabled = true
     type    = "lb_cookie"
   }
-  tags                 = local.api_tags
-  vpc_id               = local.vpc_id
+  tags   = local.api_tags
+  vpc_id = local.vpc_id
   health_check {
     interval = 5
     # See TELEMETRY.md for an explanation.
@@ -86,7 +86,7 @@ resource "aws_lb_listener" "api_redirect" {
     type = "redirect"
 
     redirect {
-      port        = "${var.api_port}"
+      port        = var.api_port
       protocol    = "HTTPS"
       status_code = "HTTP_301"
     }

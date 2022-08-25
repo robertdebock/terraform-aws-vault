@@ -365,7 +365,7 @@ variable "audit_device_size" {
   type        = number
   default     = 32
   validation {
-    condition = var.audit_device_size >= 16
+    condition     = var.audit_device_size >= 16
     error_message = "Please use 16 (GB) or more."
   }
 }
@@ -407,7 +407,7 @@ variable "cpu_manufacturer" {
   type        = string
   default     = "amazon-web-services"
   validation {
-    condition = contains(["amazon-web-services", "amd", "intel"], var.cpu_manufacturer)
+    condition     = contains(["amazon-web-services", "amd", "intel"], var.cpu_manufacturer)
     error_message = "Please choosse from \"amazon-web-services\", \"amd\" or \"intel\"."
   }
 }

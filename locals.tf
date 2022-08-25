@@ -17,27 +17,27 @@ locals {
   # Combine api arn and (optionally) replication arn.
   target_group_arns = compact([aws_lb_target_group.api.arn, try(aws_lb_target_group.replication[0].arn, null)])
 
-# A map of memory requirements.
-_minimum_memory = {
-  custom      = var.minimum_memory
-  development = 512
-  minimum     = 8 * 1024
-  small       = 16 * 1024
-  large       = 32 * 1024
-  maximum     = 64 * 1024
-}
-minimum_memory = local._minimum_memory[var.size]
+  # A map of memory requirements.
+  _minimum_memory = {
+    custom      = var.minimum_memory
+    development = 512
+    minimum     = 8 * 1024
+    small       = 16 * 1024
+    large       = 32 * 1024
+    maximum     = 64 * 1024
+  }
+  minimum_memory = local._minimum_memory[var.size]
 
-# A map of cpu requirements.
-_minimum_vcpus = {
-  custom      = var.minimum_vcpus
-  development = 1
-  minimum     = 2
-  small       = 4
-  large       = 4
-  maximum     = 8
-}
-minimum_vcpus = local._minimum_vcpus[var.size]
+  # A map of cpu requirements.
+  _minimum_vcpus = {
+    custom      = var.minimum_vcpus
+    development = 1
+    minimum     = 2
+    small       = 4
+    large       = 4
+    maximum     = 8
+  }
+  minimum_vcpus = local._minimum_vcpus[var.size]
 
 
   # A map from `size` to `volume_type`.
@@ -108,7 +108,7 @@ minimum_vcpus = local._minimum_vcpus[var.size]
   # - Either use the `var.amount`. (If specified.)
   # - Or use 5 for "large" regions. (5 or more availability zones)
   # - Or use 3 for "small" regions. (3 or less availability zones)
-  amount = var.amount != null ? var.amount : try(index([floor(length(data.aws_availability_zones.default)/5) >= 1, floor(length(data.aws_availability_zones.default)/3) >=1], true) == 0 ? 5 : 3, 3)
+  amount = var.amount != null ? var.amount : try(index([floor(length(data.aws_availability_zones.default) / 5) >= 1, floor(length(data.aws_availability_zones.default) / 3) >= 1], true) == 0 ? 5 : 3, 3)
 
   # Compose the package name based on the `vault_type`.
   _vault_package = {
@@ -154,7 +154,7 @@ minimum_vcpus = local._minimum_vcpus[var.size]
         delete_on_termination = true
         encrypted             = true
         volume_size           = var.audit_device_size
-        volume_type           = "gp3" 
+        volume_type           = "gp3"
       }
     }
   ]

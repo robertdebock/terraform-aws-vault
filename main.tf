@@ -40,7 +40,7 @@ resource "aws_launch_template" "default" {
   iam_instance_profile {
     name = aws_iam_instance_profile.default.name
   }
-  image_id               = data.aws_ami.default.id
+  image_id = data.aws_ami.default.id
   instance_requirements {
     memory_mib {
       min = local.minimum_memory
@@ -51,7 +51,7 @@ resource "aws_launch_template" "default" {
     cpu_manufacturers    = [var.cpu_manufacturer]
     instance_generations = ["current"]
   }
-  key_name               = local.key_name
+  key_name = local.key_name
   monitoring {
     enabled = var.advanced_monitoing
   }
@@ -90,7 +90,7 @@ resource "aws_launch_template" "default" {
   dynamic "block_device_mappings" {
     for_each = var.audit_device ? local.disks_with_audit : local.disks_without_audit
     content {
-      device_name  = block_device_mappings.value.device_name
+      device_name = block_device_mappings.value.device_name
 
       dynamic "ebs" {
         for_each = flatten([try(block_device_mappings.value.ebs, [])])
@@ -122,16 +122,16 @@ resource "random_string" "default" {
 
 # Create an auto scaling group.
 resource "aws_autoscaling_group" "default" {
-  default_cooldown      = var.cooldown
-  desired_capacity      = local.amount
-  enabled_metrics       = ["GroupDesiredCapacity", "GroupInServiceCapacity", "GroupPendingCapacity", "GroupMinSize", "GroupMaxSize", "GroupInServiceInstances", "GroupPendingInstances", "GroupStandbyInstances", "GroupStandbyCapacity", "GroupTerminatingCapacity", "GroupTerminatingInstances", "GroupTotalCapacity", "GroupTotalInstances"]
+  default_cooldown = var.cooldown
+  desired_capacity = local.amount
+  enabled_metrics  = ["GroupDesiredCapacity", "GroupInServiceCapacity", "GroupPendingCapacity", "GroupMinSize", "GroupMaxSize", "GroupInServiceInstances", "GroupPendingInstances", "GroupStandbyInstances", "GroupStandbyCapacity", "GroupTerminatingCapacity", "GroupTerminatingInstances", "GroupTotalCapacity", "GroupTotalInstances"]
   # Base the health check on weaker "EC2" if:
   # - var.telemetry is enabled AND var.telemetry_unauthenticated_metrics_access is disabled.
   # Or if:
   # - var.vault_replication is enabled.
   # Otherwise, use "ELB", which is stronger, but not always applicable..
   # health_check_type   = var.telemetry && !var.telemetry_unauthenticated_metrics_access ? "EC2" : "ELB"
-  health_check_type     = var.vault_replication || (var.telemetry && !var.telemetry_unauthenticated_metrics_access) ? "EC2" : "ELB"
+  health_check_type = var.vault_replication || (var.telemetry && !var.telemetry_unauthenticated_metrics_access) ? "EC2" : "ELB"
 
   max_instance_lifetime = var.max_instance_lifetime
   max_size              = local.amount + 1
@@ -144,15 +144,15 @@ resource "aws_autoscaling_group" "default" {
     }
   }
 
-  name                  = var.name
-  placement_group       = aws_placement_group.default.id
+  name            = var.name
+  placement_group = aws_placement_group.default.id
   tag {
     key                 = "Name"
     propagate_at_launch = true
     value               = local.instance_name
   }
-  target_group_arns     = local.target_group_arns
-  vpc_zone_identifier   = local.private_subnet_ids
+  target_group_arns   = local.target_group_arns
+  vpc_zone_identifier = local.private_subnet_ids
   instance_refresh {
     preferences {
       instance_warmup        = var.warmup
