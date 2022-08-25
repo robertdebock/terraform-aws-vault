@@ -45,7 +45,6 @@ module "vault_one" {
   api_addr                        = "https://one.robertdebock.nl:8200"
   aws_kms_key_id                  = "0150a897-8bbc-4b91-9d2d-92d4fc47ddb5"
   certificate_arn                 = aws_acm_certificate.one.arn
-  instance_type                   = "m6g.medium"
   key_filename                    = "id_rsa.pub"
   name                            = "one"
   size                            = "custom"
