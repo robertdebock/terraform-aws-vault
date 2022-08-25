@@ -389,7 +389,7 @@ variable "allow_ssh" {
 variable "minimum_memory" {
   description = "When using a custom size, the minimum amount of memoroy (in megabytes) can be set."
   type        = number
-  default     = 1024
+  default     = 8192
   validation {
     condition     = var.minimum_memory >= 512
     error_message = "Please use 512 or more."
@@ -399,7 +399,7 @@ variable "minimum_memory" {
 variable "minimum_vcpus" {
   description = "When using a custom size, the minimum amount of vcpus can be set."
   type        = number
-  default     = 1
+  default     = 2
 }
 
 variable "cpu_manufacturer" {
