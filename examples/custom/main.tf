@@ -40,7 +40,7 @@ module "vault" {
   cpu_manufacturer            = "intel"
   key_name                    = aws_key_pair.default.id
   minimum_vcpus               = 2
-  minimum_memory =            = 1024
+  minimum_memory              = 1024
   name                        = "cstm"
   prometheus_disable_hostname = true
   prometheus_retention_time   = "30m"
