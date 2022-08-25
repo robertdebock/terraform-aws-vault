@@ -41,7 +41,16 @@ resource "aws_launch_template" "default" {
     name = aws_iam_instance_profile.default.name
   }
   image_id               = data.aws_ami.default.id
-  instance_type          = local.instance_type
+  instance_requirements {
+    memory_mib {
+      min = local.minimum_memory
+    }
+    vcpu_count {
+      min = local.minimum_vcpus
+    }
+    cpu_manufacturers    = [var.cpu_manufacturer]
+    instance_generations = ["current"]
+  }
   key_name               = local.key_name
   monitoring {
     enabled = var.advanced_monitoing
@@ -124,13 +133,17 @@ resource "aws_autoscaling_group" "default" {
   # health_check_type   = var.telemetry && !var.telemetry_unauthenticated_metrics_access ? "EC2" : "ELB"
   health_check_type     = var.vault_replication || (var.telemetry && !var.telemetry_unauthenticated_metrics_access) ? "EC2" : "ELB"
 
-  launch_template {
-    id      = aws_launch_template.default.id
-    version = aws_launch_template.default.latest_version
-  }
   max_instance_lifetime = var.max_instance_lifetime
   max_size              = local.amount + 1
   min_size              = local.amount - 1
+  mixed_instances_policy {
+    launch_template {
+      launch_template_specification {
+        launch_template_id = aws_launch_template.default.id
+      }
+    }
+  }
+
   name                  = var.name
   placement_group       = aws_placement_group.default.id
   tag {
