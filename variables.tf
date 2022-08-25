@@ -47,12 +47,6 @@ variable "size" {
   }
 }
 
-variable "instance_type" {
-  description = "When `size` is set to `custom`, specify your own instance type here."
-  type        = string
-  default     = "t3.large"
-}
-
 variable "volume_type" {
   description = "When `size` is set to `custom`, specify your own volume type here."
   type        = string
@@ -390,4 +384,30 @@ variable "allow_ssh" {
   description = "You can (dis-) allow SSH access to the Vault nodes."
   type        = bool
   default     = false
+}
+
+variable "minimum_memory" {
+  description = "When using a custom size, the minimum amount of memoroy (in megabytes) can be set."
+  type        = number
+  default     = 1024
+  validation {
+    condition     = var.minimum_memory >= 512
+    error_message = "Please use 512 or more."
+  }
+}
+
+variable "minimum_vcpus" {
+  description = "When using a custom size, the minimum amount of vcpus can be set."
+  type        = number
+  default     = 1
+}
+
+variable "cpu_manufacturer" {
+  description = "You can choose the cpu manufacturer."
+  type        = string
+  default     = "amazon-web-services"
+  validation {
+    condition = contains(["amazon-web-services", "amd", "intel"], var.cpu_manufacturer)
+    error_message = "Please choosse from \"amazon-web-services\", \"amd\" or \"intel\"."
+  }
 }

@@ -17,16 +17,28 @@ locals {
   # Combine api arn and (optionally) replication arn.
   target_group_arns = compact([aws_lb_target_group.api.arn, try(aws_lb_target_group.replication[0].arn, null)])
 
-  # A map from `size` to `instance_type`.
-  _instance_type = {
-    custom      = var.instance_type
-    development = "t4g.nano"
-    minimum     = "m5.large"
-    small       = "m5.xlarge"
-    large       = "m5.2xlarge"
-    maximum     = "m5.4xlarge"
-  }
-  instance_type = local._instance_type[var.size]
+# A map of memory requirements.
+_minimum_memory = {
+  custom      = var.minimum_memory
+  development = 512
+  minimum     = 8 * 1024
+  small       = 16 * 1024
+  large       = 32 * 1024
+  maximum     = 64 * 1024
+}
+minimum_memory = local._minimum_memory[var.size]
+
+# A map of cpu requirements.
+_minimum_vcpus = {
+  custom      = var.minimum_vcpus
+  development = 1
+  minimum     = 2
+  small       = 4
+  large       = 4
+  maximum     = 8
+}
+minimum_vcpus = local._minimum_vcpus[var.size]
+
 
   # A map from `size` to `volume_type`.
   _volume_type = {
@@ -105,23 +117,12 @@ locals {
   }
   vault_package = local._vault_package[var.vault_type]
 
-  # The instance_type can be of the type "x86_64" or "arm64". This mapping sets the correct pattern to find an ami.
+  # The cpu_manufacurer map to the ami pattern.
   _ami_pattern = {
-    default = "amzn2-ami-hvm-*-x86_64-ebs"
-    c6g     = "amzn2-ami-hvm-*-arm64-gp2"
-    c6gd    = "amzn2-ami-hvm-*-arm64-gp2"
-    c6gn    = "amzn2-ami-hvm-*-arm64-gp2"
-    g5g     = "amzn2-ami-hvm-*-arm64-gp2"
-    im4gn   = "amzn2-ami-hvm-*-arm64-gp2"
-    is4gen  = "amzn2-ami-hvm-*-arm64-gp2"
-    m6g     = "amzn2-ami-hvm-*-arm64-gp2"
-    m6gd    = "amzn2-ami-hvm-*-arm64-gp2"
-    r6g     = "amzn2-ami-hvm-*-arm64-gp2"
-    r6gd    = "amzn2-ami-hvm-*-arm64-gp2"
-    t4g     = "amzn2-ami-hvm-*-arm64-gp2"
-    x2gd    = "amzn2-ami-hvm-*-arm64-gp2"
+    default             = "amzn2-ami-hvm-*-x86_64-ebs"
+    amazon-web-services = "amzn2-ami-hvm-*-arm64-gp2"
   }
-  ami_pattern = try(local._ami_pattern[split(".", local.instance_type)[0]], local._ami_pattern["default"])
+  ami_pattern = try(local._ami_pattern[var.cpu_manufacturer], local._ami_pattern["default"])
 
   # A map of disks, if `var.audit_device` is disabled, this list is used.
   disks_without_audit = [

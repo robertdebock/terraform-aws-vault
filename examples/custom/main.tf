@@ -37,8 +37,10 @@ module "vault" {
   audit_device_size           = 16
   aws_lb_internal             = false
   certificate_arn             = aws_acm_certificate.default.arn
-  instance_type               = "t3.medium"
+  cpu_manufacturer            = "intel"
   key_name                    = aws_key_pair.default.id
+  minimum_vcpus               = 2
+  minimum_memory =            = 1024
   name                        = "cstm"
   prometheus_disable_hostname = true
   prometheus_retention_time   = "30m"
