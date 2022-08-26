@@ -4,9 +4,10 @@ This code spins up a HashiCorp Vault cluster:
 
 - Spread over availability zones.
 - Using automatic unsealing.
-- Automatically finding other nodes.
+- Automatically join other nodes in the cluster.
 - With a load balancer.
 - An optional bastion host.
+- Use 3 or 5 nodes, based on the amount of availability zones.
 - Either create a VPC or use an existing one.
 
 ## Overview
