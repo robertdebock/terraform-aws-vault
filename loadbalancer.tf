@@ -1,8 +1,9 @@
 # Create a placement group that spreads.
 resource "aws_placement_group" "default" {
-  name     = var.name
-  strategy = "spread"
-  tags     = local.tags
+  name         = var.name
+  strategy     = "spread"
+  spread_level = "rack"
+  tags         = local.tags
 }
 
 # Add a load balancer for the API/UI.
