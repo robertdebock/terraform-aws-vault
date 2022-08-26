@@ -55,7 +55,7 @@ resource "aws_subnet" "private" {
 # Skipping this resource because of budget contraints.
 # resource "aws_nat_gateway" "default" {
 #   allocation_id = aws_eip.default.id
-#   subnet_id     = aws_subnet.public[count.index].id
+#   subnet_id     = aws_subnet.public[0].id
 #   tags = {
 #     owner = "robertdebock"
 #     purpose = "ci-testing"
@@ -68,7 +68,7 @@ resource "aws_subnet" "private" {
 # resource "aws_route" "private" {
 #   route_table_id         = aws_route_table.private.id
 #   destination_cidr_block = "0.0.0.0/0"
-#   nat_gateway_id         = aws_internet_gateway.default.id
+#   nat_gateway_id         = aws_nat_gateway.default.id
 # }
 
 # Find availability_zones in this region.
