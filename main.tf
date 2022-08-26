@@ -131,19 +131,29 @@ resource "aws_autoscaling_group" "default" {
   # - var.vault_replication is enabled.
   # Otherwise, use "ELB", which is stronger, but not always applicable..
   # health_check_type   = var.telemetry && !var.telemetry_unauthenticated_metrics_access ? "EC2" : "ELB"
-  health_check_type = var.vault_replication || (var.telemetry && !var.telemetry_unauthenticated_metrics_access) ? "EC2" : "ELB"
-
+  health_check_type     = var.vault_replication || (var.telemetry && !var.telemetry_unauthenticated_metrics_access) ? "EC2" : "ELB"
   max_instance_lifetime = var.max_instance_lifetime
   max_size              = local.amount + 1
   min_size              = local.amount - 1
+  # TODO: Maybe set instance attributes here instead of the launch template.
   mixed_instances_policy {
     launch_template {
       launch_template_specification {
         launch_template_id = aws_launch_template.default.id
+        # version              = "$Default"
+      }
+      override {
+        instance_requirements {
+          memory_mib {
+            min = local.minimum_memory
+          }
+          vcpu_count {
+            min = local.minimum_vcpus
+          }
+        }
       }
     }
   }
-
   name            = var.name
   placement_group = aws_placement_group.default.id
   tag {
