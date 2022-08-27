@@ -12,6 +12,15 @@ resource "aws_internet_gateway" "default" {
   vpc_id = local.vpc_id
 }
 
+# Find internet gateways if no vpc_id was specified.
+data "aws_internet_gateway" "default" {
+  count = var.vpc_id != "" ? 1 : 0
+  filter {
+    name   = "attachment.vpc-id"
+    values = [local.vpc_id]
+  }
+}
+
 # Reserve external IP addresses. (It's for the NAT gateways.)
 resource "aws_eip" "default" {
   count = var.vpc_id == "" ? 1 : 0
