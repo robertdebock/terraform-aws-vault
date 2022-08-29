@@ -37,3 +37,8 @@ output "vpc_id" {
   description = "The VPC identifier where Vault is deployed."
   value       = local.vpc_id
 }
+
+output "aws_lb_api_arn" {
+  description = "The ARN of the API load balancer."
+  value       = aws_lb.api.arn
+}
