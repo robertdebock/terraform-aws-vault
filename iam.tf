@@ -157,14 +157,6 @@ resource "aws_iam_role_policy_attachment" "cloudwatch_agent" {
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
 }
 
-# # Link the cloudwatch agent policy to the default role.
-# resource "aws_iam_role_policy" "cloudwatch_agent" {
-#   count  = var.cloudwatch == true ? 1 : 0
-#   name   = "${var.name}-vault-cloudwatch-agent"
-#   policy = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
-#   role   = aws_iam_role.default.id
-# }
-
 # Make an iam instance profile
 resource "aws_iam_instance_profile" "default" {
   name = var.name
