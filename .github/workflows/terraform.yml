@@ -20,6 +20,7 @@ jobs:
           - name: custom
           - name: default
           - name: development
+          - name: dr-pr
           - name: mykey
           - name: mysubnet
           - name: nobastion
