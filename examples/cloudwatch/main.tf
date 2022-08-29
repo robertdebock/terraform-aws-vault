@@ -1,16 +1,16 @@
 # Make a certificate.
 resource "aws_acm_certificate" "default" {
-  domain_name = "default.robertdebock.nl"
+  domain_name = "default.richardeppingbroek.nl"
   # After a deployment, this value (`domain_name`) can't be changed because the certificate is bound to the load balancer listener.
   validation_method = "DNS"
   tags = {
-    owner = "robertdebock"
+    owner = "richardeppingbroek"
   }
 }
 
 # Lookup DNS zone.
 data "cloudflare_zone" "default" {
-  name = "robertdebock.nl"
+  name = "richardeppingbroek.nl"
 }
 
 # Add validation details to the DNS zone.
@@ -24,13 +24,14 @@ resource "cloudflare_record" "validation" {
 # Call the module.
 module "vault" {
   certificate_arn = aws_acm_certificate.default.arn
-  name            = "dflt"
+  name            = var.name
   source          = "../../"
   key_filename    = "id_rsa.pub"
   size            = "minimum"
   allow_ssh       = true
+  cloudwatch      = true
   tags = {
-    owner = "robertdebock"
+    owner = "richardeppingbroek"
   }
 }
 
