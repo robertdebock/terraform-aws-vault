@@ -17,6 +17,11 @@ if [ "${audit_device}" = "true" ] ; then
   chmod 750 "${audit_device_path}"
 fi
 
+# Install the AWS Cloudwatch agent
+if [ "${cloudwatch}" = "true" ] ; then
+  yum install -y amazon-cloudwatch-agent
+fi
+
 # Add the HashiCorp RPM repository.
 yum install -y yum-utils
 yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo

@@ -64,6 +64,7 @@ resource "aws_launch_template" "default" {
       audit_device                   = var.audit_device
       audit_device_path              = var.audit_device_path
       audit_device_size              = var.audit_device_size
+      cloudwatch                     = var.cloudwatch
       default_lease_ttl              = var.default_lease_ttl
       instance_name                  = local.instance_name
       kms_key_id                     = local.aws_kms_key_id
