@@ -19,7 +19,7 @@ resource "aws_internet_gateway" "default" {
 # Create a routing table for the internet gateway.
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.default.id
-  tags   = {
+  tags = {
     Name = "Vault public"
   }
 }
@@ -34,7 +34,7 @@ resource "aws_route" "public" {
 # Create a routing table for the nat gateway.
 resource "aws_route_table" "private" {
   vpc_id = aws_vpc.default.id
-  tags   = {
+  tags = {
     Name = "Vault private"
   }
 }

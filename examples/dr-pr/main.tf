@@ -62,7 +62,7 @@ resource "cloudflare_record" "validation_us" {
 }
 
 module "vault_eu" {
-  count                           = length(aws_acm_certificate.default_eu)
+  count = length(aws_acm_certificate.default_eu)
   providers = {
     aws = aws.eu-west-1
   }
@@ -214,11 +214,11 @@ resource "aws_route53_record" "us" {
 
 # Add "vault.eu" to "vault" for Europe.
 resource "aws_route53_record" "eu_endpoint" {
-  zone_id = aws_route53_zone.default.zone_id
-  name    = "vault.my_company.com"
-  ttl     = 60
-  type    = "CNAME"
-  records = ["vault.eu.my_company.com"]
+  zone_id        = aws_route53_zone.default.zone_id
+  name           = "vault.my_company.com"
+  ttl            = 60
+  type           = "CNAME"
+  records        = ["vault.eu.my_company.com"]
   set_identifier = "EU Load Balancer"
   geolocation_routing_policy {
     continent = "EU"
@@ -227,11 +227,11 @@ resource "aws_route53_record" "eu_endpoint" {
 
 # Add "vault.us" to "vault" for the rest of the world.
 resource "aws_route53_record" "us_endpoint" {
-  zone_id = aws_route53_zone.default.zone_id
-  name    = "vault.my_company.com"
-  ttl     = 60
-  type    = "CNAME"
-  records = ["vault.us.my_company.com"]
+  zone_id        = aws_route53_zone.default.zone_id
+  name           = "vault.my_company.com"
+  ttl            = 60
+  type           = "CNAME"
+  records        = ["vault.us.my_company.com"]
   set_identifier = "US Load Balancer"
   geolocation_routing_policy {
     continent = "NA"
