@@ -48,10 +48,9 @@ resource "aws_route_table" "private" {
 }
 
 # Reserve external IP addresses. (It's for the NAT gateways.)
-# Skipping, because the NAT gateway is disabled.
-# resource "aws_eip" "default" {
-#   vpc = true
-# }
+resource "aws_eip" "default" {
+  vpc = true
+}
 
 # Create the same amount of subnets as the amount of instances when we create the vpc.
 resource "aws_subnet" "private" {
@@ -66,24 +65,22 @@ resource "aws_subnet" "private" {
 }
 
 # Make NAT gateways, for the Vault instances to reach the internet.
-# Skipping this resource because of budget contraints.
-# resource "aws_nat_gateway" "default" {
-#   allocation_id = aws_eip.default.id
-#   subnet_id     = aws_subnet.public[0].id
-#   tags = {
-#     owner = "robertdebock"
-#     purpose = "ci-pr-dr"
-#   }
-#   depends_on    = [aws_internet_gateway.default]
-# }
+resource "aws_nat_gateway" "default" {
+  allocation_id = aws_eip.default.id
+  subnet_id     = aws_subnet.public[0].id
+  tags = {
+    owner = "robertdebock"
+    purpose = "ci-pr-dr"
+  }
+  depends_on    = [aws_internet_gateway.default]
+}
 
 # Add an internet route to the nat gateway.
-# Skipping this, because the NAT gateway is disabled.
-# resource "aws_route" "private" {
-#   route_table_id         = aws_route_table.private.id
-#   destination_cidr_block = "0.0.0.0/0"
-#   nat_gateway_id         = aws_nat_gateway.default.id
-# }
+resource "aws_route" "private" {
+  route_table_id         = aws_route_table.private.id
+  destination_cidr_block = "0.0.0.0/0"
+  nat_gateway_id         = aws_nat_gateway.default.id
+}
 
 # Associate the subnet to the routing table.
 resource "aws_route_table_association" "private" {
