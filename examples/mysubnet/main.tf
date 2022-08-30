@@ -40,9 +40,9 @@ module "vault" {
   name                     = "msbnt"
   source                   = "../../"
   vpc_cidr_block_start     = "192.168"
-  private_subnet_ids       = data.terraform_remote_state.network.private_subnet_ids
-  public_subnet_ids        = data.terraform_remote_state.network.public_subnet_ids
-  vpc_id                   = data.terraform_remote_state.network.vpc_id
+  private_subnet_ids       = data.terraform_remote_state.network.outputs.private_subnet_ids
+  public_subnet_ids        = data.terraform_remote_state.network.outputs.public_subnet_ids
+  vpc_id                   = data.terraform_remote_state.network.outputs.vpc_id
   tags = {
     owner = "robertdebock"
   }
