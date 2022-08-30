@@ -1,3 +1,11 @@
+# Make a key for unsealing.
+resource "aws_kms_key" "default" {
+  description = "Vault unseal key"
+  tags = {
+    owner = "robertdebock"
+  }
+}
+
 # Create a VCP.
 resource "aws_vpc" "default" {
   cidr_block = "10.0.0.0/16"

@@ -1,29 +1,24 @@
-output "vault_url_one" {
+output "vault_urls_us" {
   description = "The URL to this Vault installation."
-  value       = "https://${cloudflare_record.one.hostname}:8200/ui/"
+  value       = cloudflare_record.api_us.*.hostname
 }
 
-output "vault_url_two" {
+output "vault_urls_eu" {
   description = "The URL to this Vault installation."
-  value       = "https://${cloudflare_record.two.hostname}:8200/ui/"
+  value       = cloudflare_record.api_eu.*.hostname
 }
 
-output "instructions_one" {
+output "instructions_us" {
   description = "How to initialize Vault."
-  value       = module.vault_one.instructions
+  value       = module.vault_us.*.instructions
 }
 
-output "instructions_two" {
+output "instructions_eu" {
   description = "How to initialize Vault."
-  value       = module.vault_two.instructions
+  value       = module.vault_eu.*.instructions
 }
 
-output "aws_lb_replication_dns_name_one" {
-  description = "The replication address for cluster one."
-  value       = module.vault_one.aws_lb_replication_dns_name
-}
-
-output "aws_lb_replication_dns_name_two" {
-  description = "The replication address for cluster two."
-  value       = module.vault_two.aws_lb_replication_dns_name
+output "vault_url" {
+  description = "The global endpoint, routing to the nearest active Vault cluster."
+  value       = "https://vault.my_company.com:8200/"
 }

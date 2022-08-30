@@ -20,10 +20,8 @@ jobs:
           - name: custom
           - name: default
           - name: development
-          - name: dr-pr
           - name: mykey
           - name: mysubnet
-          - name: nobastion
           - name: replication
           - name: telemetry
       max-parallel: 3

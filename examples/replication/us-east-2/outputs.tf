@@ -12,3 +12,8 @@ output "public_subnet_ids" {
   description = "The created public subnet identifiers."
   value       = aws_subnet.public.*.id
 }
+
+output "aws_kms_key_id" {
+  description = "The AWS KMS key identifier."
+  value       = aws_kms_key.default.id
+}
