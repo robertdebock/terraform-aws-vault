@@ -35,7 +35,7 @@ resource "cloudflare_record" "validation" {
 module "vault" {
   api_addr                 = "https://mysubnet.robertdebock.nl:8200"
   certificate_arn          = aws_acm_certificate.default.arn
-  extra_security_group_ids = ["sg-085ccc8092c78627c"]
+  extra_security_group_ids = [data.terraform_remote_state.network.outputs.security_group_id]
   key_filename             = "id_rsa.pub"
   name                     = "msbnt"
   source                   = "../../"
