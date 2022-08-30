@@ -44,9 +44,9 @@ data "aws_route53_zone" "default" {
 }
 
 # Add validation details to the DNS zone.
-resource "aws_route53_record" "validation_eu" {
+resource "aws_route53_record" "validation_eu_0" {
   for_each = {
-    for dvo in aws_acm_certificate.default_eu.domain_validation_options : dvo.domain_name => {
+    for dvo in aws_acm_certificate.default_eu[0].domain_validation_options : dvo.domain_name => {
       name   = dvo.resource_record_name
       record = dvo.resource_record_value
       type   = dvo.resource_record_type
@@ -60,10 +60,43 @@ resource "aws_route53_record" "validation_eu" {
   zone_id         = data.aws_route53_zone.default.zone_id
 }
 
-# Add validation details to the DNS zone.
-resource "aws_route53_record" "validation_us" {
+resource "aws_route53_record" "validation_eu_1" {
   for_each = {
-    for dvo in aws_acm_certificate.default_us.domain_validation_options : dvo.domain_name => {
+    for dvo in aws_acm_certificate.default_eu[1].domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
+  }
+  allow_overwrite = true
+  name            = each.value.name
+  records         = [each.value.record]
+  ttl             = 60
+  type            = each.value.type
+  zone_id         = data.aws_route53_zone.default.zone_id
+}
+
+
+# Add validation details to the DNS zone.
+resource "aws_route53_record" "validation_us_0" {
+  for_each = {
+    for dvo in aws_acm_certificate.default_us[0].domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
+  }
+  allow_overwrite = true
+  name            = each.value.name
+  records         = [each.value.record]
+  ttl             = 60
+  type            = each.value.type
+  zone_id         = data.aws_route53_zone.default.zone_id
+}
+
+resource "aws_route53_record" "validation_us_1" {
+  for_each = {
+    for dvo in aws_acm_certificate.default_us[1].domain_validation_options : dvo.domain_name => {
       name   = dvo.resource_record_name
       record = dvo.resource_record_value
       type   = dvo.resource_record_type
@@ -131,37 +164,41 @@ module "vault_us" {
 
 # Add a load balancer record for the api to DNS zone.
 resource "aws_route53_record" "api_eu" {
+  count = length(aws_acm_certificate.default_eu)
   name    = "vault-eu-${count.index}"
   type    = "CNAME"
   ttl     = 300
-  records = [module.vault_eu.aws_lb_dns_name]
+  records = [module.vault_eu[count.index].aws_lb_dns_name]
   zone_id = data.aws_route53_zone.default.id
 }
 
 # Add a load balancer record for the api to DNS zone.
-resource "cloudflare_record" "api_us" {
+resource "aws_route53_record" "api_us" {
   count   = length(aws_acm_certificate.default_us)
   name    = "vault-us-${count.index}"
+  ttl     = 300
   type    = "CNAME"
-  value   = module.vault_us[count.index].aws_lb_dns_name
+  records = [module.vault_us[count.index].aws_lb_dns_name]
   zone_id = data.aws_route53_zone.default.id
 }
 
 # Add a load balancer record for replication to DNS zone.
-resource "cloudflare_record" "replication_eu" {
+resource "aws_route53_record" "replication_eu" {
   count   = length(aws_acm_certificate.default_eu)
   name    = "replication-eu-${count.index}"
+  ttl     = 300
   type    = "CNAME"
-  value   = module.vault_eu[count.index].aws_lb_replication_dns_name
+  records = [module.vault_eu[count.index].aws_lb_replication_dns_name]
   zone_id = data.aws_route53_zone.default.id
 }
 
 # Add a load balancer record for replication to DNS zone.
-resource "cloudflare_record" "replication_us" {
+resource "aws_route53_record" "replication_us" {
   count   = length(aws_acm_certificate.default_us)
   name    = "replication-us-${count.index}"
+  ttl     = 300
   type    = "CNAME"
-  value   = module.vault_us[count.index].aws_lb_replication_dns_name
+  records = [module.vault_us[count.index].aws_lb_replication_dns_name]
   zone_id = data.aws_route53_zone.default.id
 }
 
@@ -195,7 +232,7 @@ resource "aws_route53_health_check" "us" {
   }
 }
 
-# Create a "eu" record in the fake zone.
+# Create a "eu" record.
 resource "aws_route53_record" "eu" {
   count           = length(aws_acm_certificate.default_eu)
   health_check_id = aws_route53_health_check.eu[count.index].id
@@ -204,13 +241,13 @@ resource "aws_route53_record" "eu" {
   set_identifier  = count.index == 0 ? "eu-primary" : "eu-secondary"
   ttl             = "60"
   type            = "CNAME"
-  zone_id         = aws_route53_zone.default.id
+  zone_id         = data.aws_route53_zone.default.id
   failover_routing_policy {
     type = count.index == 0 ? "PRIMARY" : "SECONDARY"
   }
 }
 
-# Create a "us" record in the fake zone.
+# Create a "us" record.
 resource "aws_route53_record" "us" {
   count           = length(aws_acm_certificate.default_us)
   health_check_id = aws_route53_health_check.us[count.index].id
@@ -219,7 +256,7 @@ resource "aws_route53_record" "us" {
   set_identifier  = count.index == 0 ? "us-primary" : "us-secondary"
   ttl             = "60"
   type            = "CNAME"
-  zone_id         = aws_route53_zone.default.id
+  zone_id         = data.aws_route53_zone.default.id
   failover_routing_policy {
     type = count.index == 0 ? "PRIMARY" : "SECONDARY"
   }
@@ -227,7 +264,7 @@ resource "aws_route53_record" "us" {
 
 # Add "vault.eu" to "vault" for Europe.
 resource "aws_route53_record" "eu_endpoint" {
-  zone_id        = aws_route53_zone.default.zone_id
+  zone_id        = data.aws_route53_zone.default.zone_id
   name           = "vault.meinit.nl"
   ttl            = 60
   type           = "CNAME"
@@ -240,7 +277,7 @@ resource "aws_route53_record" "eu_endpoint" {
 
 # Add "vault.us" to "vault" for the rest of the world.
 resource "aws_route53_record" "us_endpoint" {
-  zone_id        = aws_route53_zone.default.zone_id
+  zone_id        = data.aws_route53_zone.default.zone_id
   name           = "vault.meinit.nl"
   ttl            = 60
   type           = "CNAME"
