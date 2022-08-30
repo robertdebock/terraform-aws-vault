@@ -135,7 +135,6 @@ resource "aws_autoscaling_group" "default" {
   max_instance_lifetime = var.max_instance_lifetime
   max_size              = local.amount + 1
   min_size              = local.amount - 1
-  # TODO: Maybe set instance attributes here instead of the launch template.
   mixed_instances_policy {
     launch_template {
       launch_template_specification {
