@@ -11,7 +11,7 @@ data "terraform_remote_state" "us" {
   backend = "local"
 
   config = {
-    path = "./us-east-1/terraform.tfstate"
+    path = "./us-east-2/terraform.tfstate"
   }
 }
 

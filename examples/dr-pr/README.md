@@ -24,10 +24,10 @@ The intent of these clusters is as follows:
 
 ## Setup
 
-Create all network components in us-east-1 and eu-west-1:
+Create all network components in us-east-2 and eu-west-1:
 
 ```shell
-cd us-east-1
+cd us-east-2
 terraform init
 terraform apply
 cd ../eu-west-1
