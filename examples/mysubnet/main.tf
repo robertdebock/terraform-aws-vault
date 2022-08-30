@@ -1,3 +1,13 @@
+# Read the network details.
+data "terraform_remote_state" "network" {
+  backend = "local"
+
+  config = {
+    path = "./network/terraform.tfstate"
+  }
+}
+
+
 # Make a certificate.
 resource "aws_acm_certificate" "default" {
   domain_name = "mysubnet.robertdebock.nl"
@@ -30,9 +40,9 @@ module "vault" {
   name                     = "msbnt"
   source                   = "../../"
   vpc_cidr_block_start     = "192.168"
-  private_subnet_ids       = ["subnet-0114a1bf19906728f", "subnet-0e245b9df1e54dade", "subnet-0f4c5b9df7227bd2c"]
-  public_subnet_ids        = ["subnet-09e2489480140e86a", "subnet-02d0623c59e455eea", "subnet-065a697a451e8b08c"]
-  vpc_id                   = "vpc-04d8245ad1f1f546c"
+  private_subnet_ids       = data.terraform_remote_state.network.private_subnet_ids
+  public_subnet_ids        = data.terraform_remote_state.network.public_subnet_ids
+  vpc_id                   = data.terraform_remote_state.network.vpc_id
   tags = {
     owner = "robertdebock"
   }
