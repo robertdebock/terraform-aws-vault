@@ -34,7 +34,7 @@ jobs:
           ssh-keygen -f id_rsa -q -N ""
           ./vault-tls.sh
       - name: prerequisites
-        run: |
+        run: |+
           test -f prerequisites.txt && cat prerequisites.txt | while read prerequisite ; do
             test -d "${prerequisite}" && cd "${prerequisite}"
             terraform init
@@ -71,7 +71,7 @@ jobs:
           TF_CLI_ARGS: "-input=false -auto-approve"
         if: ${{ always() }}
       - name: postrequisites
-        run: |
+        run: |+
           test -f prerequisites.txt && cat prerequisites.txt | while read prerequisite ; do
             test -d "${prerequisite}" && cd "${prerequisite}"
             terraform destroy
