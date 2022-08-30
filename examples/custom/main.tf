@@ -6,7 +6,7 @@ resource "aws_key_pair" "default" {
 
 # Make a certificate.
 resource "aws_acm_certificate" "default" {
-  domain_name = "custom.robertdebock.nl"
+  domain_name = "custom.meinit.nl"
   # After a deployment, this value (`domain_name`) can't be changed because the certificate is bound to the load balancer listener.
   validation_method = "DNS"
   tags = {
@@ -15,23 +15,32 @@ resource "aws_acm_certificate" "default" {
 }
 
 # Lookup DNS zone.
-data "cloudflare_zone" "default" {
-  name = "robertdebock.nl"
+data "aws_route53_zone" "default" {
+  name = "meinit.nl"
 }
 
 # Add validation details to the DNS zone.
-resource "cloudflare_record" "validation" {
-  name    = tolist(aws_acm_certificate.default.domain_validation_options)[0].resource_record_name
-  type    = "CNAME"
-  value   = regex(".*[^.]", tolist(aws_acm_certificate.default.domain_validation_options)[0].resource_record_value)
-  zone_id = data.cloudflare_zone.default.id
+resource "aws_route53_record" "validation" {
+  for_each = {
+    for dvo in aws_acm_certificate.default.domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
+  }
+  allow_overwrite = true
+  name            = each.value.name
+  records         = [each.value.record]
+  ttl             = 60
+  type            = each.value.type
+  zone_id         = data.aws_route53_zone.default.zone_id
 }
 
 # Call the module.
 module "vault" {
   advanced_monitoing          = false
   allow_ssh                   = true
-  api_addr                    = "https://custom.robertdebock.nl"
+  api_addr                    = "https://custom.meinit.nl"
   api_port                    = 443
   audit_device                = true
   audit_device_size           = 16
@@ -55,9 +64,10 @@ module "vault" {
 }
 
 # Add a loadbalancer record to DNS zone.
-resource "cloudflare_record" "default" {
+resource "aws_route53_record" "default" {
   name    = "custom"
   type    = "CNAME"
-  value   = module.vault.aws_lb_dns_name
-  zone_id = data.cloudflare_zone.default.id
+  ttl     = 300
+  records = [module.vault.aws_lb_dns_name]
+  zone_id = data.aws_route53_zone.default.id
 }

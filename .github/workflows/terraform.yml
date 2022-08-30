@@ -36,9 +36,10 @@ jobs:
       - name: prerequisites
         run: |
           test -f prerequisites.txt && cat prerequisites.txt | while read prerequisite ; do
-            test -d "${prerequisite}"" && cd "${prerequisite}"
+            test -d "${prerequisite}" && cd "${prerequisite}"
             terraform init
             terraform apply
+            cd ../
           done
       - name: terraform init
         uses: robertdebock/terraform-action@1.1.2
@@ -72,7 +73,8 @@ jobs:
       - name: postrequisites
         run: |
           test -f prerequisites.txt && cat prerequisites.txt | while read prerequisite ; do
-            test -d "${prerequisite}"" && cd "${prerequisite}"
+            test -d "${prerequisite}" && cd "${prerequisite}"
             terraform destroy
+            cd ../
           done
 

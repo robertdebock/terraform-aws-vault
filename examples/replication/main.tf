@@ -19,7 +19,7 @@ data "terraform_remote_state" "us" {
 resource "aws_acm_certificate" "default_eu" {
   count       = 2
   provider    = aws.eu-west-1
-  domain_name = "vault-eu-${count.index}.robertdebock.nl"
+  domain_name = "vault-eu-${count.index}.meinit.nl"
   # After a deployment, this value (`domain_name`) can't be changed because the certificate is bound to the load balancer listener.
   validation_method = "DNS"
   tags = {
@@ -30,7 +30,7 @@ resource "aws_acm_certificate" "default_eu" {
 # Make a certificate.
 resource "aws_acm_certificate" "default_us" {
   count       = 2
-  domain_name = "vault-us-${count.index}.robertdebock.nl"
+  domain_name = "vault-us-${count.index}.meinit.nl"
   # After a deployment, this value (`domain_name`) can't be changed because the certificate is bound to the load balancer listener.
   validation_method = "DNS"
   tags = {
@@ -39,26 +39,42 @@ resource "aws_acm_certificate" "default_us" {
 }
 
 # Lookup DNS zone.
-data "cloudflare_zone" "default" {
-  name = "robertdebock.nl"
+data "aws_route53_zone" "default" {
+  name = "meinit.nl"
 }
 
 # Add validation details to the DNS zone.
-resource "cloudflare_record" "validation_eu" {
-  count   = length(aws_acm_certificate.default_eu)
-  name    = tolist(aws_acm_certificate.default_eu[count.index].domain_validation_options)[0].resource_record_name
-  type    = "CNAME"
-  value   = regex(".*[^.]", tolist(aws_acm_certificate.default_eu[count.index].domain_validation_options)[0].resource_record_value)
-  zone_id = data.cloudflare_zone.default.id
+resource "aws_route53_record" "validation_eu" {
+  for_each = {
+    for dvo in aws_acm_certificate.default_eu.domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
+  }
+  allow_overwrite = true
+  name            = each.value.name
+  records         = [each.value.record]
+  ttl             = 60
+  type            = each.value.type
+  zone_id         = data.aws_route53_zone.default.zone_id
 }
 
 # Add validation details to the DNS zone.
-resource "cloudflare_record" "validation_us" {
-  count   = length(aws_acm_certificate.default_us)
-  name    = tolist(aws_acm_certificate.default_us[count.index].domain_validation_options)[0].resource_record_name
-  type    = "CNAME"
-  value   = regex(".*[^.]", tolist(aws_acm_certificate.default_us[count.index].domain_validation_options)[0].resource_record_value)
-  zone_id = data.cloudflare_zone.default.id
+resource "aws_route53_record" "validation_us" {
+  for_each = {
+    for dvo in aws_acm_certificate.default_us.domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
+  }
+  allow_overwrite = true
+  name            = each.value.name
+  records         = [each.value.record]
+  ttl             = 60
+  type            = each.value.type
+  zone_id         = data.aws_route53_zone.default.zone_id
 }
 
 module "vault_eu" {
@@ -67,7 +83,8 @@ module "vault_eu" {
     aws = aws.eu-west-1
   }
   allow_ssh                       = true
-  api_addr                        = "https://vault-eu-${count.index}.robertdebock.nl:8200"
+  api_addr                        = "https://vault-eu-${count.index}.meinit.nl:8200"
+  aws_kms_key_id                  = data.terraform_remote_state.eu.outputs.aws_kms_key_id
   bastion_host                    = count.index == 0 ? true : false
   allowed_cidr_blocks_replication = ["0.0.0.0/0"]
   certificate_arn                 = aws_acm_certificate.default_eu[count.index].arn
@@ -91,7 +108,8 @@ module "vault_eu" {
 module "vault_us" {
   count                           = length(aws_acm_certificate.default_us)
   allow_ssh                       = true
-  api_addr                        = "https://vault-us-${count.index}.robertdebock.nl:8200"
+  api_addr                        = "https://vault-us-${count.index}.meinit.nl:8200"
+  aws_kms_key_id                  = data.terraform_remote_state.us.outputs.aws_kms_key_id
   allowed_cidr_blocks_replication = ["0.0.0.0/0"]
   bastion_host                    = count.index == 0 ? true : false
   certificate_arn                 = aws_acm_certificate.default_us[count.index].arn
@@ -112,12 +130,12 @@ module "vault_us" {
 }
 
 # Add a load balancer record for the api to DNS zone.
-resource "cloudflare_record" "api_eu" {
-  count   = length(aws_acm_certificate.default_eu)
+resource "aws_route53_record" "api_eu" {
   name    = "vault-eu-${count.index}"
   type    = "CNAME"
-  value   = module.vault_eu[count.index].aws_lb_dns_name
-  zone_id = data.cloudflare_zone.default.id
+  ttl     = 300
+  records = [module.vault_eu.aws_lb_dns_name]
+  zone_id = data.aws_route53_zone.default.id
 }
 
 # Add a load balancer record for the api to DNS zone.
@@ -126,7 +144,7 @@ resource "cloudflare_record" "api_us" {
   name    = "vault-us-${count.index}"
   type    = "CNAME"
   value   = module.vault_us[count.index].aws_lb_dns_name
-  zone_id = data.cloudflare_zone.default.id
+  zone_id = data.aws_route53_zone.default.id
 }
 
 # Add a load balancer record for replication to DNS zone.
@@ -135,7 +153,7 @@ resource "cloudflare_record" "replication_eu" {
   name    = "replication-eu-${count.index}"
   type    = "CNAME"
   value   = module.vault_eu[count.index].aws_lb_replication_dns_name
-  zone_id = data.cloudflare_zone.default.id
+  zone_id = data.aws_route53_zone.default.id
 }
 
 # Add a load balancer record for replication to DNS zone.
@@ -144,12 +162,7 @@ resource "cloudflare_record" "replication_us" {
   name    = "replication-us-${count.index}"
   type    = "CNAME"
   value   = module.vault_us[count.index].aws_lb_replication_dns_name
-  zone_id = data.cloudflare_zone.default.id
-}
-
-# Create a (fake) route53 zone.
-resource "aws_route53_zone" "default" {
-  name = "my_company.com"
+  zone_id = data.aws_route53_zone.default.id
 }
 
 # Add health checking for "eu".
@@ -186,7 +199,7 @@ resource "aws_route53_health_check" "us" {
 resource "aws_route53_record" "eu" {
   count           = length(aws_acm_certificate.default_eu)
   health_check_id = aws_route53_health_check.eu[count.index].id
-  name            = "vault.eu.my_company.com"
+  name            = "vault.eu.meinit.nl"
   records         = [module.vault_eu[count.index].aws_lb_dns_name]
   set_identifier  = count.index == 0 ? "eu-primary" : "eu-secondary"
   ttl             = "60"
@@ -201,7 +214,7 @@ resource "aws_route53_record" "eu" {
 resource "aws_route53_record" "us" {
   count           = length(aws_acm_certificate.default_us)
   health_check_id = aws_route53_health_check.us[count.index].id
-  name            = "vault.us.my_company.com"
+  name            = "vault.us.meinit.nl"
   records         = [module.vault_us[count.index].aws_lb_dns_name]
   set_identifier  = count.index == 0 ? "us-primary" : "us-secondary"
   ttl             = "60"
@@ -215,10 +228,10 @@ resource "aws_route53_record" "us" {
 # Add "vault.eu" to "vault" for Europe.
 resource "aws_route53_record" "eu_endpoint" {
   zone_id        = aws_route53_zone.default.zone_id
-  name           = "vault.my_company.com"
+  name           = "vault.meinit.nl"
   ttl            = 60
   type           = "CNAME"
-  records        = ["vault.eu.my_company.com"]
+  records        = ["vault.eu.meinit.nl"]
   set_identifier = "EU Load Balancer"
   geolocation_routing_policy {
     continent = "EU"
@@ -228,10 +241,10 @@ resource "aws_route53_record" "eu_endpoint" {
 # Add "vault.us" to "vault" for the rest of the world.
 resource "aws_route53_record" "us_endpoint" {
   zone_id        = aws_route53_zone.default.zone_id
-  name           = "vault.my_company.com"
+  name           = "vault.meinit.nl"
   ttl            = 60
   type           = "CNAME"
-  records        = ["vault.us.my_company.com"]
+  records        = ["vault.us.meinit.nl"]
   set_identifier = "US Load Balancer"
   geolocation_routing_policy {
     continent = "NA"

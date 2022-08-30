@@ -7,7 +7,7 @@ resource "local_file" "prometheus" {
     {
       # You don't know the `credenial` before initializing Vault.
       credenial = "hvs.lkFuVPHlbLlHRq0x5Sahp5Cz"
-      target    = cloudflare_record.default.hostname
+      target    = aws_route53_record.default.fqdn
     }
   )
 }

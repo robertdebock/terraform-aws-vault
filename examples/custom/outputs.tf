@@ -1,6 +1,6 @@
 output "vault_url" {
   description = "The URL to this Vault installation."
-  value       = "https://${cloudflare_record.default.hostname}/ui/"
+  value       = "https://${aws_route53_record.default.fqdn}/ui/"
 }
 
 output "instructions" {

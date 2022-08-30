@@ -1,6 +1,6 @@
 # Make a certificate.
 resource "aws_acm_certificate" "default" {
-  domain_name = "dev.robertdebock.nl"
+  domain_name = "dev.meinit.nl"
   # After a deployment, this value (`domain_name`) can't be changed because the certificate is bound to the load balancer listener.
   validation_method = "DNS"
   tags = {
@@ -9,22 +9,31 @@ resource "aws_acm_certificate" "default" {
 }
 
 # Lookup DNS zone.
-data "cloudflare_zone" "default" {
-  name = "robertdebock.nl"
+data "aws_route53_zone" "default" {
+  name = "meinit.nl"
 }
 
 # Add validation details to the DNS zone.
-resource "cloudflare_record" "validation" {
-  name    = tolist(aws_acm_certificate.default.domain_validation_options)[0].resource_record_name
-  type    = "CNAME"
-  value   = regex(".*[^.]", tolist(aws_acm_certificate.default.domain_validation_options)[0].resource_record_value)
-  zone_id = data.cloudflare_zone.default.id
+resource "aws_route53_record" "validation" {
+  for_each = {
+    for dvo in aws_acm_certificate.default.domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
+  }
+  allow_overwrite = true
+  name            = each.value.name
+  records         = [each.value.record]
+  ttl             = 60
+  type            = each.value.type
+  zone_id         = data.aws_route53_zone.default.zone_id
 }
 
 # Call the module.
 module "vault" {
   allow_ssh         = true
-  api_addr          = "https://dev.robertdebock.nl:8200"
+  api_addr          = "https://dev.meinit.nl:8200"
   certificate_arn   = aws_acm_certificate.default.arn
   default_lease_ttl = "24h"
   key_filename      = "id_rsa.pub"
@@ -39,9 +48,10 @@ module "vault" {
 }
 
 # Add a loadbalancer record to DNS zone.
-resource "cloudflare_record" "default" {
+resource "aws_route53_record" "default" {
   name    = "dev"
   type    = "CNAME"
-  value   = module.vault.aws_lb_dns_name
-  zone_id = data.cloudflare_zone.default.id
+  ttl     = 300
+  records = [module.vault.aws_lb_dns_name]
+  zone_id = data.aws_route53_zone.default.id
 }
