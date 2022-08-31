@@ -3,7 +3,7 @@ data "terraform_remote_state" "default" {
   backend = "local"
 
   config = {
-    path = "./network/terraform.tfstate"
+    path = "./prerequisites/terraform.tfstate"
   }
 }
 
