@@ -20,11 +20,8 @@ jobs:
           # - name: default
           # - name: development
           - name: mykey
-            prerequisites: ksmkey
           # - name: mysubnet
-          #   prerequisites: network
           # - name: replication
-          #   prerequisites: eu-west-1 us-east-2
           # - name: telemetry
       max-parallel: 3
     steps:
@@ -35,9 +32,11 @@ jobs:
           cd ./examples/${{ matrix.config.name }}
           ssh-keygen -f id_rsa -q -N ""
           ./vault-tls.sh
-      - name: prerequisites apply
-        run: printenv
-        # run: for p in "${matrix.config.prerequisites}" ; do echo "${p}" ; cd "examples/${p}" ; terraform init ; terraform apply; done
+      - name: apply prerequisites
+        run: |
+          cd ./examples//${{ matrix.config.name }}/ksmkey
+          terraform init
+          terraform apply
       - name: terraform init
         uses: robertdebock/terraform-action@1.1.2
         with:
@@ -67,6 +66,8 @@ jobs:
         env:
           TF_CLI_ARGS: "-input=false -auto-approve"
         if: ${{ always() }}
-      - name: prerequisites destroy
-        run: for p in "${matrix.prerequisites}" ; do cd "examples/${p}" ; terraform init ; terraform destroy; done
+      - name: destroy prerequisites
+        run: |
+          cd ./examples//${{ matrix.config.name }}/ksmkey
+          terraform destro
 
