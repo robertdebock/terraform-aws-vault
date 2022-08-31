@@ -7,6 +7,7 @@ data "terraform_remote_state" "eu" {
   }
 }
 
+# Read details created for US.
 data "terraform_remote_state" "us" {
   backend = "local"
 
@@ -15,7 +16,7 @@ data "terraform_remote_state" "us" {
   }
 }
 
-# Make a certificate.
+# Make a certificate for EU.
 resource "aws_acm_certificate" "default_eu" {
   count       = 2
   provider    = aws.eu-west-1
@@ -27,7 +28,7 @@ resource "aws_acm_certificate" "default_eu" {
   }
 }
 
-# Make a certificate.
+# Make a certificate for US.
 resource "aws_acm_certificate" "default_us" {
   count       = 2
   domain_name = "vault-us-${count.index}.meinit.nl"

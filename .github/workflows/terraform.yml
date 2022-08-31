@@ -17,10 +17,10 @@ jobs:
         config:
           # - name: autosnapshot
           # - name: custom
-          # - name: default
+          - name: default
           # - name: development
-          - name: mykey
-          # - name: mysubnet
+          # - name: mykey
+          - name: mysubnet
           # - name: replication
           # - name: telemetry
       max-parallel: 3
@@ -35,7 +35,7 @@ jobs:
       - name: terraform prerequisites init
         uses: robertdebock/terraform-action@1.1.2
         with:
-          directory: ./examples//${{ matrix.config.name }}/prerequisites
+          directory: ./examples//${{ matrix.config.name }}/prerequisites  
       - name: terraform prerequisites apply
         uses: robertdebock/terraform-action@1.1.2
         with:
