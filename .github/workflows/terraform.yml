@@ -41,6 +41,8 @@ jobs:
         with:
           action: apply
           directory: ./examples//${{ matrix.config.name }}/kmskey
+        env:
+          TF_CLI_ARGS: "-input=false -auto-approve"
       - name: terraform init
         uses: robertdebock/terraform-action@1.1.2
         with:
@@ -75,3 +77,5 @@ jobs:
         with:
           action: destroy
           directory: ./examples//${{ matrix.config.name }}/kmskey
+        env:
+          TF_CLI_ARGS: "-input=false -auto-approve"
