@@ -27,7 +27,7 @@ module "vault" {
   name            = var.name
   source          = "../../"
   key_filename    = "id_rsa.pub"
-  size            = "minimum"
+  size            = "development"
   allow_ssh       = true
   cloudwatch      = true
   tags = {
