@@ -79,3 +79,4 @@ jobs:
           directory: ./examples//${{ matrix.config.name }}/kmskey
         env:
           TF_CLI_ARGS: "-input=false -auto-approve"
+        if: ${{ always() }}
