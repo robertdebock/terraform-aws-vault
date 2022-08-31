@@ -34,7 +34,7 @@ jobs:
           ./vault-tls.sh
       - name: apply prerequisites
         run: |
-          cd ./examples//${{ matrix.config.name }}/ksmkey
+          cd ./examples//${{ matrix.config.name }}/kmskey
           terraform init
           terraform apply
       - name: terraform init
@@ -68,6 +68,6 @@ jobs:
         if: ${{ always() }}
       - name: destroy prerequisites
         run: |
-          cd ./examples//${{ matrix.config.name }}/ksmkey
-          terraform destro
+          cd ./examples//${{ matrix.config.name }}/kmskey
+          terraform destroy
 
