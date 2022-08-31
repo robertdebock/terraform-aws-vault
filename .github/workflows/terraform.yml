@@ -15,14 +15,14 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          # - name: autosnapshot
-          # - name: custom
-          # - name: default
-          # - name: development
-          # - name: mykey
+          - name: autosnapshot
+          - name: custom
+          - name: default
+          - name: development
+          - name: mykey
           - name: mysubnet
           - name: replication
-          # - name: telemetry
+          - name: telemetry
       max-parallel: 3
     steps:
       - name: checkout
