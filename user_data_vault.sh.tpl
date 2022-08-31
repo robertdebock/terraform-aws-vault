@@ -17,7 +17,7 @@ if [ "${audit_device}" = "true" ] ; then
   chmod 750 "${audit_device_path}"
 fi
 
-# Install the AWS Cloudwatch agent and place the configuration file
+# Install, configure and initialize the AWS Cloudwatch agent
 if [ "${cloudwatch}" = "true" ] ; then
   yum install -y amazon-cloudwatch-agent
 
@@ -47,12 +47,6 @@ if [ "${cloudwatch}" = "true" ] ; then
                                 "InstanceId"
                         ]
                 ],
-                "append_dimensions": {
-                        "AutoScalingGroupName": "${aws:AutoScalingGroupName}",
-                        "ImageId": "${aws:ImageId}",
-                        "InstanceId": "${aws:InstanceId}",
-                        "InstanceType": "${aws:InstanceType}"
-                },
                 "metrics_collected": {
                         "cpu": {
                                 "measurement": [
@@ -107,6 +101,9 @@ if [ "${cloudwatch}" = "true" ] ; then
         }
 }
 EOF
+
+  # Initialize the Cloudwatch_agent after installation
+  /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/opt/aws/amazon-cloudwatch-agent/bin/config.json
 fi
 
 # Add the HashiCorp RPM repository.
