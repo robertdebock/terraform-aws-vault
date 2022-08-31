@@ -37,7 +37,7 @@ jobs:
           ssh-keygen -f id_rsa -q -N ""
           ./vault-tls.sh
       - name: prerequisites apply
-        run: for prerequisite in $prerequisites; do cd "examples/${prerequisite}"" ; terraform init ; terraform apply; done
+        run: for prerequisite in $prerequisites; do cd "examples/${prerequisite}" ; terraform init ; terraform apply; done
       - name: terraform init
         uses: robertdebock/terraform-action@1.1.2
         with:
@@ -68,5 +68,5 @@ jobs:
           TF_CLI_ARGS: "-input=false -auto-approve"
         if: ${{ always() }}
       - name: prerequisites destroy
-        run: for prerequisite in $prerequisites; do cd "examples/${prerequisite}"" ; terraform init ; terraform destroy; done
+        run: for prerequisite in $prerequisites; do cd "examples/${prerequisite}" ; terraform init ; terraform destroy; done
 
