@@ -152,7 +152,7 @@ resource "aws_iam_role_policy" "autosnapshot" {
 
 # Link the AWS managed policy "CloudWatchAgentServerPolicy" to the default role. 
 resource "aws_iam_role_policy_attachment" "cloudwatch_agent" {
-  count  = var.cloudwatch == true ? 1 : 0
+  count  = var.cloudwatch_agent == true ? 1 : 0
   role       = aws_iam_role.default.id
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
 }
