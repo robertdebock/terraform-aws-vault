@@ -17,11 +17,11 @@ jobs:
         config:
           # - name: autosnapshot
           # - name: custom
-          - name: default
+          # - name: default
           # - name: development
           # - name: mykey
-          # - name: mysubnet
-          # - name: replication
+          - name: mysubnet
+          - name: replication
           # - name: telemetry
       max-parallel: 3
     steps:

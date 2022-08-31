@@ -1,18 +1,9 @@
-# Read details created for EU.
-data "terraform_remote_state" "eu" {
+# Read the prerequisites details.
+data "terraform_remote_state" "default" {
   backend = "local"
 
   config = {
-    path = "./eu-west-1/terraform.tfstate"
-  }
-}
-
-# Read details created for US.
-data "terraform_remote_state" "us" {
-  backend = "local"
-
-  config = {
-    path = "./us-east-2/terraform.tfstate"
+    path = "./prerequisites/terraform.tfstate"
   }
 }
 
@@ -118,7 +109,7 @@ module "vault_eu" {
   }
   allow_ssh                       = true
   api_addr                        = "https://vault-eu-${count.index}.meinit.nl:8200"
-  aws_kms_key_id                  = data.terraform_remote_state.eu.outputs.aws_kms_key_id
+  aws_kms_key_id                  = data.terraform_remote_state.default.outputs.aws_kms_key_id_eu
   bastion_host                    = count.index == 0 ? true : false
   allowed_cidr_blocks_replication = ["0.0.0.0/0"]
   certificate_arn                 = aws_acm_certificate.default_eu[count.index].arn
@@ -130,9 +121,9 @@ module "vault_eu" {
   vault_license                   = "02MV4UU43BK5HGYYTOJZWFQMTMNNEWU33JJVCGY22ONVNGYWKUNN2E22SSNRHFGMLJJZDUS6SMKRATCTTKM52E23KJO5NEIWTLJVDVU22OKRETCSLJO5UVSM2WPJSEOOLULJMEUZTBK5IWST3JJJWE4VCNGRHHUWJSLJJTC2SZNJGXQTCUNM2E6V2JORNEITJRJVJTC22NK5KTEWLNKF4FSVCGNRGXUWLJJRBUU4DCNZHDAWKXPBZVSWCSOBRDENLGMFLVC2KPNFEXCSLJO5UWCWCOPJSFOVTGMRDWY5C2KNETMSLKJF3U22SJORGUIZ3UJVVFUVKNIRVTMTKUMM3E2RCNOVGUIZZRJV5ECNKONJMTCV3JJFZUS3SOGBMVQSRQLAZVE4DCK5KWST3JJF4U2RCJPFGFIQJUJRKESMSWIRATKT3KIUZU62SBPJLWSSLTJFWVMNDDI5WHSWKYKJYGEMRVMZSEO3DULJJUSNSJNJEXOTLKJF2E2RDLORGWUVSVJVCGWNSNKRRTMTKEJZQUS2LXNFSEOVTZMJLWY5KZLBJHAYRSGVTGIR3MORNFGSJWJFVES52NNJEXITKENN2E22S2KVGUI2ZWJVKGGNSNIRHGCSLJO5UWGSCKOZNEQVTKMRBUSNSJNZNGQZCXPAYES2LXNFNG26DILIZU22KPNZZWSYSXHFVWIV3YNRRXSSJWK54UU5DEK54DAYKTGFVVS6JRPJMTERTTLJJUS42JNVSHMZDNKZ4WE3KGOVMTEVLUMNDTS43BK5HDKSLJO5UVSV2SGJMVONLKLJLVC5C2I5DDAWKTGF3WG3JZGBNFOTRQMFLTS5KJNQYTSZSRHU6S42TMJRXG2QKRMU3XEOLSJ5VDMUCNOBZWSUKENJLEMT2MNN3UO6CRF5BVE3JYJVMFAYKSORRGW3TBJFMHCQKJPFUEE5D2NJ5HSV3DI5RFCZTZJJ2WEQ3WMZIVQ3SUKNIDOYSMIV3UISRRMRAWWY3BGRSFMMBTGM4FA53NKZWGC5SKKA2HASTYJFETSRBWKVDEYVLBKZIGU22XJJ2GGRBWOBQWYNTPJ5TEO3SLGJ5FAS2KKJWUOSCWGNSVU53RIZSSW3ZXNMXXGK2BKRHGQUC2M5JS6S2WLFTS6SZLNRDVA52MG5VEE6CJG5DU6YLLGZKWC2LBJBXWK2ZQKJKG6NZSIRIT2PI"
   vault_replication               = true
   vpc_cidr_block_start            = "10.1"
-  private_subnet_ids              = data.terraform_remote_state.eu.outputs.private_subnet_ids
-  public_subnet_ids               = data.terraform_remote_state.eu.outputs.public_subnet_ids
-  vpc_id                          = data.terraform_remote_state.eu.outputs.vpc_id
+  private_subnet_ids              = data.terraform_remote_state.default.outputs.private_subnet_ids_eu
+  public_subnet_ids               = data.terraform_remote_state.default.outputs.public_subnet_ids_eu
+  vpc_id                          = data.terraform_remote_state.default.outputs.vpc_id_eu
   tags = {
     owner = "robertdebock"
   }
@@ -143,7 +134,7 @@ module "vault_us" {
   count                           = length(aws_acm_certificate.default_us)
   allow_ssh                       = true
   api_addr                        = "https://vault-us-${count.index}.meinit.nl:8200"
-  aws_kms_key_id                  = data.terraform_remote_state.us.outputs.aws_kms_key_id
+  aws_kms_key_id                  = data.terraform_remote_state.default.outputs.aws_kms_key_id_us
   allowed_cidr_blocks_replication = ["0.0.0.0/0"]
   bastion_host                    = count.index == 0 ? true : false
   certificate_arn                 = aws_acm_certificate.default_us[count.index].arn
@@ -155,9 +146,9 @@ module "vault_us" {
   vault_license                   = "02MV4UU43BK5HGYYTOJZWFQMTMNNEWU33JJVCGY22ONVNGYWKUNN2E22SSNRHFGMLJJZDUS6SMKRATCTTKM52E23KJO5NEIWTLJVDVU22OKRETCSLJO5UVSM2WPJSEOOLULJMEUZTBK5IWST3JJJWE4VCNGRHHUWJSLJJTC2SZNJGXQTCUNM2E6V2JORNEITJRJVJTC22NK5KTEWLNKF4FSVCGNRGXUWLJJRBUU4DCNZHDAWKXPBZVSWCSOBRDENLGMFLVC2KPNFEXCSLJO5UWCWCOPJSFOVTGMRDWY5C2KNETMSLKJF3U22SJORGUIZ3UJVVFUVKNIRVTMTKUMM3E2RCNOVGUIZZRJV5ECNKONJMTCV3JJFZUS3SOGBMVQSRQLAZVE4DCK5KWST3JJF4U2RCJPFGFIQJUJRKESMSWIRATKT3KIUZU62SBPJLWSSLTJFWVMNDDI5WHSWKYKJYGEMRVMZSEO3DULJJUSNSJNJEXOTLKJF2E2RDLORGWUVSVJVCGWNSNKRRTMTKEJZQUS2LXNFSEOVTZMJLWY5KZLBJHAYRSGVTGIR3MORNFGSJWJFVES52NNJEXITKENN2E22S2KVGUI2ZWJVKGGNSNIRHGCSLJO5UWGSCKOZNEQVTKMRBUSNSJNZNGQZCXPAYES2LXNFNG26DILIZU22KPNZZWSYSXHFVWIV3YNRRXSSJWK54UU5DEK54DAYKTGFVVS6JRPJMTERTTLJJUS42JNVSHMZDNKZ4WE3KGOVMTEVLUMNDTS43BK5HDKSLJO5UVSV2SGJMVONLKLJLVC5C2I5DDAWKTGF3WG3JZGBNFOTRQMFLTS5KJNQYTSZSRHU6S42TMJRXG2QKRMU3XEOLSJ5VDMUCNOBZWSUKENJLEMT2MNN3UO6CRF5BVE3JYJVMFAYKSORRGW3TBJFMHCQKJPFUEE5D2NJ5HSV3DI5RFCZTZJJ2WEQ3WMZIVQ3SUKNIDOYSMIV3UISRRMRAWWY3BGRSFMMBTGM4FA53NKZWGC5SKKA2HASTYJFETSRBWKVDEYVLBKZIGU22XJJ2GGRBWOBQWYNTPJ5TEO3SLGJ5FAS2KKJWUOSCWGNSVU53RIZSSW3ZXNMXXGK2BKRHGQUC2M5JS6S2WLFTS6SZLNRDVA52MG5VEE6CJG5DU6YLLGZKWC2LBJBXWK2ZQKJKG6NZSIRIT2PI"
   vault_replication               = true
   vpc_cidr_block_start            = "10.0"
-  private_subnet_ids              = data.terraform_remote_state.us.outputs.private_subnet_ids
-  public_subnet_ids               = data.terraform_remote_state.us.outputs.public_subnet_ids
-  vpc_id                          = data.terraform_remote_state.us.outputs.vpc_id
+  private_subnet_ids              = data.terraform_remote_state.default.outputs.private_subnet_ids_us
+  public_subnet_ids               = data.terraform_remote_state.default.outputs.public_subnet_ids_us
+  vpc_id                          = data.terraform_remote_state.default.outputs.vpc_id_us
   tags = {
     owner = "robertdebock"
   }
