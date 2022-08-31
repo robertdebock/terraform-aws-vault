@@ -29,7 +29,7 @@ module "vault" {
   key_filename    = "id_rsa.pub"
   size            = "development"
   allow_ssh       = true
-  cloudwatch      = true
+  cloudwatch_agent      = true
   tags = {
     owner = "richardeppingbroek"
   }
