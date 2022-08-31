@@ -10,7 +10,6 @@ jobs:
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
@@ -22,7 +21,6 @@ jobs:
           - name: development
           - name: mykey
           - name: mysubnet
-          - name: nobastion
           - name: replication
           - name: telemetry
       max-parallel: 3
@@ -34,6 +32,24 @@ jobs:
           cd ./examples/${{ matrix.config.name }}
           ssh-keygen -f id_rsa -q -N ""
           ./vault-tls.sh
+      - name: Check file existence
+        id: check_files
+        uses: andstor/file-existence-action@v1
+        with:
+          files: "./examples/${{ matrix.config.name }}/prerequisites"
+      - name: terraform prerequisites init
+        uses: robertdebock/terraform-action@1.1.2
+        with:
+          directory: ./examples//${{ matrix.config.name }}/prerequisites  
+        if: steps.check_files.outputs.files_exists == 'true'
+      - name: terraform prerequisites apply
+        uses: robertdebock/terraform-action@1.1.2
+        with:
+          action: apply
+          directory: ./examples//${{ matrix.config.name }}/prerequisites
+        env:
+          TF_CLI_ARGS: "-input=false -auto-approve"
+        if: steps.check_files.outputs.files_exists == 'true'
       - name: terraform init
         uses: robertdebock/terraform-action@1.1.2
         with:
@@ -63,3 +79,12 @@ jobs:
         env:
           TF_CLI_ARGS: "-input=false -auto-approve"
         if: ${{ always() }}
+      - name: terraform prerequisites destroy
+        uses: robertdebock/terraform-action@1.1.2
+        with:
+          action: destroy
+          directory: ./examples//${{ matrix.config.name }}/prerequisites
+        env:
+          TF_CLI_ARGS: "-input=false -auto-approve"
+        if: steps.check_files.outputs.files_exists == 'true'
+

@@ -110,6 +110,7 @@ variable "bastion_host" {
   default     = true
 }
 
+# TODO: This feels cluncky, try to calculate the cidr block.
 variable "vpc_cidr_block_start" {
   description = "The first two octets of the VPC cidr."
   type        = string

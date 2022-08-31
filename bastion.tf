@@ -61,15 +61,6 @@ resource "aws_route_table" "bastion" {
   vpc_id = local.vpc_id
 }
 
-# Find internet gateways if no vpc_id was specified.
-data "aws_internet_gateway" "default" {
-  count = var.vpc_id != "" && var.bastion_host ? 1 : 0
-  filter {
-    name   = "attachment.vpc-id"
-    values = [local.vpc_id]
-  }
-}
-
 # Add an internet route to the internet gateway.
 resource "aws_route" "bastion" {
   count                  = var.bastion_host ? 1 : 0

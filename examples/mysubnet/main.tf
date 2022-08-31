@@ -1,6 +1,15 @@
+# Read the prerequisites details.
+data "terraform_remote_state" "default" {
+  backend = "local"
+
+  config = {
+    path = "./prerequisites/terraform.tfstate"
+  }
+}
+
 # Make a certificate.
 resource "aws_acm_certificate" "default" {
-  domain_name = "mysubnet.robertdebock.nl"
+  domain_name = "mysubnet.meinit.nl"
   # After a deployment, this value (`domain_name`) can't be changed because the certificate is bound to the load balancer listener.
   validation_method = "DNS"
   tags = {
@@ -9,39 +18,49 @@ resource "aws_acm_certificate" "default" {
 }
 
 # Lookup DNS zone.
-data "cloudflare_zone" "default" {
-  name = "robertdebock.nl"
+data "aws_route53_zone" "default" {
+  name = "meinit.nl"
 }
 
 # Add validation details to the DNS zone.
-resource "cloudflare_record" "validation" {
-  name    = tolist(aws_acm_certificate.default.domain_validation_options)[0].resource_record_name
-  type    = "CNAME"
-  value   = regex(".*[^.]", tolist(aws_acm_certificate.default.domain_validation_options)[0].resource_record_value)
-  zone_id = data.cloudflare_zone.default.id
+resource "aws_route53_record" "validation" {
+  for_each = {
+    for dvo in aws_acm_certificate.default.domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
+  }
+  allow_overwrite = true
+  name            = each.value.name
+  records         = [each.value.record]
+  ttl             = 60
+  type            = each.value.type
+  zone_id         = data.aws_route53_zone.default.zone_id
 }
 
 # Call the module.
 module "vault" {
-  api_addr                 = "https://mysubnet.robertdebock.nl:8200"
+  api_addr                 = "https://mysubnet.meinit.nl:8200"
   certificate_arn          = aws_acm_certificate.default.arn
-  extra_security_group_ids = ["sg-085ccc8092c78627c"]
+  extra_security_group_ids = [data.terraform_remote_state.default.outputs.security_group_id]
   key_filename             = "id_rsa.pub"
   name                     = "msbnt"
   source                   = "../../"
   vpc_cidr_block_start     = "192.168"
-  private_subnet_ids       = ["subnet-0114a1bf19906728f", "subnet-0e245b9df1e54dade", "subnet-0f4c5b9df7227bd2c"]
-  public_subnet_ids        = ["subnet-09e2489480140e86a", "subnet-02d0623c59e455eea", "subnet-065a697a451e8b08c"]
-  vpc_id                   = "vpc-04d8245ad1f1f546c"
+  private_subnet_ids       = data.terraform_remote_state.default.outputs.private_subnet_ids
+  public_subnet_ids        = data.terraform_remote_state.default.outputs.public_subnet_ids
+  vpc_id                   = data.terraform_remote_state.default.outputs.vpc_id
   tags = {
     owner = "robertdebock"
   }
 }
 
 # Add a loadbalancer record to DNS zone.
-resource "cloudflare_record" "default" {
+resource "aws_route53_record" "default" {
   name    = "mysbt"
   type    = "CNAME"
-  value   = module.vault.aws_lb_dns_name
-  zone_id = data.cloudflare_zone.default.id
+  ttl     = 300
+  records = [module.vault.aws_lb_dns_name]
+  zone_id = data.aws_route53_zone.default.id
 }

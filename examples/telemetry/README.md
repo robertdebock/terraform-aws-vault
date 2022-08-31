@@ -53,7 +53,7 @@ This will deploy all resources. The Prometheus installation needs access to Vaul
 ## Testing
 
 ```shell
-curl -H "X-Vault-Token: YOUR_TOKEN" https://telemetry.robertdebock.nl:8200/v1/sys/metrics?format=prometheus
+curl -H "X-Vault-Token: YOUR_TOKEN" https://telemetry.meinit.nl:8200/v1/sys/metrics?format=prometheus
 ```
 
 ### Interesting items
