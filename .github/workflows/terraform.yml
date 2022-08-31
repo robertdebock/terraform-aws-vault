@@ -15,58 +15,57 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        config:
-          # - name: autosnapshot
-          # - name: custom
-          # - name: default
-          # - name: development
-          - name: mykey
-            prerequisites: ksmkey
-          # - name: mysubnet
-          #   prerequisites: network
-          # - name: replication
-          #   prerequisites: eu-west-1 us-east-2
-          # - name: telemetry
+        # - name: autosnapshot
+        # - name: custom
+        # - name: default
+        # - name: development
+        - name: mykey
+          prerequisites: ksmkey
+        # - name: mysubnet
+        #   prerequisites: network
+        # - name: replication
+        #   prerequisites: eu-west-1 us-east-2
+        # - name: telemetry
       max-parallel: 3
     steps:
       - name: checkout
         uses: actions/checkout@v3
       - name: generate ssh keys and tls material.
         run: |
-          cd ./examples/${{ matrix.config.name }}
+          cd ./examples/${{ matrix.name }}
           ssh-keygen -f id_rsa -q -N ""
           ./vault-tls.sh
       - name: prerequisites apply
-        run: for p in "${prerequisites}" ; do echo "${p}" ; cd "examples/${p}" ; terraform init ; terraform apply; done
+        run: for p in "${matrix.prerequisites}" ; do echo "${p}" ; cd "examples/${p}" ; terraform init ; terraform apply; done
       - name: terraform init
         uses: robertdebock/terraform-action@1.1.2
         with:
-          directory: ./examples/${{ matrix.config.name }}
+          directory: ./examples/${{ matrix.name }}
       - name: terraform validate
         uses: robertdebock/terraform-action@1.1.2
         with:
           action: validate
-          directory: ./examples/${{ matrix.config.name }}
+          directory: ./examples/${{ matrix.name }}
       - name: terraform plan
         uses: robertdebock/terraform-action@1.1.2
         with:
           action: plan
-          directory: ./examples/${{ matrix.config.name }}
+          directory: ./examples/${{ matrix.name }}
       - name: terraform apply
         uses: robertdebock/terraform-action@1.1.2
         with:
           action: apply
-          directory: ./examples/${{ matrix.config.name }}
+          directory: ./examples/${{ matrix.name }}
         env:
           TF_CLI_ARGS: "-input=false -auto-approve"
       - name: terraform destroy
         uses: robertdebock/terraform-action@1.1.2
         with:
           action: destroy
-          directory: ./examples/${{ matrix.config.name }}
+          directory: ./examples/${{ matrix.name }}
         env:
           TF_CLI_ARGS: "-input=false -auto-approve"
         if: ${{ always() }}
       - name: prerequisites destroy
-        run: for p in "${prerequisites}" ; do cd "examples/${p}" ; terraform init ; terraform destroy; done
+        run: for p in "${matrix.prerequisites}" ; do cd "examples/${p}" ; terraform init ; terraform destroy; done
 
