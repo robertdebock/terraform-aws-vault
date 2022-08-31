@@ -16,17 +16,17 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - name: autosnapshot
-          - name: custom
-          - name: default
-          - name: development
+          # - name: autosnapshot
+          # - name: custom
+          # - name: default
+          # - name: development
           - name: mykey
             prerequisites: ksmkey
-          - name: mysubnet
-            prerequisites: network
-          - name: replication
-            prerequisites: eu-west-1 us-east-2
-          - name: telemetry
+          # - name: mysubnet
+          #   prerequisites: network
+          # - name: replication
+          #   prerequisites: eu-west-1 us-east-2
+          # - name: telemetry
       max-parallel: 3
     steps:
       - name: checkout
@@ -37,7 +37,7 @@ jobs:
           ssh-keygen -f id_rsa -q -N ""
           ./vault-tls.sh
       - name: prerequisites apply
-        run: for prerequisite in $prerequisites; do cd "examples/${prerequisite}" ; terraform init ; terraform apply; done
+        run: for p in "${prerequisites}" ; do echo "${p}" ; cd "examples/${p}" ; terraform init ; terraform apply; done
       - name: terraform init
         uses: robertdebock/terraform-action@1.1.2
         with:
@@ -68,5 +68,5 @@ jobs:
           TF_CLI_ARGS: "-input=false -auto-approve"
         if: ${{ always() }}
       - name: prerequisites destroy
-        run: for prerequisite in $prerequisites; do cd "examples/${prerequisite}" ; terraform init ; terraform destroy; done
+        run: for p in "${prerequisites}" ; do cd "examples/${p}" ; terraform init ; terraform destroy; done
 
