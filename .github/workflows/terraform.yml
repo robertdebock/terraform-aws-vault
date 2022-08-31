@@ -32,11 +32,15 @@ jobs:
           cd ./examples/${{ matrix.config.name }}
           ssh-keygen -f id_rsa -q -N ""
           ./vault-tls.sh
-      - name: apply prerequisites
-        run: |
-          cd ./examples//${{ matrix.config.name }}/kmskey
-          terraform init
-          terraform apply
+      - name: terraform prerequisites init
+        uses: robertdebock/terraform-action@1.1.2
+        with:
+          directory: ./examples//${{ matrix.config.name }}/kmskey
+      - name: terraform prerequisites apply
+        uses: robertdebock/terraform-action@1.1.2
+        with:
+          action: apply
+          directory: ./examples//${{ matrix.config.name }}/kmskey
       - name: terraform init
         uses: robertdebock/terraform-action@1.1.2
         with:
@@ -66,8 +70,8 @@ jobs:
         env:
           TF_CLI_ARGS: "-input=false -auto-approve"
         if: ${{ always() }}
-      - name: destroy prerequisites
-        run: |
-          cd ./examples//${{ matrix.config.name }}/kmskey
-          terraform destroy
-
+      - name: terraform prerequisites destroy
+        uses: robertdebock/terraform-action@1.1.2
+        with:
+          action: destroy
+          directory: ./examples//${{ matrix.config.name }}/kmskey
