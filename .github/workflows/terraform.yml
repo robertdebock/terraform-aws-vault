@@ -36,7 +36,8 @@ jobs:
           ssh-keygen -f id_rsa -q -N ""
           ./vault-tls.sh
       - name: prerequisites apply
-        run: for p in "${matrix.config.prerequisites}" ; do echo "${p}" ; cd "examples/${p}" ; terraform init ; terraform apply; done
+        run: printenv
+        # run: for p in "${matrix.config.prerequisites}" ; do echo "${p}" ; cd "examples/${p}" ; terraform init ; terraform apply; done
       - name: terraform init
         uses: robertdebock/terraform-action@1.1.2
         with:
