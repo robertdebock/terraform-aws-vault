@@ -7,14 +7,3 @@ output "instructions" {
   description = "How to initialize Vault."
   value       = module.vault.instructions
 }
-
-data "aws_instances" "asg_instances" {
-  instance_state_names = ["running"]
-  instance_tags = {
-    "aws:autoscaling:groupName" = var.name
-  }
-}
-
-output "asg_instances" {
-  value = "${data.aws_instances.asg_instances.private_ips}"
-}
