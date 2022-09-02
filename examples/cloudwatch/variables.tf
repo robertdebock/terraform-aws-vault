@@ -27,3 +27,13 @@ variable "domain" {
     error_message = "Variable for the domain is not set."
   }
 }
+
+variable "subdomain" {
+  description = "Sub-domain to be used for the Vault deployment."
+  type        = string
+  default     = "watch"
+  validation {
+    condition     = var.subdomain != ""
+    error_message = "Variable for the sub-domain is not set."
+  }
+}
