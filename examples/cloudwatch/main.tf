@@ -24,11 +24,9 @@ resource "cloudflare_record" "validation" {
 # Call the module.
 module "vault" {
   certificate_arn  = aws_acm_certificate.default.arn
-  name             = var.name
+  name             = "watch"
   source           = "../../"
   key_filename     = "id_rsa.pub"
-  size             = "development"
-  allow_ssh        = true
   cloudwatch_agent = true
   tags = {
     owner = var.owner
