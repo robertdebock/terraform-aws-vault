@@ -40,7 +40,7 @@ if [ "${cloudwatch_agent}" = "true" ] ; then
                                 ],
                                 "metrics_collection_interval": 60,
                                 "resources": [
-                                        "/","/opt/vault"
+                                        "/","${vault_path}"
                                 ]
                         },
                         "mem": {
