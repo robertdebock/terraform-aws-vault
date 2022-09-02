@@ -55,10 +55,10 @@ resource "aws_nat_gateway" "default" {
   allocation_id = aws_eip.default.id
   subnet_id     = aws_subnet.public[0].id
   tags = {
-    owner = "robertdebock"
+    owner   = "robertdebock"
     purpose = "ci-testing"
   }
-  depends_on    = [aws_internet_gateway.default]
+  depends_on = [aws_internet_gateway.default]
 }
 
 # Add an internet route to the nat gateway.

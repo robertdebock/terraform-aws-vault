@@ -156,7 +156,7 @@ module "vault_us" {
 
 # Add a load balancer record for the api to DNS zone.
 resource "aws_route53_record" "api_eu" {
-  count = length(aws_acm_certificate.default_eu)
+  count   = length(aws_acm_certificate.default_eu)
   name    = "vault-eu-${count.index}"
   type    = "CNAME"
   ttl     = 300

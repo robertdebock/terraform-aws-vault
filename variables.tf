@@ -412,3 +412,9 @@ variable "cpu_manufacturer" {
     error_message = "Please choosse from \"amazon-web-services\", \"amd\" or \"intel\"."
   }
 }
+
+variable "cloudwatch_agent" {
+  description = "When true, installs the AWS Cloudwatch agent on the Vault nodes."
+  type        = bool
+  default     = false
+}
