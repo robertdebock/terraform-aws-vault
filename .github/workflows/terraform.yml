@@ -16,6 +16,7 @@ jobs:
       matrix:
         config:
           - name: autosnapshot
+          - name: cloudwatch
           - name: custom
           - name: default
           - name: development
