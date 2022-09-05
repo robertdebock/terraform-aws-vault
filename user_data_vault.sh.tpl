@@ -21,8 +21,7 @@ fi
 if [ "${cloudwatch_agent}" = "true" ] ; then
   yum install -y amazon-cloudwatch-agent
 
-  cat << EOF > /opt/aws/amazon-cloudwatch-agent/bin/config.json
-{
+  echo '{
         "agent": {
                 "metrics_collection_interval": 60,
                 "run_as_user": "root"
@@ -33,6 +32,10 @@ if [ "${cloudwatch_agent}" = "true" ] ; then
                                 "InstanceId"
                         ]
                 ],
+                "append_dimensions": {
+                        "AutoScalingGroupName": "$${aws:AutoScalingGroupName}",
+                        "InstanceId": "$${aws:InstanceId}"
+                },
                 "metrics_collected": {
                         "disk": {
                                 "measurement": [
@@ -56,8 +59,7 @@ if [ "${cloudwatch_agent}" = "true" ] ; then
                         }
                 }
         }
-}
-EOF
+  }' > /opt/aws/amazon-cloudwatch-agent/bin/config.json
 
   # Initialize the Cloudwatch_agent after installation
   /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/opt/aws/amazon-cloudwatch-agent/bin/config.json
