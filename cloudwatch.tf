@@ -1,4 +1,5 @@
 resource "aws_cloudwatch_dashboard" "default" {
+  count          = var.cloudwatch_agent ? 1 : 0
   dashboard_body = jsonencode(
     {
         "widgets": [
