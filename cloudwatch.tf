@@ -1,12 +1,12 @@
 resource "aws_cloudwatch_dashboard" "main" {
-  count          = var.cloudwatch_agent ? 1 : 0
+  count          = var.cloudwatch_monitoring ? 1 : 0
   dashboard_name = "Vault_${var.name}-${random_string.default.result}"
 
   # The dashboard json code has been copy-pasted from the AWS webgui.
   # The following variables have to be replaced copying over a new json configuration for a new/updated dashboard:
-    # ${var.name}          --> "Name of the autoscalinggroup, i.e. watch"
-    # ${local.instance_name} --> "Name of the entire Vault deployment, i.e. vault-watch-r5dks9"
-    # ${var.vault_path}    --> "Filesystem path of the integrated storage backend configured for Vault"
+  # ${var.name}          --> "Name of the autoscalinggroup, i.e. watch"
+  # ${local.instance_name} --> "Name of the entire Vault deployment, i.e. vault-watch-r5dks9"
+  # ${var.vault_path}    --> "Filesystem path of the integrated storage backend configured for Vault"
 
   dashboard_body = <<EOF
 {

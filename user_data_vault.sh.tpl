@@ -18,7 +18,7 @@ if [ "${audit_device}" = "true" ] ; then
 fi
 
 # Install, configure and initialize the AWS Cloudwatch agent
-if [ "${cloudwatch_agent}" = "true" ] ; then
+if [ "${cloudwatch_monitoring}" = "true" ] ; then
   yum install -y amazon-cloudwatch-agent
 
   echo '{
