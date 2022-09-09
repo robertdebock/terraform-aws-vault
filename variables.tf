@@ -413,7 +413,7 @@ variable "cpu_manufacturer" {
   }
 }
 
-variable "cloudwatch_agent" {
+variable "cloudwatch_monitoring" {
   description = "When true, installs the AWS Cloudwatch agent on the Vault nodes."
   type        = bool
   default     = false

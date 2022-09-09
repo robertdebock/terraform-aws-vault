@@ -41,6 +41,7 @@ These (most important) variables can be used.
 - `name` - default: `"unset"`.
 - `certificate_arn` - The AWS certificate ARN that can be installed on the load balancer.
 - `key_name` - The key to use to login. (Conflicts wiht `key_filename`. Use either, not both.)
+- `cloudwatch_monitoring` - default: `false`; Configures monitoring for the Vault deployment with AWS native Cloudwatch + Cloudwatch-agent. See the Monitoring section for extra information and a preview.
 
 More variables can be found in [variables.tf](variables.tf).
 
@@ -92,6 +93,13 @@ To restore a snapshot, run:
 ```shell
 vault operator raft snapshot restore FILE
 ```
+
+## Monitoring
+
+Currently monitoring is available with AWS native tools by setting the `cloudwatch_monitoring` boolean to `true`, see also: `examples/cloudwatch`.
+
+Preview:  
+![Cloudwatch dashboard preview.](./README.d/Cloudwatch_dashboard_preview.png)
 
 ## Cost
 

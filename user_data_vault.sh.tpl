@@ -18,7 +18,7 @@ if [ "${audit_device}" = "true" ] ; then
 fi
 
 # Install, configure and initialize the AWS Cloudwatch agent
-if [ "${cloudwatch_agent}" = "true" ] ; then
+if [ "${cloudwatch_monitoring}" = "true" ] ; then
   yum install -y amazon-cloudwatch-agent
 
   echo '{
@@ -27,10 +27,10 @@ if [ "${cloudwatch_agent}" = "true" ] ; then
                 "run_as_user": "root"
         },
         "metrics": {
+                "namespace": "vault-${name}-${random_string}_cwagent",
                 "aggregation_dimensions": [
-                        [
-                                "InstanceId"
-                        ]
+                        ["InstanceId","AutoScalingGroupName"],
+                        []
                 ],
                 "append_dimensions": {
                         "AutoScalingGroupName": "$${aws:AutoScalingGroupName}",

@@ -1,6 +1,6 @@
 # Make a certificate.
 resource "aws_acm_certificate" "default" {
-  domain_name = "watch.meinit.nl"
+  domain_name = "watch.aws.adfinis.cloud"
   # After a deployment, this value (`domain_name`) can't be changed because the certificate is bound to the load balancer listener.
   validation_method = "DNS"
   tags = {
@@ -10,7 +10,7 @@ resource "aws_acm_certificate" "default" {
 
 # Lookup DNS zone.
 data "aws_route53_zone" "default" {
-  name = "meinit.nl"
+  name = "aws.adfinis.cloud"
 }
 
 # Add validation details to the DNS zone.
@@ -32,11 +32,11 @@ resource "aws_route53_record" "validation" {
 
 # Call the module.
 module "vault" {
-  certificate_arn  = aws_acm_certificate.default.arn
-  name             = "watch"
-  source           = "../../"
-  key_filename     = "id_rsa.pub"
-  cloudwatch_agent = true
+  certificate_arn       = aws_acm_certificate.default.arn
+  name                  = "watch"
+  source                = "../../"
+  key_filename          = "id_rsa.pub"
+  cloudwatch_monitoring = true
   tags = {
     owner = "robertdebock"
   }
