@@ -27,10 +27,10 @@ if [ "${cloudwatch_agent}" = "true" ] ; then
                 "run_as_user": "root"
         },
         "metrics": {
+                "namespace": "vault-${name}-${random_string}_cwagent",
                 "aggregation_dimensions": [
-                        [
-                                "InstanceId"
-                        ]
+                        ["InstanceId","AutoScalingGroupName"],
+                        []
                 ],
                 "append_dimensions": {
                         "AutoScalingGroupName": "$${aws:AutoScalingGroupName}",
