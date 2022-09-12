@@ -4,7 +4,7 @@
 # Make a key for unsealing.
 resource "aws_kms_key" "default" {
   count       = var.aws_kms_key_id == "" ? 1 : 0
-  description = "Vault unseal key - ${var.name}"
+  description = "Vault unseal key - ${var.vault_name}"
   tags        = local.tags
 }
 
@@ -20,7 +20,7 @@ data "aws_region" "default" {}
 # Place an SSH key.
 resource "aws_key_pair" "default" {
   count      = var.key_filename == "" ? 0 : 1
-  key_name   = var.name
+  key_name   = var.vault_name
   public_key = file(var.key_filename)
   tags       = local.tags
 }
@@ -51,8 +51,8 @@ resource "aws_launch_template" "default" {
     cpu_manufacturers    = [var.cpu_manufacturer]
     instance_generations = ["current"]
   }
-  key_name = local.key_name
-  name_prefix            = "${var.name}-"
+  key_name               = local.vault_aws_key_name
+  name_prefix            = "${var.vault_name}-"
   update_default_version = true
   vpc_security_group_ids = [aws_security_group.private.id, aws_security_group.public.id]
   user_data = base64encode(templatefile("${path.module}/user_data_vault.sh.tpl",
@@ -67,7 +67,7 @@ resource "aws_launch_template" "default" {
       kms_key_id                     = local.aws_kms_key_id
       log_level                      = var.log_level
       max_lease_ttl                  = var.max_lease_ttl
-      name                           = var.name
+      name                           = var.vault_name
       prometheus_disable_hostname    = var.prometheus_disable_hostname
       prometheus_retention_time      = var.prometheus_retention_time
       random_string                  = random_string.default.result
@@ -150,7 +150,7 @@ resource "aws_autoscaling_group" "default" {
       }
     }
   }
-  name            = var.name
+  name            = var.vault_name
   placement_group = aws_placement_group.default.id
   tag {
     key                 = "Name"

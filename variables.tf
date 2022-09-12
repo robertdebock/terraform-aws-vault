@@ -1,12 +1,12 @@
 # You can overwrite the default values for the variables below, typically
 # variable values are set when calling the module. See on of the `examples/`.
 
-variable "name" {
+variable "vault_name" {
   description = "The name of the vault cluster in 3 to 5 characters. Changes in runtime would re-deploy a new cluster, data from the old cluster would be lost."
   type        = string
   default     = "unset"
   validation {
-    condition     = length(var.name) >= 3 && length(var.name) <= 5 && var.name != "default"
+    condition     = length(var.vault_name) >= 3 && length(var.vault_name) <= 5 && var.vault_name != "default"
     error_message = "Please use a minimum of 3 and a maximum of 5 characters. \"default\" can't be used because it is reserved."
   }
 }
@@ -21,14 +21,14 @@ variable "vault_version" {
   }
 }
 
-variable "key_name" {
-  description = "The name of an existing ssh key. Either specify \"key_name\" or \"key_filename\"."
+variable "vault_aws_key_name" {
+  description = "The name of an existing ssh key. Either specify \"vault_aws_key_name\" or \"vault_keyfile_path\"."
   type        = string
   default     = ""
 }
 
 variable "key_filename" {
-  description = "The name of the file that has the public ssh key stored. Either specify \"key_name\" or \"key_filename\"."
+  description = "The name of the file that has the public ssh key stored. Either specify \"vault_aws_key_name\" or \"key_filename\"."
   type        = string
   default     = ""
   validation {

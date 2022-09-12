@@ -1,6 +1,6 @@
 # Create a placement group that spreads.
 resource "aws_placement_group" "default" {
-  name         = var.name
+  name         = var.vault_name
   strategy     = "spread"
   spread_level = "rack"
   tags         = local.tags
@@ -9,7 +9,7 @@ resource "aws_placement_group" "default" {
 # Add a load balancer for the API/UI.
 resource "aws_lb" "api" {
   internal        = var.aws_lb_internal
-  name            = "${var.name}-api-${random_string.default.result}"
+  name            = "${var.vault_name}-api-${random_string.default.result}"
   security_groups = concat([aws_security_group.public.id, aws_security_group.private.id], var.extra_security_group_ids)
   subnets         = local.public_subnet_ids
   tags            = local.api_tags
@@ -20,7 +20,7 @@ resource "aws_lb" "replication" {
   count              = var.vault_replication ? 1 : 0
   internal           = var.aws_lb_internal
   load_balancer_type = "network"
-  name               = "${var.name}-replication-${random_string.default.result}"
+  name               = "${var.vault_name}-replication-${random_string.default.result}"
   subnets            = local.public_subnet_ids
   tags               = local.replication_tags
 }
@@ -28,7 +28,7 @@ resource "aws_lb" "replication" {
 # Create a load balancer target group for the API/UI.
 resource "aws_lb_target_group" "api" {
   deregistration_delay = 10
-  name_prefix          = "${var.name}-"
+  name_prefix          = "${var.vault_name}-"
   port                 = 8200
   protocol             = "HTTPS"
   stickiness {
@@ -51,7 +51,7 @@ resource "aws_lb_target_group" "api" {
 # Create a load balancer target group.
 resource "aws_lb_target_group" "replication" {
   count       = var.vault_replication ? 1 : 0
-  name_prefix = "${var.name}-"
+  name_prefix = "${var.vault_name}-"
   port        = 8201
   protocol    = "TCP"
   tags        = local.replication_tags

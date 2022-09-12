@@ -109,35 +109,35 @@ data "aws_iam_policy_document" "autosnapshot" {
 # Make a role to allow role assumption.
 resource "aws_iam_role" "default" {
   assume_role_policy = data.aws_iam_policy_document.assumerole.json
-  description        = "Vault role - ${var.name}"
-  name               = var.name
+  description        = "Vault role - ${var.vault_name}"
+  name               = var.vault_name
   tags               = local.tags
 }
 
 # Link the autojoin policy to the default role.
 resource "aws_iam_role_policy" "autojoin" {
-  name   = "${var.name}-vault-autojoin"
+  name   = "${var.vault_name}-vault-autojoin"
   policy = data.aws_iam_policy_document.autojoin.json
   role   = aws_iam_role.default.id
 }
 
 # Link the auto unseal policy to the default role.
 resource "aws_iam_role_policy" "autounseal" {
-  name   = "${var.name}-vault-autounseal"
+  name   = "${var.vault_name}-vault-autounseal"
   policy = data.aws_iam_policy_document.autounseal.json
   role   = aws_iam_role.default.id
 }
 
 # Link the set health policy to the default role.
 resource "aws_iam_role_policy" "sethealth" {
-  name   = "${var.name}-vault-sethealth"
+  name   = "${var.vault_name}-vault-sethealth"
   policy = data.aws_iam_policy_document.sethealth.json
   role   = aws_iam_role.default.id
 }
 
 # Link the deregister policy to the default role.
 resource "aws_iam_role_policy" "deregister" {
-  name   = "${var.name}-vault-deregister"
+  name   = "${var.vault_name}-vault-deregister"
   policy = data.aws_iam_policy_document.deregister.json
   role   = aws_iam_role.default.id
 }
@@ -145,7 +145,7 @@ resource "aws_iam_role_policy" "deregister" {
 # Link the autosnapshot policy to the default role.
 resource "aws_iam_role_policy" "autosnapshot" {
   count  = var.vault_aws_s3_snapshots_bucket == "" ? 0 : 1
-  name   = "${var.name}-vault-autosnapshot"
+  name   = "${var.vault_name}-vault-autosnapshot"
   policy = data.aws_iam_policy_document.autosnapshot[0].json
   role   = aws_iam_role.default.id
 }
@@ -159,7 +159,7 @@ resource "aws_iam_role_policy_attachment" "cloudwatch_agent" {
 
 # Make an iam instance profile
 resource "aws_iam_instance_profile" "default" {
-  name = var.name
+  name = var.vault_name
   role = aws_iam_role.default.name
   tags = local.tags
 }

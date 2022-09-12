@@ -1,12 +1,12 @@
 resource "aws_cloudwatch_dashboard" "main" {
   count          = var.cloudwatch_monitoring ? 1 : 0
-  dashboard_name = "Vault_${var.name}-${random_string.default.result}"
+  dashboard_name = "Vault_${var.vault_name}-${random_string.default.result}"
 
   # The dashboard json code has been copy-pasted from the AWS webgui.
   # The following variables have to be replaced copying over a new json configuration for a new/updated dashboard:
-  # ${var.name}          --> "Name of the autoscalinggroup, i.e. watch"
+  # ${var.vault_name}      --> "Name of the autoscalinggroup, i.e. watch"
   # ${local.instance_name} --> "Name of the entire Vault deployment, i.e. vault-watch-r5dks9"
-  # ${var.vault_path}    --> "Filesystem path of the integrated storage backend configured for Vault"
+  # ${var.vault_path}      --> "Filesystem path of the integrated storage backend configured for Vault"
 
   dashboard_body = <<EOF
 {
@@ -19,7 +19,7 @@ resource "aws_cloudwatch_dashboard" "main" {
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ { "expression": "SELECT MAX(CPUUtilization) FROM SCHEMA(\"AWS/EC2\", AutoScalingGroupName) WHERE AutoScalingGroupName = '${var.name}' GROUP BY AutoScalingGroupName", "label": "CPU (%) utilization ASG", "id": "q1", "region": "eu-north-1", "period": 60, "color": "#17becf" } ]
+                    [ { "expression": "SELECT MAX(CPUUtilization) FROM SCHEMA(\"AWS/EC2\", AutoScalingGroupName) WHERE AutoScalingGroupName = '${var.vault_name}' GROUP BY AutoScalingGroupName", "label": "CPU (%) utilization ASG", "id": "q1", "region": "eu-north-1", "period": 60, "color": "#17becf" } ]
                 ],
                 "view": "timeSeries",
                 "stacked": true,
@@ -50,7 +50,7 @@ resource "aws_cloudwatch_dashboard" "main" {
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ { "expression": "SELECT MAX(disk_used_percent) FROM SCHEMA(\"${local.instance_name}_cwagent\", AutoScalingGroupName,InstanceId,device,fstype,path) WHERE AutoScalingGroupName = '${var.name}' AND path = '${var.vault_path}' GROUP BY InstanceId", "label": "", "id": "q1", "region": "eu-north-1" } ]
+                    [ { "expression": "SELECT MAX(disk_used_percent) FROM SCHEMA(\"${local.instance_name}_cwagent\", AutoScalingGroupName,InstanceId,device,fstype,path) WHERE AutoScalingGroupName = '${var.vault_name}' AND path = '${var.vault_path}' GROUP BY InstanceId", "label": "", "id": "q1", "region": "eu-north-1" } ]
                 ],
                 "view": "timeSeries",
                 "stacked": false,
@@ -81,7 +81,7 @@ resource "aws_cloudwatch_dashboard" "main" {
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ { "expression": "SELECT MAX(disk_used_percent) FROM SCHEMA(\"${local.instance_name}_cwagent\", AutoScalingGroupName,InstanceId,device,fstype,path) WHERE AutoScalingGroupName = '${var.name}' AND path = '/' GROUP BY InstanceId", "label": "", "id": "q1", "period": 60, "region": "eu-north-1" } ]
+                    [ { "expression": "SELECT MAX(disk_used_percent) FROM SCHEMA(\"${local.instance_name}_cwagent\", AutoScalingGroupName,InstanceId,device,fstype,path) WHERE AutoScalingGroupName = '${var.vault_name}' AND path = '/' GROUP BY InstanceId", "label": "", "id": "q1", "period": 60, "region": "eu-north-1" } ]
                 ],
                 "view": "timeSeries",
                 "stacked": false,
@@ -171,7 +171,7 @@ resource "aws_cloudwatch_dashboard" "main" {
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ { "expression": "SELECT AVG(NetworkIn) FROM SCHEMA(\"AWS/EC2\", AutoScalingGroupName) WHERE AutoScalingGroupName = '${var.name}'", "label": "Netwerk In (Bytes)", "id": "q1", "region": "eu-north-1", "color": "#9467bd" } ],
+                    [ { "expression": "SELECT AVG(NetworkIn) FROM SCHEMA(\"AWS/EC2\", AutoScalingGroupName) WHERE AutoScalingGroupName = '${var.vault_name}'", "label": "Netwerk In (Bytes)", "id": "q1", "region": "eu-north-1", "color": "#9467bd" } ],
                     [ "AWS/EC2", "NetworkIn", "AutoScalingGroupName", "watch", { "id": "m1", "visible": false } ]
                 ],
                 "view": "timeSeries",
@@ -230,7 +230,7 @@ resource "aws_cloudwatch_dashboard" "main" {
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ { "expression": "SELECT MAX(mem_used_percent) FROM SCHEMA(\"${local.instance_name}_cwagent\", AutoScalingGroupName,InstanceId) WHERE AutoScalingGroupName = '${var.name}' GROUP BY InstanceId", "label": "", "id": "q1", "period": 60, "region": "eu-north-1" } ],
+                    [ { "expression": "SELECT MAX(mem_used_percent) FROM SCHEMA(\"${local.instance_name}_cwagent\", AutoScalingGroupName,InstanceId) WHERE AutoScalingGroupName = '${var.vault_name}' GROUP BY InstanceId", "label": "", "id": "q1", "period": 60, "region": "eu-north-1" } ],
                     [ "CWAgent", "mem_used_percent", "InstanceId", "i-0add6009056a2d366", "AutoScalingGroupName", "watch", { "id": "m1", "visible": false } ]
                 ],
                 "view": "timeSeries",

@@ -33,7 +33,7 @@ resource "aws_route53_record" "validation" {
 # Call the module.
 module "vault" {
   certificate_arn               = aws_acm_certificate.default.arn
-  name                          = "autos"
+  vault_name                    = substr(replace(basename(path.cwd), "/[aeiou]/", ""), 0, 5)
   source                        = "../../"
   key_filename                  = "id_rsa.pub"
   vault_aws_s3_snapshots_bucket = "vault-snapshots-syzaip"

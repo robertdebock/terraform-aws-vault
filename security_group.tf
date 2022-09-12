@@ -1,7 +1,7 @@
 # Create a security group for the loadbalancer.
 resource "aws_security_group" "public" {
   description = "Public - Traffic to Vault nodes"
-  name_prefix = "${var.name}-public-"
+  name_prefix = "${var.vault_name}-public-"
   tags        = local.public_tags
   vpc_id      = local.vpc_id
   lifecycle {
@@ -47,7 +47,7 @@ resource "aws_security_group_rule" "extra" {
 # Create a security group for the instances.
 resource "aws_security_group" "private" {
   description = "Private - Traffic to Vault nodes"
-  name_prefix = "${var.name}-private-"
+  name_prefix = "${var.vault_name}-private-"
   tags        = local.private_tags
   vpc_id      = local.vpc_id
   lifecycle {

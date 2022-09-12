@@ -4,15 +4,15 @@ locals {
   api_addr = coalesce(var.api_addr, "https://${aws_lb.api.dns_name}:${var.api_port}")
 
   # Combine the variable `tags` with specific prefixes.
-  tags             = merge({ Name = "${var.name}-${random_string.default.result}" }, var.tags)
-  bastion_tags     = merge({ Name = "bastion-${var.name}-${random_string.default.result}" }, var.tags)
-  private_tags     = merge({ Name = "private-${var.name}-${random_string.default.result}" }, var.tags)
-  public_tags      = merge({ Name = "public-${var.name}-${random_string.default.result}" }, var.tags)
-  api_tags         = merge({ Name = "api-${var.name}-${random_string.default.result}" }, var.tags)
-  replication_tags = merge({ Name = "replication-${var.name}-${random_string.default.result}" }, var.tags)
+  tags             = merge({ Name = "${var.vault_name}-${random_string.default.result}" }, var.tags)
+  bastion_tags     = merge({ Name = "bastion-${var.vault_name}-${random_string.default.result}" }, var.tags)
+  private_tags     = merge({ Name = "private-${var.vault_name}-${random_string.default.result}" }, var.tags)
+  public_tags      = merge({ Name = "public-${var.vault_name}-${random_string.default.result}" }, var.tags)
+  api_tags         = merge({ Name = "api-${var.vault_name}-${random_string.default.result}" }, var.tags)
+  replication_tags = merge({ Name = "replication-${var.vault_name}-${random_string.default.result}" }, var.tags)
 
   # Compose the name of the instances.
-  instance_name = "vault-${var.name}-${random_string.default.result}"
+  instance_name = "vault-${var.vault_name}-${random_string.default.result}"
 
   # Combine api arn and (optionally) replication arn.
   target_group_arns = compact([aws_lb_target_group.api.arn, try(aws_lb_target_group.replication[0].arn, null)])
@@ -73,8 +73,8 @@ locals {
   }
   volume_iops = local._volume_iops[var.size]
 
-  # Resolve the key, either set using `key_name` or placed using `key_filename`.
-  key_name = try(aws_key_pair.default[0].id, var.key_name)
+  # Resolve the key, either set using `vault_aws_key_name` or placed using `key_filename`.
+  vault_aws_key_name = try(aws_key_pair.default[0].id, var.vault_aws_key_name)
 
   # Form the cidr_block based on a variable.
   cidr_block = "${var.vpc_cidr_block_start}.0.0/16"

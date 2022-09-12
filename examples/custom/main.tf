@@ -38,7 +38,6 @@ resource "aws_route53_record" "validation" {
 
 # Call the module.
 module "vault" {
-  advanced_monitoing          = false
   allow_ssh                   = true
   api_addr                    = "https://custom.meinit.nl"
   api_port                    = 443
@@ -50,7 +49,7 @@ module "vault" {
   key_name                    = aws_key_pair.default.id
   minimum_vcpus               = 2
   minimum_memory              = 1024
-  name                        = "cstm"
+  vault_name                  = substr(replace(basename(path.cwd), "/[aeiou]/", ""), 0, 5)
   prometheus_disable_hostname = true
   prometheus_retention_time   = "30m"
   size                        = "custom"

@@ -2,7 +2,7 @@
 resource "aws_security_group" "bastion" {
   count       = var.bastion_host ? 1 : 0
   description = "Bastion - Traffic to bastion host"
-  name_prefix = "${var.name}-bastion-"
+  name_prefix = "${var.vault_name}-bastion-"
   tags        = local.bastion_tags
   vpc_id      = local.vpc_id
   lifecycle {
@@ -82,8 +82,7 @@ resource "aws_instance" "bastion" {
   ami                         = data.aws_ami.bastion[0].id
   associate_public_ip_address = true
   instance_type               = "t4g.nano"
-  key_name                    = local.key_name
-  monitoring                  = var.advanced_monitoing
+  key_name                    = local.vault_aws_key_name
   subnet_id                   = aws_subnet.bastion[0].id
   tags                        = local.bastion_tags
   user_data = templatefile("${path.module}/user_data_bastion.sh.tpl",
