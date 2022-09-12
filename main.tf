@@ -52,9 +52,6 @@ resource "aws_launch_template" "default" {
     instance_generations = ["current"]
   }
   key_name = local.key_name
-  monitoring {
-    enabled = var.advanced_monitoing
-  }
   name_prefix            = "${var.name}-"
   update_default_version = true
   vpc_security_group_ids = [aws_security_group.private.id, aws_security_group.public.id]

@@ -349,12 +349,6 @@ variable "extra_security_group_ids" {
   default     = []
 }
 
-variable "advanced_monitoing" {
-  description = "Specify of the instances will use advanced monitoring. Makes graphs update more frequently, comes at a price."
-  type        = bool
-  default     = true
-}
-
 variable "audit_device" {
   description = "You can specify an audit device to be created. This will create a mount on the Vault nodes."
   type        = bool
