@@ -21,10 +21,44 @@ fi
 if [ "${cloudwatch_monitoring}" = "true" ] ; then
   yum install -y amazon-cloudwatch-agent
 
+  # Make sure the folder for vault.log exists
+  mkdir /var/log/vault
+
+  # Configure overrides for the vault.service, STERR and STDIN are now send to Rsyslog. Rsyslog will write them to /var/log/vault/vault.log
+  mkdir /etc/systemd/system/vault.service.d
+  echo '[Service]
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=vault' > /etc/systemd/system/vault.service.d/override.conf
+
+  # Configure Rsyslog to send messages tagged with "vault" to Vault log directory
+  echo -e "if $programname == 'vault' then /var/log/vault/vault.log \n& stop" > /etc/rsyslog.d/vault.conf
+  systemctl restart rsyslog.service
+
   echo '{
         "agent": {
                 "metrics_collection_interval": 60,
                 "run_as_user": "root"
+        },
+        "logs": {
+                "logs_collected": {
+                        "files": {
+                                "collect_list": [
+                                        {
+                                                "file_path": "/var/log/cloud-init-output.log",
+                                                "log_group_name": "${instance_name}_cloud-init-output.log",
+                                                "log_stream_name": "{instance_id}",
+                                                "retention_in_days": 7
+                                        },
+                                        {
+                                                "file_path": "/var/log/vault/vault.log",
+                                                "log_group_name": "${instance_name}_vault.log",
+                                                "log_stream_name": "{instance_id}",
+                                                "retention_in_days": 7
+                                        }
+                                ]
+                        }
+                }
         },
         "metrics": {
                 "namespace": "vault-${name}-${random_string}_cwagent",
@@ -206,7 +240,8 @@ fi
 systemctl --now enable vault
 
 # Setup logrotate if the audit_device is enabled.
-if [ "${audit_device}" = "true" ] ; then
+
+if [[ "${audit_device}" = "true" || "${cloudwatch_monitoring}" = "true" ]] ; then
   cat << EOF > /etc/logrotate.d/vault
 ${audit_device_path}/*.log {
   rotate $[${audit_device_size}*4]
