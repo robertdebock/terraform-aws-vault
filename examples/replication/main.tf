@@ -114,7 +114,7 @@ module "vault_eu" {
   allowed_cidr_blocks_replication = ["0.0.0.0/0"]
   certificate_arn                 = aws_acm_certificate.default_eu[count.index].arn
   vault_name                      = "veu-${count.index}"
-  key_filename                    = "id_rsa.pub"
+  vault_keyfile_path              = "id_rsa.pub"
   size                            = "minimum"
   source                          = "../../"
   vault_type                      = "enterprise"
@@ -139,7 +139,7 @@ module "vault_us" {
   bastion_host                    = count.index == 0 ? true : false
   certificate_arn                 = aws_acm_certificate.default_us[count.index].arn
   vault_name                      = "vus-${count.index}"
-  key_filename                    = "id_rsa.pub"
+  vault_keyfile_path              = "id_rsa.pub"
   size                            = "minimum"
   source                          = "../../"
   vault_type                      = "enterprise"

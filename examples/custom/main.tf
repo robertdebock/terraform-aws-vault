@@ -46,7 +46,7 @@ module "vault" {
   aws_lb_internal             = false
   certificate_arn             = aws_acm_certificate.default.arn
   cpu_manufacturer            = "intel"
-  key_name                    = aws_key_pair.default.id
+  vault_keyfile_path          = aws_key_pair.default.id
   minimum_vcpus               = 2
   minimum_memory              = 1024
   vault_name                  = substr(replace(basename(path.cwd), "/[aeiou]/", ""), 0, 5)

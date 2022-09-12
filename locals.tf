@@ -73,7 +73,7 @@ locals {
   }
   volume_iops = local._volume_iops[var.size]
 
-  # Resolve the key, either set using `vault_aws_key_name` or placed using `key_filename`.
+  # Resolve the key, either set using `vault_aws_key_name` or placed using `vault_keyfile_path`.
   vault_aws_key_name = try(aws_key_pair.default[0].id, var.vault_aws_key_name)
 
   # Form the cidr_block based on a variable.

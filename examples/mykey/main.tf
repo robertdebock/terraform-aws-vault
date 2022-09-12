@@ -41,12 +41,12 @@ resource "aws_route53_record" "validation" {
 
 # Call the module.
 module "vault" {
-  api_addr        = "https://mykey.meinit.nl:8200"
-  certificate_arn = aws_acm_certificate.default.arn
-  key_filename    = "id_rsa.pub"
-  aws_kms_key_id  = data.terraform_remote_state.default.outputs.aws_kms_key_id
-  vault_name      = substr(replace(basename(path.cwd), "/[aeiou]/", ""), 0, 5)
-  source          = "../../"
+  api_addr           = "https://mykey.meinit.nl:8200"
+  certificate_arn    = aws_acm_certificate.default.arn
+  vault_keyfile_path = "id_rsa.pub"
+  aws_kms_key_id     = data.terraform_remote_state.default.outputs.aws_kms_key_id
+  vault_name         = substr(replace(basename(path.cwd), "/[aeiou]/", ""), 0, 5)
+  source             = "../../"
   tags = {
     owner = "robertdebock"
   }

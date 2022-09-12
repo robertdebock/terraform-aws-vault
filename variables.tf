@@ -27,12 +27,12 @@ variable "vault_aws_key_name" {
   default     = ""
 }
 
-variable "key_filename" {
-  description = "The name of the file that has the public ssh key stored. Either specify \"vault_aws_key_name\" or \"key_filename\"."
+variable "vault_keyfile_path" {
+  description = "The name of the file that has the public ssh key stored. Either specify \"vault_aws_key_name\" or \"vault_keyfile_path\"."
   type        = string
   default     = ""
   validation {
-    condition     = try((var.key_filename != "" && fileexists(var.key_filename)), var.key_filename == "")
+    condition     = try((var.vault_keyfile_path != "" && fileexists(var.vault_keyfile_path)), var.vault_keyfile_path == "")
     error_message = "The specified certificate file does not exist."
   }
 }

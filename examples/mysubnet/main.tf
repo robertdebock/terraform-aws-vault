@@ -44,7 +44,7 @@ module "vault" {
   api_addr                 = "https://mysubnet.meinit.nl:8200"
   certificate_arn          = aws_acm_certificate.default.arn
   extra_security_group_ids = [data.terraform_remote_state.default.outputs.security_group_id]
-  key_filename             = "id_rsa.pub"
+  vault_keyfile_path       = "id_rsa.pub"
   vault_name               = substr(replace(basename(path.cwd), "/[aeiou]/", ""), 0, 5)
   source                   = "../../"
   vpc_cidr_block_start     = "192.168"

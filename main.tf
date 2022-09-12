@@ -19,9 +19,9 @@ data "aws_region" "default" {}
 
 # Place an SSH key.
 resource "aws_key_pair" "default" {
-  count      = var.key_filename == "" ? 0 : 1
+  count      = var.vault_keyfile_path == "" ? 0 : 1
   key_name   = var.vault_name
-  public_key = file(var.key_filename)
+  public_key = file(var.vault_keyfile_path)
   tags       = local.tags
 }
 

@@ -35,7 +35,7 @@ module "vault" {
   certificate_arn       = aws_acm_certificate.default.arn
   vault_name            = substr(replace(basename(path.cwd), "/[aeiou]/", ""), 0, 5)
   source                = "../../"
-  key_filename          = "id_rsa.pub"
+  vault_keyfile_path    = "id_rsa.pub"
   cloudwatch_monitoring = true
   tags = {
     owner = "robertdebock"
