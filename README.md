@@ -94,12 +94,25 @@ To restore a snapshot, run:
 vault operator raft snapshot restore FILE
 ```
 
-## Monitoring
+## Monitoring & Logging
 
-Currently monitoring is available with AWS native tools by setting the `cloudwatch_monitoring` boolean to `true`, see also: `examples/cloudwatch`.
+Currently monitoring and logging is available with AWS native tools by setting the `cloudwatch_monitoring` boolean to `true`, see also: `examples/cloudwatch`.
 
-Preview:  
+The following logs and metrics are being collected by the Cloudwatch agent:
+
+- Metrics:
+  - memory_used_percent
+  - disk_used_percent - /opt/vault
+  - disk_used_percent - /
+- Logs
+  - /var/log/vault/vault.log
+  - /var/log/cloud-init-output.log
+
+Metrics dashboard preview:  
 ![Cloudwatch dashboard preview.](./README.d/Cloudwatch_dashboard_preview.png)
+
+Logging dashboard preview:
+![Cloudwatch logging preview.](./README.d/Cloudwatch_logging_preview.png)
 
 ## Cost
 
