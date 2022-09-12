@@ -24,8 +24,7 @@ if [ "${cloudwatch_monitoring}" = "true" ] ; then
   # Make sure the folder for vault.log exists
   mkdir /var/log/vault
 
-  # /etc/systemd/systemc/vault.service.d --> root_root 0644 override.conf + mkdir /var/log/vault + stoud=syslog moet gaan werken (append: is vanaf sdystemd 240, AL2 heeft 219_)
-  # Configure overrides for the vault.service, log are now send to Rsyslog and tagged with "vault". Vault logs can be send to Cloudwatch as it's own log stream.
+  # Configure overrides for the vault.service, STERR and STDIN are now send to Rsyslog. Rsyslog will write them to /var/log/vault/vault.log
   mkdir /etc/systemd/system/vault.service.d
   echo '[Service]
 StandardOutput=syslog
@@ -36,7 +35,6 @@ SyslogIdentifier=vault' > /etc/systemd/system/vault.service.d/override.conf
   echo -e "if $programname == 'vault' then /var/log/vault/vault.log \n& stop" > /etc/rsyslog.d/vault.conf
   systemctl restart rsyslog.service
 
-  # TODO: add/modify var for ec2 instance node_id, change to something that is more human readable?
   echo '{
         "agent": {
                 "metrics_collection_interval": 60,
@@ -99,8 +97,6 @@ SyslogIdentifier=vault' > /etc/systemd/system/vault.service.d/override.conf
 
   # Initialize the Cloudwatch_agent after installation
   /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/opt/aws/amazon-cloudwatch-agent/bin/config.json
-
-  # TODO: configure logrotate for /var/log/vault.log
 fi
 
 # Add the HashiCorp RPM repository.
