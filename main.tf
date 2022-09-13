@@ -62,11 +62,11 @@ resource "aws_launch_template" "default" {
       audit_device_path              = var.audit_device_path
       audit_device_size              = var.audit_device_size
       cloudwatch_monitoring          = var.cloudwatch_monitoring
-      default_lease_ttl              = var.default_lease_ttl
+      default_lease_ttl              = var.vault_default_lease_time
       instance_name                  = local.instance_name
       kms_key_id                     = local.aws_kms_key_id
-      log_level                      = var.log_level
-      max_lease_ttl                  = var.max_lease_ttl
+      log_level                      = var.vault_log_level
+      max_lease_ttl                  = var.vault_max_lease_time
       vault_name                     = var.vault_name
       prometheus_disable_hostname    = var.prometheus_disable_hostname
       prometheus_retention_time      = var.prometheus_retention_time
@@ -75,9 +75,9 @@ resource "aws_launch_template" "default" {
       target_group_arns              = local.target_group_arns
       telemetry                      = var.telemetry
       unauthenticated_metrics_access = var.telemetry_unauthenticated_metrics_access
-      vault_ca_cert                  = file(var.vault_ca_cert)
-      vault_ca_key                   = file(var.vault_ca_key)
-      vault_path                     = var.vault_path
+      vault_ca_cert                  = file(var.vault_ca_cert_path)
+      vault_ca_key                   = file(var.vault_ca_key_path)
+      vault_data_path                = var.vault_data_path
       vault_enable_ui                = var.vault_enable_ui
       vault_version                  = var.vault_version
       vault_package                  = local.vault_package
@@ -120,17 +120,17 @@ resource "random_string" "default" {
 
 # Create an auto scaling group.
 resource "aws_autoscaling_group" "default" {
-  default_cooldown = var.cooldown
+  default_cooldown = var.vault_asg_cooldown_seconds
   desired_capacity = local.amount
   enabled_metrics  = ["GroupDesiredCapacity", "GroupInServiceCapacity", "GroupPendingCapacity", "GroupMinSize", "GroupMaxSize", "GroupInServiceInstances", "GroupPendingInstances", "GroupStandbyInstances", "GroupStandbyCapacity", "GroupTerminatingCapacity", "GroupTerminatingInstances", "GroupTotalCapacity", "GroupTotalInstances"]
   # Base the health check on weaker "EC2" if:
   # - var.telemetry is enabled AND var.telemetry_unauthenticated_metrics_access is disabled.
   # Or if:
-  # - var.vault_replication is enabled.
+  # - var.vault_allow_replication is enabled.
   # Otherwise, use "ELB", which is stronger, but not always applicable..
   # health_check_type   = var.telemetry && !var.telemetry_unauthenticated_metrics_access ? "EC2" : "ELB"
-  health_check_type     = var.vault_replication || (var.telemetry && !var.telemetry_unauthenticated_metrics_access) ? "EC2" : "ELB"
-  max_instance_lifetime = var.max_instance_lifetime
+  health_check_type     = var.vault_allow_replication || (var.telemetry && !var.telemetry_unauthenticated_metrics_access) ? "EC2" : "ELB"
+  max_instance_lifetime = var.vault_asg_instance_lifetime
   max_size              = local.amount + 1
   min_size              = local.amount - 1
   mixed_instances_policy {

@@ -79,7 +79,7 @@ resource "aws_security_group_rule" "raft" {
 
 # Allow other clusters to use Raft. (This is an enterprise feature.)
 resource "aws_security_group_rule" "clustertocluster" {
-  count             = var.vault_replication ? 1 : 0
+  count             = var.vault_allow_replication ? 1 : 0
   cidr_blocks       = var.vault_allowed_cidr_blocks_replication
   description       = "Vault Raft Replication"
   from_port         = var.replication_port

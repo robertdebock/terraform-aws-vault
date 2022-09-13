@@ -1,7 +1,7 @@
 locals {
 
   # Resolve the ip_addr, either set using `api_addr` or the created resource.
-  api_addr = coalesce(var.api_addr, "https://${aws_lb.api.dns_name}:${var.api_port}")
+  api_addr = coalesce(var.vault_api_addr, "https://${aws_lb.api.dns_name}:${var.api_port}")
 
   # Combine the variable `tags` with specific prefixes.
   tags             = merge({ Name = "${var.vault_name}-${random_string.default.result}" }, var.vault_tags)
@@ -83,10 +83,10 @@ locals {
   vpc_id = try(aws_vpc.default[0].id, var.vault_aws_vpc_id)
 
   # Select the private_subnet_ids, either set as a variable or created.
-  private_subnet_ids = coalescelist(var.private_subnet_ids, aws_subnet.private[*].id)
+  private_subnet_ids = coalescelist(var.vault_private_subnet_ids, aws_subnet.private[*].id)
 
   # Select the public_subnet_ids, either created or set as a variable.
-  public_subnet_ids = coalescelist(var.public_subnet_ids, aws_subnet.public[*].id)
+  public_subnet_ids = coalescelist(var.vault_public_subnet_ids, aws_subnet.public[*].id)
 
   # Select the gateway_id, either the created resource or the found resource.
   gateway_id = try(aws_internet_gateway.default[0].id, data.aws_internet_gateway.default[0].id)

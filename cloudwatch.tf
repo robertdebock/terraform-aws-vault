@@ -6,7 +6,7 @@ resource "aws_cloudwatch_dashboard" "main" {
   # The following variables have to be replaced copying over a new json configuration for a new/updated dashboard:
   # ${var.vault_name}      --> "Name of the autoscalinggroup, i.e. watch"
   # ${local.instance_name} --> "Name of the entire Vault deployment, i.e. vault-watch-r5dks9"
-  # ${var.vault_path}      --> "Filesystem path of the integrated storage backend configured for Vault"
+  # ${var.vault_data_path}      --> "Filesystem path of the integrated storage backend configured for Vault"
 
   dashboard_body = <<EOF
 {
@@ -50,14 +50,14 @@ resource "aws_cloudwatch_dashboard" "main" {
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ { "expression": "SELECT MAX(disk_used_percent) FROM SCHEMA(\"${local.instance_name}_cwagent\", AutoScalingGroupName,InstanceId,device,fstype,path) WHERE AutoScalingGroupName = '${var.vault_name}' AND path = '${var.vault_path}' GROUP BY InstanceId", "label": "", "id": "q1", "region": "eu-north-1" } ]
+                    [ { "expression": "SELECT MAX(disk_used_percent) FROM SCHEMA(\"${local.instance_name}_cwagent\", AutoScalingGroupName,InstanceId,device,fstype,path) WHERE AutoScalingGroupName = '${var.vault_name}' AND path = '${var.vault_data_path}' GROUP BY InstanceId", "label": "", "id": "q1", "region": "eu-north-1" } ]
                 ],
                 "view": "timeSeries",
                 "stacked": false,
                 "region": "eu-north-1",
                 "stat": "Average",
                 "period": 60,
-                "title": "(%) Disk used per node - ${var.vault_path}",
+                "title": "(%) Disk used per node - ${var.vault_data_path}",
                 "yAxis": {
                     "left": {
                         "min": 0,
@@ -344,7 +344,7 @@ resource "aws_cloudwatch_dashboard" "main" {
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ { "expression": "SELECT MAX(disk_used_percent) FROM SCHEMA(\"${local.instance_name}_cwagent\", AutoScalingGroupName,InstanceId,device,fstype,path) WHERE path = '${var.vault_path}'", "label": "Max used disk - ${var.vault_path}", "id": "q1", "region": "eu-north-1", "period": 60, "color": "#2ca02c" } ]
+                    [ { "expression": "SELECT MAX(disk_used_percent) FROM SCHEMA(\"${local.instance_name}_cwagent\", AutoScalingGroupName,InstanceId,device,fstype,path) WHERE path = '${var.vault_data_path}'", "label": "Max used disk - ${var.vault_data_path}", "id": "q1", "region": "eu-north-1", "period": 60, "color": "#2ca02c" } ]
                 ],
                 "view": "gauge",
                 "region": "eu-north-1",
@@ -356,7 +356,7 @@ resource "aws_cloudwatch_dashboard" "main" {
                         "max": 100
                     }
                 },
-                "title": "Max used disk - ${var.vault_path}",
+                "title": "Max used disk - ${var.vault_data_path}",
                 "stacked": false
             }
         },

@@ -17,7 +17,7 @@ resource "aws_lb" "api" {
 
 # Add a load balancer for replication.
 resource "aws_lb" "replication" {
-  count              = var.vault_replication ? 1 : 0
+  count              = var.vault_allow_replication ? 1 : 0
   internal           = var.aws_lb_internal
   load_balancer_type = "network"
   name               = "${var.vault_name}-replication-${random_string.default.result}"
@@ -39,9 +39,9 @@ resource "aws_lb_target_group" "api" {
   vpc_id = local.vpc_id
   health_check {
     interval = 5
-    # If vault_replication is on: Only healthy nodes must receive traffic. (Otherwise the health_check on the route53 record will return non-healthy nodes.)
+    # If vault_allow_replication is on: Only healthy nodes must receive traffic. (Otherwise the health_check on the route53 record will return non-healthy nodes.)
     # If telemetry is on: See TELEMETRY.md for an explanation
-    matcher  = var.vault_replication ? "200" : var.telemetry && !var.telemetry_unauthenticated_metrics_access ? "200,472,473" : "200,429,472,473"
+    matcher  = var.vault_allow_replication ? "200" : var.telemetry && !var.telemetry_unauthenticated_metrics_access ? "200,472,473" : "200,429,472,473"
     path     = "/v1/sys/health"
     protocol = "HTTPS"
     timeout  = 2
@@ -50,7 +50,7 @@ resource "aws_lb_target_group" "api" {
 
 # Create a load balancer target group.
 resource "aws_lb_target_group" "replication" {
-  count       = var.vault_replication ? 1 : 0
+  count       = var.vault_allow_replication ? 1 : 0
   name_prefix = "${var.vault_name}-"
   port        = 8201
   protocol    = "TCP"
@@ -68,7 +68,7 @@ resource "aws_lb_target_group" "replication" {
 
 # Add a API listener to the loadbalancer.
 resource "aws_lb_listener" "api" {
-  certificate_arn   = var.certificate_arn
+  certificate_arn   = var.vault_aws_certificate_arn
   load_balancer_arn = aws_lb.api.arn
   port              = var.api_port
   protocol          = "HTTPS"
@@ -98,7 +98,7 @@ resource "aws_lb_listener" "api_redirect" {
 
 # Add a replication listener to the loadbalancer.
 resource "aws_lb_listener" "replication" {
-  count             = var.vault_replication ? 1 : 0
+  count             = var.vault_allow_replication ? 1 : 0
   load_balancer_arn = aws_lb.replication[0].arn
   port              = var.replication_port
   protocol          = "TCP"

@@ -125,69 +125,70 @@ variable "vault_tags" {
   }
 }
 
-variable "max_instance_lifetime" {
+variable "vault_asg_instance_lifetime" {
   description = "The amount of seconds after which to replace the instances."
   type        = number
   default     = 0
   validation {
-    condition     = var.max_instance_lifetime == 0 || (var.max_instance_lifetime >= 86400 && var.max_instance_lifetime <= 31536000)
+    condition     = var.vault_asg_instance_lifetime == 0 || (var.vault_asg_instance_lifetime >= 86400 && var.vault_asg_instance_lifetime <= 31536000)
     error_message = "Use \"0\" to remove the parameter or a value between \"86400\" and \"31536000\"."
   }
 }
 
-variable "certificate_arn" {
+variable "vault_aws_certificate_arn" {
   description = "The ARN to an existing certificate."
   type        = string
+  # TODO: Add validation.
 }
 
-variable "log_level" {
+variable "vault_log_level" {
   description = "Specifies the Vault log level to use."
   type        = string
   default     = "info"
   validation {
-    condition     = contains(["trace", "debug", "error", "warn", "info"], var.log_level)
+    condition     = contains(["trace", "debug", "error", "warn", "info"], var.vault_log_level)
     error_message = "Please use \"trace\", \"debug\", \"error\", \"warn\" or \"info\"."
   }
 }
 
-variable "default_lease_ttl" {
+variable "vault_default_lease_time" {
   description = "Specifies the default lease duration for tokens and secrets."
   type        = string
   default     = "768h"
   validation {
-    condition     = can(regex("^[1-9][0-9]*(s|m|h)", var.default_lease_ttl))
+    condition     = can(regex("^[1-9][0-9]*(s|m|h)", var.vault_default_lease_time))
     error_message = "Please use a positive number, followed by the duration indicator."
   }
 }
 
-variable "max_lease_ttl" {
+variable "vault_max_lease_time" {
   description = "Specifies the maximum lease duration for tokens and secrets."
   type        = string
   default     = "768h"
   validation {
-    condition     = can(regex("^[1-9][0-9]*(s|m|h)$", var.max_lease_ttl))
+    condition     = can(regex("^[1-9][0-9]*(s|m|h)$", var.vault_max_lease_time))
     error_message = "Please use a positive number, followed by the duration indicator."
   }
 }
 
-variable "vault_path" {
+variable "vault_data_path" {
   description = "The absolute path where Vault should place data."
   type        = string
   default     = "/opt/vault"
   validation {
-    condition     = can(regex("^/", var.vault_path))
+    condition     = can(regex("^/", var.vault_data_path))
     error_message = "Please use an absolute path like \"/my/vault\"."
   }
 }
 
-variable "private_subnet_ids" {
-  description = "The ids of the private subnets to deploy to. These subnets should have a NAT gateway. Only required when `vpc_id` is set."
+variable "vault_private_subnet_ids" {
+  description = "The ids of the private subnets to deploy to. These subnets should have a NAT gateway. Only required when `vault_aws_vpc_id` is set."
   type        = list(string)
   default     = []
 }
 
-variable "public_subnet_ids" {
-  description = "The ids of the private subnets to deploy to. These subnets should have in internet gateway. ßOnly required when `vpc_id` is set."
+variable "vault_public_subnet_ids" {
+  description = "The ids of the private subnets to deploy to. These subnets should have in internet gateway. ßOnly required when `vault_aws_vpc_id` is set."
   type        = list(string)
   default     = []
 }
@@ -212,12 +213,12 @@ variable "vault_license" {
   }
 }
 
-variable "api_addr" {
+variable "vault_api_addr" {
   description = "The URL for the Vault API to advertise."
   type        = string
   default     = ""
   validation {
-    condition     = can(regex("^http", var.api_addr)) || length(var.api_addr) == 0
+    condition     = can(regex("^http", var.vault_api_addr)) || length(var.vault_api_addr) == 0
     error_message = "Please use a URL like: \"https://vault.example.com:8200\"."
   }
 }
@@ -228,37 +229,37 @@ variable "vault_allowed_cidr_blocks_replication" {
   default     = []
 }
 
-variable "cooldown" {
+variable "vault_asg_cooldown_seconds" {
   description = "The cooldown period in seconds to use for the autoscaling group."
   type        = number
   default     = 300
   validation {
-    condition     = var.cooldown >= 120 && var.cooldown <= 600
+    condition     = var.vault_asg_cooldown_seconds >= 120 && var.vault_asg_cooldown_seconds <= 600
     error_message = "Please use a cooldown period between 120 and 600 seconds."
   }
 }
 
-variable "vault_ca_cert" {
+variable "vault_ca_cert_path" {
   description = "The CA certificate that Vault nodes will use to sign their certificate."
   type        = string
   default     = "tls/vault_ca.crt"
   validation {
-    condition     = fileexists(var.vault_ca_cert)
+    condition     = fileexists(var.vault_ca_cert_path)
     error_message = "The specified certificate file does not exist."
   }
 }
 
-variable "vault_ca_key" {
+variable "vault_ca_key_path" {
   description = "The CA key that Vault nodes will use to sign their certificate."
   type        = string
   default     = "tls/vault_ca.pem"
   validation {
-    condition     = fileexists(var.vault_ca_key)
+    condition     = fileexists(var.vault_ca_key_path)
     error_message = "The specified key file does not exist."
   }
 }
 
-variable "vault_replication" {
+variable "vault_allow_replication" {
   description = "Allow Vault replication to be used."
   type        = bool
   default     = false

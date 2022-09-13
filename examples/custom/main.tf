@@ -39,12 +39,12 @@ resource "aws_route53_record" "validation" {
 # Call the module.
 module "vault" {
   allow_ssh                   = true
-  api_addr                    = "https://custom.meinit.nl"
+  vault_api_addr              = "https://custom.meinit.nl"
   api_port                    = 443
   audit_device                = true
   audit_device_size           = 16
   aws_lb_internal             = false
-  certificate_arn             = aws_acm_certificate.default.arn
+  vault_aws_certificate_arn   = aws_acm_certificate.default.arn
   cpu_manufacturer            = "intel"
   vault_aws_key_name          = aws_key_pair.default.key_name
   minimum_vcpus               = 2

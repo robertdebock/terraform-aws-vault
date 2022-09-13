@@ -32,16 +32,16 @@ resource "aws_route53_record" "validation" {
 
 # Call the module.
 module "vault" {
-  allow_ssh          = true
-  api_addr           = "https://dev.meinit.nl:8200"
-  certificate_arn    = aws_acm_certificate.default.arn
-  default_lease_ttl  = "24h"
-  vault_keyfile_path = "id_rsa.pub"
-  log_level          = "debug"
-  max_lease_ttl      = "168h"
-  vault_name         = "dvlpm"
-  vault_size         = "development"
-  source             = "../../"
+  allow_ssh                 = true
+  vault_api_addr            = "https://dev.meinit.nl:8200"
+  vault_aws_certificate_arn = aws_acm_certificate.default.arn
+  default_lease_ttl         = "24h"
+  vault_keyfile_path        = "id_rsa.pub"
+  vault_log_level           = "debug"
+  max_lease_ttl             = "168h"
+  vault_name                = "dvlpm"
+  vault_size                = "development"
+  source                    = "../../"
   vault_tags = {
     owner = "robertdebock"
   }
