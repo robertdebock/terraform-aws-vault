@@ -92,7 +92,7 @@ variable "vault_enable_ui" {
   default     = true
 }
 
-variable "allowed_cidr_blocks" {
+variable "vault_allowed_cidr_blocks" {
   description = "What CIDR blocks are allowed to access Vault."
   type        = list(string)
   default     = ["0.0.0.0/0"]
@@ -222,7 +222,7 @@ variable "api_addr" {
   }
 }
 
-variable "allowed_cidr_blocks_replication" {
+variable "vault_allowed_cidr_blocks_replication" {
   description = "What CIDR blocks are allowed to replicate."
   type        = list(string)
   default     = []

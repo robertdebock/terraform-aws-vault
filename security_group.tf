@@ -11,7 +11,7 @@ resource "aws_security_group" "public" {
 
 # Allow the vault API to be accessed from the internet.
 resource "aws_security_group_rule" "api_public" {
-  cidr_blocks       = var.allowed_cidr_blocks
+  cidr_blocks       = var.vault_allowed_cidr_blocks
   description       = "Vault API/UI"
   from_port         = var.api_port
   protocol          = "TCP"
@@ -22,7 +22,7 @@ resource "aws_security_group_rule" "api_public" {
 
 # Allow the redirection from port 80 to `var.api_port` from the internet.
 resource "aws_security_group_rule" "api_public_redirect" {
-  cidr_blocks       = var.allowed_cidr_blocks
+  cidr_blocks       = var.vault_allowed_cidr_blocks
   description       = "Vault API/UI redirection"
   from_port         = 80
   protocol          = "TCP"
@@ -80,7 +80,7 @@ resource "aws_security_group_rule" "raft" {
 # Allow other clusters to use Raft. (This is an enterprise feature.)
 resource "aws_security_group_rule" "clustertocluster" {
   count             = var.vault_replication ? 1 : 0
-  cidr_blocks       = var.allowed_cidr_blocks_replication
+  cidr_blocks       = var.vault_allowed_cidr_blocks_replication
   description       = "Vault Raft Replication"
   from_port         = var.replication_port
   protocol          = "TCP"
