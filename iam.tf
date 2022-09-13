@@ -106,6 +106,29 @@ data "aws_iam_policy_document" "autosnapshot" {
   }
 }
 
+# Make a policy to allow downloading scripts from S3.
+data "aws_iam_policy_document" "scripts" {
+  # TODO: Make this conditional; if scripts are required.
+  statement {
+    effect = "Allow"
+    actions = [
+      "s3:GetObject"
+    ]
+    resources = [
+      "${aws_s3_bucket.default.arn}/*.sh"
+    ]
+  }
+  statement {
+    effect = "Allow"
+    actions = [
+      "s3:ListBucket"
+    ]
+    resources = [
+      "${aws_s3_bucket.default.arn}"
+    ]
+  }
+}
+
 # Make a role to allow role assumption.
 resource "aws_iam_role" "default" {
   assume_role_policy = data.aws_iam_policy_document.assumerole.json
@@ -147,6 +170,13 @@ resource "aws_iam_role_policy" "autosnapshot" {
   count  = var.vault_aws_s3_snapshots_bucket == "" ? 0 : 1
   name   = "${var.vault_name}-vault-autosnapshot"
   policy = data.aws_iam_policy_document.autosnapshot[0].json
+  role   = aws_iam_role.default.id
+}
+
+# Link the scripts policy to the default role.
+resource "aws_iam_role_policy" "scripts" {
+  name   = "${var.vault_name}-vault-scripts"
+  policy = data.aws_iam_policy_document.scripts.json
   role   = aws_iam_role.default.id
 }
 

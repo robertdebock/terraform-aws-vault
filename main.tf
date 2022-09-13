@@ -67,7 +67,7 @@ resource "aws_launch_template" "default" {
       kms_key_id                     = local.aws_kms_key_id
       log_level                      = var.log_level
       max_lease_ttl                  = var.max_lease_ttl
-      name                           = var.vault_name
+      vault_name                     = var.vault_name
       prometheus_disable_hostname    = var.prometheus_disable_hostname
       prometheus_retention_time      = var.prometheus_retention_time
       random_string                  = random_string.default.result

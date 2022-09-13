@@ -3,6 +3,7 @@
 # Always update packages installed.
 yum update -y
 
+
 # Make a directory for Raft, certificates and init information.
 mkdir -p "${vault_path}"
 mkfs.ext4 /dev/sda1
@@ -17,86 +18,16 @@ if [ "${audit_device}" = "true" ] ; then
   chmod 750 "${audit_device_path}"
 fi
 
+# 169.254.169.254 is an Amazon service to provide information about itself.
+my_hostname="$(curl http://169.254.169.254/latest/meta-data/hostname)"
+my_ipaddress="$(curl http://169.254.169.254/latest/meta-data/local-ipv4)"
+my_instance_id="$(curl http://169.254.169.254/latest/meta-data/instance-id)"
+my_region="$(curl http://169.254.169.254/latest/dynamic/instance-identity/document | grep region | cut -d\" -f4)"
+
 # Install, configure and initialize the AWS Cloudwatch agent
 if [ "${cloudwatch_monitoring}" = "true" ] ; then
-  yum install -y amazon-cloudwatch-agent
-
-  # Make sure the folder for vault.log exists
-  mkdir /var/log/vault
-
-  # Configure overrides for the vault.service, STERR and STDIN are now send to Rsyslog. Rsyslog will write them to /var/log/vault/vault.log
-  mkdir /etc/systemd/system/vault.service.d
-  echo '[Service]
-StandardOutput=syslog
-StandardError=syslog
-SyslogIdentifier=vault' > /etc/systemd/system/vault.service.d/override.conf
-
-  # Configure Rsyslog to send messages tagged with "vault" to Vault log directory
-  echo -e "if $programname == 'vault' then /var/log/vault/vault.log \n& stop" > /etc/rsyslog.d/vault.conf
-  systemctl restart rsyslog.service
-
-  echo '{
-        "agent": {
-                "metrics_collection_interval": 60,
-                "run_as_user": "root"
-        },
-        "logs": {
-                "logs_collected": {
-                        "files": {
-                                "collect_list": [
-                                        {
-                                                "file_path": "/var/log/cloud-init-output.log",
-                                                "log_group_name": "${instance_name}_cloud-init-output.log",
-                                                "log_stream_name": "{instance_id}",
-                                                "retention_in_days": 7
-                                        },
-                                        {
-                                                "file_path": "/var/log/vault/vault.log",
-                                                "log_group_name": "${instance_name}_vault.log",
-                                                "log_stream_name": "{instance_id}",
-                                                "retention_in_days": 7
-                                        }
-                                ]
-                        }
-                }
-        },
-        "metrics": {
-                "namespace": "vault-${name}-${random_string}_cwagent",
-                "aggregation_dimensions": [
-                        ["InstanceId","AutoScalingGroupName"],
-                        []
-                ],
-                "append_dimensions": {
-                        "AutoScalingGroupName": "$${aws:AutoScalingGroupName}",
-                        "InstanceId": "$${aws:InstanceId}"
-                },
-                "metrics_collected": {
-                        "disk": {
-                                "measurement": [
-                                        "used_percent"
-                                ],
-                                "metrics_collection_interval": 60,
-                                "resources": [
-                                        "/","${vault_path}"
-                                ]
-                        },
-                        "mem": {
-                                "measurement": [
-                                        "mem_used_percent"
-                                ],
-                                "metrics_collection_interval": 60
-                        },
-                        "statsd": {
-                                "metrics_aggregation_interval": 60,
-                                "metrics_collection_interval": 10,
-                                "service_address": ":8125"
-                        }
-                }
-        }
-  }' > /opt/aws/amazon-cloudwatch-agent/bin/config.json
-
-  # Initialize the Cloudwatch_agent after installation
-  /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/opt/aws/amazon-cloudwatch-agent/bin/config.json
+  aws s3 cp "s3://vault-scripts-${random_string}/cloudwatch.sh" /cloudwatch.sh
+  sh /cloudwatch.sh -n "${vault_name}" -N "$${my_hostname}" -i "$${my_instance_id}" -r "${random_string}" -p "${vault_path}"
 fi
 
 # Add the HashiCorp RPM repository.
@@ -124,12 +55,6 @@ setcap cap_ipc_lock=+ep "$(readlink -f "$(which vault)")"
 echo '* hard core 0' >> /etc/security/limits.d/vault.conf
 echo '* soft core 0' >> /etc/security/limits.d/vault.conf
 ulimit -c 0
-
-# 169.254.169.254 is an Amazon service to provide information about itself.
-my_hostname="$(curl http://169.254.169.254/latest/meta-data/hostname)"
-my_ipaddress="$(curl http://169.254.169.254/latest/meta-data/local-ipv4)"
-my_instance_id="$(curl http://169.254.169.254/latest/meta-data/instance-id)"
-my_region="$(curl http://169.254.169.254/latest/dynamic/instance-identity/document | grep region | cut -d\" -f4)"
 
 # Place CA key and certificate.
 test -d "${vault_path}/tls" || mkdir "${vault_path}/tls"
@@ -183,7 +108,7 @@ cat "${vault_path}/tls/vault_ca.crt" >> "${vault_path}/tls/vault.crt"
 
 # Place the Vault configuration.
 cat << EOF > /etc/vault.d/vault.hcl
-cluster_name      = "${name}"
+cluster_name      = "${vault_name}"
 disable_mlock     = true
 ui                = ${vault_ui}
 api_addr          = "${api_addr}"
