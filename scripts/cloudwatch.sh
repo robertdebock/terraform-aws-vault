@@ -77,11 +77,14 @@ cat << EOF > /etc/systemd/system/vault.service.d/override.conf
 [Service]
 StandardOutput=syslog
 StandardError=syslog
-SyslogIdentifier=vault' > /etc/systemd/system/vault.service.d/override.conf
+SyslogIdentifier=vault
 EOF
 
 # Configure Rsyslog to send messages tagged with "vault" to Vault log directory.
-echo -e "if $programname == 'vault' then /var/log/vault/vault.log \n& stop" > /etc/rsyslog.d/vault.conf
+cat << EOF > /etc/rsyslog.d/vault.conf
+if \$programname == 'vault' then /var/log/vault/vault.log
+& stop
+EOF
 systemctl restart rsyslog.service
 
 # Place the CloudWatch configuration.
@@ -97,14 +100,14 @@ cat << EOF > /opt/aws/amazon-cloudwatch-agent/bin/config.json
         "collect_list": [
           {
             "file_path": "/var/log/cloud-init-output.log",
-            "log_group_name": "${instance_name}_cloud-init-output.log",
-            "log_stream_name": "{instance_id}",
+            "log_group_name": "${vault_name}-cloudinitlog",
+            "log_stream_name": "${instance_id}",
             "retention_in_days": 7
           },
           {
             "file_path": "/var/log/vault/vault.log",
-            "log_group_name": "${instance_name}_vault.log",
-            "log_stream_name": "{instance_id}",
+            "log_group_name": "${vault_name}-vaultlog",
+            "log_stream_name": "${instance_id}",
             "retention_in_days": 7
           }
         ]
@@ -118,8 +121,8 @@ cat << EOF > /opt/aws/amazon-cloudwatch-agent/bin/config.json
       []
     ],
       "append_dimensions": {
-        "AutoScalingGroupName": "$${aws:AutoScalingGroupName}",
-        "InstanceId": "$${aws:InstanceId}"
+        "AutoScalingGroupName": "\${aws:AutoScalingGroupName}",
+        "InstanceId": "\${aws:InstanceId}"
       },
       "metrics_collected": {
         "disk": {
