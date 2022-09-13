@@ -51,7 +51,7 @@ module "vault" {
   private_subnet_ids       = data.terraform_remote_state.default.outputs.private_subnet_ids
   public_subnet_ids        = data.terraform_remote_state.default.outputs.public_subnet_ids
   vpc_id                   = data.terraform_remote_state.default.outputs.vpc_id
-  tags = {
+  vault_tags = {
     owner = "robertdebock"
   }
 }

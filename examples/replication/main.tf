@@ -124,7 +124,7 @@ module "vault_eu" {
   private_subnet_ids              = data.terraform_remote_state.default.outputs.private_subnet_ids_eu
   public_subnet_ids               = data.terraform_remote_state.default.outputs.public_subnet_ids_eu
   vpc_id                          = data.terraform_remote_state.default.outputs.vpc_id_eu
-  tags = {
+  vault_tags = {
     owner = "robertdebock"
   }
 }
@@ -149,7 +149,7 @@ module "vault_us" {
   private_subnet_ids              = data.terraform_remote_state.default.outputs.private_subnet_ids_us
   public_subnet_ids               = data.terraform_remote_state.default.outputs.public_subnet_ids_us
   vpc_id                          = data.terraform_remote_state.default.outputs.vpc_id_us
-  tags = {
+  vault_tags = {
     owner = "robertdebock"
   }
 }

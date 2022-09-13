@@ -42,7 +42,7 @@ module "vault" {
   vault_name         = "dvlpm"
   vault_size         = "development"
   source             = "../../"
-  tags = {
+  vault_tags = {
     owner = "robertdebock"
   }
 }

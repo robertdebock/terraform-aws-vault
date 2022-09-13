@@ -117,7 +117,7 @@ variable "vpc_cidr_block_start" {
   default     = "172.16"
 }
 
-variable "tags" {
+variable "vault_tags" {
   description = "Tags to add to resources."
   type        = map(string)
   default = {

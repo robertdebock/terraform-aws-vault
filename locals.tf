@@ -4,12 +4,12 @@ locals {
   api_addr = coalesce(var.api_addr, "https://${aws_lb.api.dns_name}:${var.api_port}")
 
   # Combine the variable `tags` with specific prefixes.
-  tags             = merge({ Name = "${var.vault_name}-${random_string.default.result}" }, var.tags)
-  bastion_tags     = merge({ Name = "bastion-${var.vault_name}-${random_string.default.result}" }, var.tags)
-  private_tags     = merge({ Name = "private-${var.vault_name}-${random_string.default.result}" }, var.tags)
-  public_tags      = merge({ Name = "public-${var.vault_name}-${random_string.default.result}" }, var.tags)
-  api_tags         = merge({ Name = "api-${var.vault_name}-${random_string.default.result}" }, var.tags)
-  replication_tags = merge({ Name = "replication-${var.vault_name}-${random_string.default.result}" }, var.tags)
+  tags             = merge({ Name = "${var.vault_name}-${random_string.default.result}" }, var.vault_tags)
+  bastion_tags     = merge({ Name = "bastion-${var.vault_name}-${random_string.default.result}" }, var.vault_tags)
+  private_tags     = merge({ Name = "private-${var.vault_name}-${random_string.default.result}" }, var.vault_tags)
+  public_tags      = merge({ Name = "public-${var.vault_name}-${random_string.default.result}" }, var.vault_tags)
+  api_tags         = merge({ Name = "api-${var.vault_name}-${random_string.default.result}" }, var.vault_tags)
+  replication_tags = merge({ Name = "replication-${var.vault_name}-${random_string.default.result}" }, var.vault_tags)
 
   # Compose the name of the instances.
   instance_name = "vault-${var.vault_name}-${random_string.default.result}"

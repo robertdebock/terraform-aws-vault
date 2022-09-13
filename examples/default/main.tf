@@ -35,7 +35,7 @@ module "vault" {
   certificate_arn = aws_acm_certificate.default.arn
   source             = "../../"
   vault_keyfile_path = "id_rsa.pub"
-  tags = {
+  vault_tags = {
     owner = "robertdebock"
   }
 }

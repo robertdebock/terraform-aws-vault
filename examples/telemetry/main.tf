@@ -37,7 +37,7 @@ module "vault" {
   source             = "../../"
   telemetry          = true
   vault_keyfile_path = "id_rsa.pub"
-  tags = {
+  vault_tags = {
     owner = "robertdebock"
   }
 }

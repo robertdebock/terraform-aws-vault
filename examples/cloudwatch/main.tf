@@ -39,7 +39,7 @@ module "vault" {
   vault_keyfile_path    = "id_rsa.pub"
   cloudwatch_monitoring = true
   vault_size            = "development"
-  tags = {
+  vault_tags = {
     owner = "robertdebock"
   }
 }

@@ -47,7 +47,7 @@ module "vault" {
   aws_kms_key_id     = data.terraform_remote_state.default.outputs.aws_kms_key_id
   vault_name         = "myky"
   source             = "../../"
-  tags = {
+  vault_tags = {
     owner = "robertdebock"
   }
 }

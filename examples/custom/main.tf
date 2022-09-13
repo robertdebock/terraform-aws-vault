@@ -57,7 +57,7 @@ module "vault" {
   volume_iops                 = 3200
   volume_size                 = 64
   volume_type                 = "io1"
-  tags = {
+  vault_tags = {
     owner = "robertdebock"
   }
 }
