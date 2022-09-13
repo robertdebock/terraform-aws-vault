@@ -42,7 +42,7 @@ locals {
 
   # A map from `vault_size` to `volume_type`.
   _volume_type = {
-    custom      = var.volume_type
+    custom      = var.vault_volume_type
     development = "gp2"
     minimum     = "gp3"
     small       = "gp3"
@@ -53,7 +53,7 @@ locals {
 
   # A map from `vault_size` to `volume_size`.
   _volume_size = {
-    custom      = var.volume_size
+    custom      = var.vault_volume_size
     development = 8
     minimum     = 100
     small       = 100
@@ -64,7 +64,7 @@ locals {
 
   # A map from `vault_size` to `volume_iops`.
   _volume_iops = {
-    custom      = var.volume_iops
+    custom      = var.vault_volume_iops
     development = 0
     minimum     = 3000
     small       = 3000

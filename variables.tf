@@ -47,31 +47,31 @@ variable "vault_size" {
   }
 }
 
-variable "volume_type" {
+variable "vault_volume_type" {
   description = "When `vault_size` is set to `custom`, specify your own volume type here."
   type        = string
   default     = "io1"
   validation {
-    condition     = contains(["gp2", "gp3", "io1", "io2"], var.volume_type)
+    condition     = contains(["gp2", "gp3", "io1", "io2"], var.vault_volume_type)
     error_message = "Please use \"gp3\", \"gp3\", \"io1\" or \"io2\"."
   }
 }
-variable "volume_size" {
+variable "vault_volume_size" {
   description = "When `vault_size` is set to `custom`, specify your own volume size (in GB) here."
   type        = number
   default     = 50
   validation {
-    condition     = var.volume_size > 8
+    condition     = var.vault_volume_size >= 8
     error_message = "Please use a minimum of \"8\"."
   }
 }
 
-variable "volume_iops" {
+variable "vault_volume_iops" {
   description = "When `vault_size` is set to `custom`, specify your own volume iops here. (Maximum 50 times the `volume_size`.)"
   type        = number
   default     = 400
   validation {
-    condition     = var.volume_iops >= 0
+    condition     = var.vault_volume_iops >= 0
     error_message = "Please us a positive number, such as \"2500\"."
   }
 }
