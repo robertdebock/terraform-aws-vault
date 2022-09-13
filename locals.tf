@@ -80,7 +80,7 @@ locals {
   cidr_block = "${var.vpc_cidr_block_start}.0.0/16"
 
   # Select the vpc_id, either created or set as a variable.
-  vpc_id = try(aws_vpc.default[0].id, var.vpc_id)
+  vpc_id = try(aws_vpc.default[0].id, var.vault_aws_vpc_id)
 
   # Select the private_subnet_ids, either set as a variable or created.
   private_subnet_ids = coalescelist(var.private_subnet_ids, aws_subnet.private[*].id)

@@ -86,7 +86,7 @@ variable "vault_node_amount" {
   }
 }
 
-variable "vault_ui" {
+variable "vault_enable_ui" {
   description = "Expose (or hide) a web user interface."
   type        = bool
   default     = true
@@ -98,7 +98,7 @@ variable "allowed_cidr_blocks" {
   default     = ["0.0.0.0/0"]
 }
 
-variable "vpc_id" {
+variable "vault_aws_vpc_id" {
   description = "The VPC identifier to deploy in. Fill this value when you want the Vault installation to be done in an existing VPC."
   type        = string
   default     = ""

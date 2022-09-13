@@ -110,7 +110,7 @@ cat "${vault_path}/tls/vault_ca.crt" >> "${vault_path}/tls/vault.crt"
 cat << EOF > /etc/vault.d/vault.hcl
 cluster_name      = "${vault_name}"
 disable_mlock     = true
-ui                = ${vault_ui}
+ui                = ${vault_enable_ui}
 api_addr          = "${api_addr}"
 cluster_addr      = "https://$${my_ipaddress}:8201"
 log_level         = "${log_level}"

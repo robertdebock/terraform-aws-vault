@@ -78,7 +78,7 @@ resource "aws_launch_template" "default" {
       vault_ca_cert                  = file(var.vault_ca_cert)
       vault_ca_key                   = file(var.vault_ca_key)
       vault_path                     = var.vault_path
-      vault_ui                       = var.vault_ui
+      vault_enable_ui                = var.vault_enable_ui
       vault_version                  = var.vault_version
       vault_package                  = local.vault_package
       vault_license                  = try(var.vault_license, null)
