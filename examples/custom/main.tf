@@ -46,10 +46,10 @@ module "vault" {
   aws_lb_internal             = false
   certificate_arn             = aws_acm_certificate.default.arn
   cpu_manufacturer            = "intel"
-  vault_keyfile_path          = aws_key_pair.default.id
+  vault_aws_key_name          = aws_key_pair.default.key_name
   minimum_vcpus               = 2
   minimum_memory              = 1024
-  vault_name                  = substr(replace(basename(path.cwd), "/[aeiou]/", ""), 0, 5)
+  vault_name                  = "cstm"
   prometheus_disable_hostname = true
   prometheus_retention_time   = "30m"
   size                        = "custom"

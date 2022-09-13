@@ -45,7 +45,7 @@ module "vault" {
   certificate_arn          = aws_acm_certificate.default.arn
   extra_security_group_ids = [data.terraform_remote_state.default.outputs.security_group_id]
   vault_keyfile_path       = "id_rsa.pub"
-  vault_name               = substr(replace(basename(path.cwd), "/[aeiou]/", ""), 0, 5)
+  vault_name               = "mysbn"
   source                   = "../../"
   vpc_cidr_block_start     = "192.168"
   private_subnet_ids       = data.terraform_remote_state.default.outputs.private_subnet_ids

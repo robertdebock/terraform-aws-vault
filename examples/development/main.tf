@@ -39,7 +39,7 @@ module "vault" {
   vault_keyfile_path = "id_rsa.pub"
   log_level          = "debug"
   max_lease_ttl      = "168h"
-  vault_name         = substr(replace(basename(path.cwd), "/[aeiou]/", ""), 0, 5)
+  vault_name         = "dvlpm"
   size               = "development"
   source             = "../../"
   tags = {

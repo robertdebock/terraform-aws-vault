@@ -45,7 +45,7 @@ module "vault" {
   certificate_arn    = aws_acm_certificate.default.arn
   vault_keyfile_path = "id_rsa.pub"
   aws_kms_key_id     = data.terraform_remote_state.default.outputs.aws_kms_key_id
-  vault_name         = substr(replace(basename(path.cwd), "/[aeiou]/", ""), 0, 5)
+  vault_name         = "myky"
   source             = "../../"
   tags = {
     owner = "robertdebock"
