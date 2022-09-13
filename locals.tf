@@ -26,7 +26,7 @@ locals {
     large       = 32 * 1024
     maximum     = 64 * 1024
   }
-  minimum_memory = local._minimum_memory[var.size]
+  minimum_memory = local._minimum_memory[var.vault_size]
 
   # A map of cpu requirements.
   _minimum_vcpus = {
@@ -37,10 +37,10 @@ locals {
     large       = 4
     maximum     = 8
   }
-  minimum_vcpus = local._minimum_vcpus[var.size]
+  minimum_vcpus = local._minimum_vcpus[var.vault_size]
 
 
-  # A map from `size` to `volume_type`.
+  # A map from `vault_size` to `volume_type`.
   _volume_type = {
     custom      = var.volume_type
     development = "gp2"
@@ -49,9 +49,9 @@ locals {
     large       = "gp3"
     maximum     = "gp3"
   }
-  volume_type = local._volume_type[var.size]
+  volume_type = local._volume_type[var.vault_size]
 
-  # A map from `size` to `volume_size`.
+  # A map from `vault_size` to `volume_size`.
   _volume_size = {
     custom      = var.volume_size
     development = 8
@@ -60,9 +60,9 @@ locals {
     large       = 200
     maximum     = 200
   }
-  volume_size = local._volume_size[var.size]
+  volume_size = local._volume_size[var.vault_size]
 
-  # A map from `size` to `volume_iops`.
+  # A map from `vault_size` to `volume_iops`.
   _volume_iops = {
     custom      = var.volume_iops
     development = 0
@@ -71,7 +71,7 @@ locals {
     large       = 10000
     maximum     = 10000
   }
-  volume_iops = local._volume_iops[var.size]
+  volume_iops = local._volume_iops[var.vault_size]
 
   # Resolve the key, either set using `vault_aws_key_name` or placed using `vault_keyfile_path`.
   vault_aws_key_name = try(aws_key_pair.default[0].id, var.vault_aws_key_name)

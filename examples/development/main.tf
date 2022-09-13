@@ -40,7 +40,7 @@ module "vault" {
   log_level          = "debug"
   max_lease_ttl      = "168h"
   vault_name         = "dvlpm"
-  size               = "development"
+  vault_size         = "development"
   source             = "../../"
   tags = {
     owner = "robertdebock"

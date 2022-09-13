@@ -52,7 +52,7 @@ module "vault" {
   vault_name                  = "cstm"
   prometheus_disable_hostname = true
   prometheus_retention_time   = "30m"
-  size                        = "custom"
+  vault_size                  = "custom"
   source                      = "../../"
   volume_iops                 = 3200
   volume_size                 = 64

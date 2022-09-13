@@ -37,18 +37,18 @@ variable "vault_keyfile_path" {
   }
 }
 
-variable "size" {
+variable "vault_size" {
   description = "The size of the deployment."
   type        = string
   default     = "small"
   validation {
-    condition     = contains(["custom", "development", "minimum", "small", "large", "maximum"], var.size)
+    condition     = contains(["custom", "development", "minimum", "small", "large", "maximum"], var.vault_size)
     error_message = "Please use \"custom\", \"development\", \"minimum\", \"small\", \"large\" or \"maximum\"."
   }
 }
 
 variable "volume_type" {
-  description = "When `size` is set to `custom`, specify your own volume type here."
+  description = "When `vault_size` is set to `custom`, specify your own volume type here."
   type        = string
   default     = "io1"
   validation {
@@ -57,7 +57,7 @@ variable "volume_type" {
   }
 }
 variable "volume_size" {
-  description = "When `size` is set to `custom`, specify your own volume size (in GB) here."
+  description = "When `vault_size` is set to `custom`, specify your own volume size (in GB) here."
   type        = number
   default     = 50
   validation {
@@ -67,7 +67,7 @@ variable "volume_size" {
 }
 
 variable "volume_iops" {
-  description = "When `size` is set to `custom`, specify your own volume iops here. (Maximum 50 times the `volume_size`.)"
+  description = "When `vault_size` is set to `custom`, specify your own volume iops here. (Maximum 50 times the `volume_size`.)"
   type        = number
   default     = 400
   validation {
