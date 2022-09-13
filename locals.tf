@@ -108,7 +108,7 @@ locals {
   # - Either use the `var.amount`. (If specified.)
   # - Or use 5 for "large" regions. (5 or more availability zones)
   # - Or use 3 for "small" regions. (3 or less availability zones)
-  amount = var.amount != null ? var.amount : try(index([floor(length(data.aws_availability_zones.default.names) / 5) >= 1, floor(length(data.aws_availability_zones.default.names) / 3) >= 1], true) == 0 ? 5 : 3, 3)
+  amount = var.vault_node_amount != null ? var.vault_node_amount : try(index([floor(length(data.aws_availability_zones.default.names) / 5) >= 1, floor(length(data.aws_availability_zones.default.names) / 3) >= 1], true) == 0 ? 5 : 3, 3)
 
   # Compose the package name based on the `vault_type`.
   _vault_package = {

@@ -76,12 +76,12 @@ variable "vault_volume_iops" {
   }
 }
 
-variable "amount" {
+variable "vault_node_amount" {
   description = "The amount of instances to deploy, by not specifying the value, the optimum amount is calculated."
   type        = number
   default     = null
   validation {
-    condition     = var.amount == null ? true : var.amount % 2 == 1 && var.amount >= 3 && var.amount <= 5
+    condition     = var.vault_node_amount == null ? true : var.vault_node_amount % 2 == 1 && var.vault_node_amount >= 3 && var.vault_node_amount <= 5
     error_message = "Please use an odd number for amount, like 3 or 5."
   }
 }
