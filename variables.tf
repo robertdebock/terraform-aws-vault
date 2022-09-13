@@ -104,7 +104,7 @@ variable "vault_aws_vpc_id" {
   default     = ""
 }
 
-variable "bastion_host" {
+variable "vault_create_bastionhost" {
   description = "A bastion host is optional and would allow you to login to the instances."
   type        = bool
   default     = true

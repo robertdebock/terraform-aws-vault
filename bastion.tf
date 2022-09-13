@@ -1,6 +1,6 @@
 # Create one security group in the single VPC.
 resource "aws_security_group" "bastion" {
-  count       = var.bastion_host ? 1 : 0
+  count       = var.vault_create_bastionhost ? 1 : 0
   description = "Bastion - Traffic to bastion host"
   name_prefix = "${var.vault_name}-bastion-"
   tags        = local.bastion_tags
@@ -12,7 +12,7 @@ resource "aws_security_group" "bastion" {
 
 # Allow SSH to the security group.
 resource "aws_security_group_rule" "bastion-ssh" {
-  count             = var.bastion_host ? 1 : 0
+  count             = var.vault_create_bastionhost ? 1 : 0
   cidr_blocks       = ["0.0.0.0/0"]
   description       = "ssh"
   from_port         = 22
@@ -24,7 +24,7 @@ resource "aws_security_group_rule" "bastion-ssh" {
 
 # Allow internet access.
 resource "aws_security_group_rule" "bastion-internet" {
-  count             = var.bastion_host ? 1 : 0
+  count             = var.vault_create_bastionhost ? 1 : 0
   cidr_blocks       = ["0.0.0.0/0"]
   description       = "internet"
   from_port         = 0
@@ -36,7 +36,7 @@ resource "aws_security_group_rule" "bastion-internet" {
 
 # Find amis for the Bastion instance.
 data "aws_ami" "bastion" {
-  count       = var.bastion_host ? 1 : 0
+  count       = var.vault_create_bastionhost ? 1 : 0
   most_recent = true
   owners      = ["amazon"]
   filter {
@@ -47,7 +47,7 @@ data "aws_ami" "bastion" {
 
 # Place the bastion host and the nat_gateway in it's own subnet.
 resource "aws_subnet" "bastion" {
-  count             = var.bastion_host ? 1 : 0
+  count             = var.vault_create_bastionhost ? 1 : 0
   availability_zone = data.aws_availability_zones.default.names[0]
   cidr_block        = "${var.vpc_cidr_block_start}.127.0/24"
   tags              = local.bastion_tags
@@ -56,14 +56,14 @@ resource "aws_subnet" "bastion" {
 
 # Create a routing table for the bastion instance.
 resource "aws_route_table" "bastion" {
-  count  = var.bastion_host ? 1 : 0
+  count  = var.vault_create_bastionhost ? 1 : 0
   tags   = local.bastion_tags
   vpc_id = local.vpc_id
 }
 
 # Add an internet route to the internet gateway.
 resource "aws_route" "bastion" {
-  count                  = var.bastion_host ? 1 : 0
+  count                  = var.vault_create_bastionhost ? 1 : 0
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = local.gateway_id
   route_table_id         = aws_route_table.bastion[0].id
@@ -71,14 +71,14 @@ resource "aws_route" "bastion" {
 
 # Associate a route to the bastion subnet.
 resource "aws_route_table_association" "bastion" {
-  count          = var.bastion_host ? 1 : 0
+  count          = var.vault_create_bastionhost ? 1 : 0
   route_table_id = aws_route_table.bastion[0].id
   subnet_id      = aws_subnet.bastion[0].id
 }
 
 # Create the bastion host.
 resource "aws_instance" "bastion" {
-  count                       = var.bastion_host ? 1 : 0
+  count                       = var.vault_create_bastionhost ? 1 : 0
   ami                         = data.aws_ami.bastion[0].id
   associate_public_ip_address = true
   instance_type               = "t4g.nano"
