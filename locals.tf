@@ -1,7 +1,7 @@
 locals {
 
   # Resolve the ip_addr, either set using `api_addr` or the created resource.
-  api_addr = coalesce(var.vault_api_addr, "https://${aws_lb.api.dns_name}:${var.api_port}")
+  api_addr = coalesce(var.vault_api_addr, "https://${aws_lb.api.dns_name}:${var.vault_api_port}")
 
   # Combine the variable `tags` with specific prefixes.
   tags             = merge({ Name = "${var.vault_name}-${random_string.default.result}" }, var.vault_tags)
@@ -10,7 +10,8 @@ locals {
   public_tags      = merge({ Name = "public-${var.vault_name}-${random_string.default.result}" }, var.vault_tags)
   api_tags         = merge({ Name = "api-${var.vault_name}-${random_string.default.result}" }, var.vault_tags)
   replication_tags = merge({ Name = "replication-${var.vault_name}-${random_string.default.result}" }, var.vault_tags)
-
+  scripts_tags     = merge({ Name = "scripts-${var.vault_name}-${random_string.default.result}" },  var.vault_tags)
+  
   # Compose the name of the instances.
   instance_name = "vault-${var.vault_name}-${random_string.default.result}"
 
@@ -19,7 +20,7 @@ locals {
 
   # A map of memory requirements.
   _minimum_memory = {
-    custom      = var.minimum_memory
+    custom      = var.vault_asg_minimum_required_memory
     development = 512
     minimum     = 8 * 1024
     small       = 16 * 1024
@@ -30,7 +31,7 @@ locals {
 
   # A map of cpu requirements.
   _minimum_vcpus = {
-    custom      = var.minimum_vcpus
+    custom      = var.vault_asg_minimum_required_vcpus
     development = 1
     minimum     = 2
     small       = 4
@@ -92,7 +93,7 @@ locals {
   gateway_id = try(aws_internet_gateway.default[0].id, data.aws_internet_gateway.default[0].id)
 
   # Set the key id, based on either the created key or the specified key.
-  aws_kms_key_id = try(aws_kms_key.default[0].id, var.aws_kms_key_id)
+  aws_kms_key_id = try(aws_kms_key.default[0].id, var.vault_aws_kms_key_id)
 
   # Set the key arn, based on either the created key or the specified key.
   aws_kms_key_arn = try(aws_kms_key.default[0].arn, data.aws_kms_key.default[0].arn)
@@ -122,9 +123,9 @@ locals {
     default             = "amzn2-ami-hvm-*-x86_64-ebs"
     amazon-web-services = "amzn2-ami-hvm-*-arm64-gp2"
   }
-  ami_pattern = try(local._ami_pattern[var.cpu_manufacturer], local._ami_pattern["default"])
+  ami_pattern = try(local._ami_pattern[var.vault_asg_cpu_manufacturer], local._ami_pattern["default"])
 
-  # A map of disks, if `var.audit_device` is disabled, this list is used.
+  # A map of disks, if `var.vault_audit_device` is disabled, this list is used.
   disks_without_audit = [
     {
       device_name = "/dev/sda1"
@@ -137,7 +138,7 @@ locals {
     }
   ]
 
-  # A map of disks, if `var.audit_device` is enabled, this list is used.
+  # A map of disks, if `var.vault_audit_device` is enabled, this list is used.
   disks_with_audit = [
     {
       device_name = "/dev/sda1"
@@ -153,7 +154,7 @@ locals {
       ebs = {
         delete_on_termination = true
         encrypted             = true
-        volume_size           = var.audit_device_size
+        volume_size           = var.vault_audit_device_size
         volume_type           = "gp3"
       }
     }

@@ -63,7 +63,7 @@ data "aws_iam_policy_document" "deregister" {
 
 # Make a policy to allow snapshots to S3.
 data "aws_iam_policy_document" "autosnapshot" {
-  count = var.vault_aws_s3_snapshots_bucket == "" ? 0 : 1
+  count = var.vault_aws_s3_snapshots_bucket_name == "" ? 0 : 1
   statement {
     effect = "Allow"
     actions = [
@@ -71,8 +71,8 @@ data "aws_iam_policy_document" "autosnapshot" {
       "s3:DeleteObject"
     ]
     resources = [
-      "arn:aws:s3:::${var.vault_aws_s3_snapshots_bucket}/*.snap",
-      "arn:aws:s3:::${var.vault_aws_s3_snapshots_bucket}/*/*.snap"
+      "arn:aws:s3:::${var.vault_aws_s3_snapshots_bucket_name}/*.snap",
+      "arn:aws:s3:::${var.vault_aws_s3_snapshots_bucket_name}/*/*.snap"
     ]
   }
   statement {
@@ -81,7 +81,7 @@ data "aws_iam_policy_document" "autosnapshot" {
       "s3:ListBucketVersions",
       "s3:ListBucket"
     ]
-    resources = ["arn:aws:s3:::${var.vault_aws_s3_snapshots_bucket}"]
+    resources = ["arn:aws:s3:::${var.vault_aws_s3_snapshots_bucket_name}"]
   }
   statement {
     effect = "Allow"
@@ -90,8 +90,8 @@ data "aws_iam_policy_document" "autosnapshot" {
       "s3:ListBucket"
     ]
     resources = [
-      "arn:aws:s3:::${var.vault_aws_s3_snapshots_bucket}",
-      "arn:aws:s3:::${var.vault_aws_s3_snapshots_bucket}/*"
+      "arn:aws:s3:::${var.vault_aws_s3_snapshots_bucket_name}",
+      "arn:aws:s3:::${var.vault_aws_s3_snapshots_bucket_name}/*"
     ]
   }
   statement {
@@ -108,7 +108,7 @@ data "aws_iam_policy_document" "autosnapshot" {
 
 # Make a policy to allow downloading scripts from S3.
 data "aws_iam_policy_document" "scripts" {
-  # TODO: Make this conditional; if scripts are required.
+  count = var.vault_enable_cloudwatch ? 1 : 0
   statement {
     effect = "Allow"
     actions = [
@@ -167,7 +167,7 @@ resource "aws_iam_role_policy" "deregister" {
 
 # Link the autosnapshot policy to the default role.
 resource "aws_iam_role_policy" "autosnapshot" {
-  count  = var.vault_aws_s3_snapshots_bucket == "" ? 0 : 1
+  count  = var.vault_aws_s3_snapshots_bucket_name == "" ? 0 : 1
   name   = "${var.vault_name}-vault-autosnapshot"
   policy = data.aws_iam_policy_document.autosnapshot[0].json
   role   = aws_iam_role.default.id
@@ -175,14 +175,15 @@ resource "aws_iam_role_policy" "autosnapshot" {
 
 # Link the scripts policy to the default role.
 resource "aws_iam_role_policy" "scripts" {
+  count  = var.vault_enable_cloudwatch ? 1 : 0
   name   = "${var.vault_name}-vault-scripts"
-  policy = data.aws_iam_policy_document.scripts.json
+  policy = data.aws_iam_policy_document.scripts[0].json
   role   = aws_iam_role.default.id
 }
 
 # Link the AWS managed policy "CloudWatchAgentServerPolicy" to the default role. 
 resource "aws_iam_role_policy_attachment" "cloudwatch_agent" {
-  count      = var.cloudwatch_monitoring ? 1 : 0
+  count      = var.vault_enable_cloudwatch ? 1 : 0
   role       = aws_iam_role.default.id
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
 }

@@ -1,5 +1,5 @@
 resource "aws_cloudwatch_dashboard" "main" {
-  count          = var.cloudwatch_monitoring ? 1 : 0
+  count          = var.vault_enable_cloudwatch ? 1 : 0
   dashboard_name = "Vault_${var.vault_name}-${random_string.default.result}"
 
   # The dashboard json code has been copy-pasted from the AWS webgui.

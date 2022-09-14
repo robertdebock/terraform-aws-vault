@@ -1,10 +1,7 @@
 # Make an S3 bucket to store scripts.
 resource "aws_s3_bucket" "default" {
   bucket = "vault-scripts-${random_string.default.result}"
-  tags   = {
-    Name = "Vault scripts"
-    # TODO: Add tags provided by user.
-  }
+  tags   = local.scripts_tags
 }
 
 # Add the cloudwatch script to the bucket.

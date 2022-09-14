@@ -13,14 +13,14 @@ resource "aws_security_group" "public" {
 resource "aws_security_group_rule" "api_public" {
   cidr_blocks       = var.vault_allowed_cidr_blocks
   description       = "Vault API/UI"
-  from_port         = var.api_port
+  from_port         = var.vault_api_port
   protocol          = "TCP"
   security_group_id = aws_security_group.public.id
-  to_port           = var.api_port
+  to_port           = var.vault_api_port
   type              = "ingress"
 }
 
-# Allow the redirection from port 80 to `var.api_port` from the internet.
+# Allow the redirection from port 80 to `var.vault_api_port` from the internet.
 resource "aws_security_group_rule" "api_public_redirect" {
   cidr_blocks       = var.vault_allowed_cidr_blocks
   description       = "Vault API/UI redirection"
@@ -34,13 +34,13 @@ resource "aws_security_group_rule" "api_public_redirect" {
 
 # Allow specified security groups to have access as well.
 resource "aws_security_group_rule" "extra" {
-  count                    = length(var.extra_security_group_ids)
+  count                    = length(var.vault_extra_security_group_ids)
   description              = "User specified security_group"
-  from_port                = var.api_port
+  from_port                = var.vault_api_port
   protocol                 = "TCP"
   security_group_id        = aws_security_group.public.id
-  source_security_group_id = var.extra_security_group_ids[count.index]
-  to_port                  = var.api_port
+  source_security_group_id = var.vault_extra_security_group_ids[count.index]
+  to_port                  = var.vault_api_port
   type                     = "ingress"
 }
 
@@ -82,16 +82,16 @@ resource "aws_security_group_rule" "clustertocluster" {
   count             = var.vault_allow_replication ? 1 : 0
   cidr_blocks       = var.vault_allowed_cidr_blocks_replication
   description       = "Vault Raft Replication"
-  from_port         = var.replication_port
+  from_port         = var.vault_replication_port
   protocol          = "TCP"
   security_group_id = aws_security_group.public.id
-  to_port           = var.replication_port
+  to_port           = var.vault_replication_port
   type              = "ingress"
 }
 
 # Allow access from the bastion host.
 resource "aws_security_group_rule" "ssh" {
-  count             = var.allow_ssh ? 1 : 0
+  count             = var.vault_allow_ssh ? 1 : 0
   cidr_blocks       = [local.cidr_block]
   description       = "SSH from bastion"
   from_port         = 22

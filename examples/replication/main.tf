@@ -107,9 +107,9 @@ module "vault_eu" {
   providers = {
     aws = aws.eu-west-1
   }
-  allow_ssh                             = true
+  vault_allow_ssh                       = true
   vault_api_addr                        = "https://vault-eu-${count.index}.meinit.nl:8200"
-  aws_kms_key_id                        = data.terraform_remote_state.default.outputs.aws_kms_key_id_eu
+  vault_aws_kms_key_id                  = data.terraform_remote_state.default.outputs.aws_kms_key_id_eu
   vault_create_bastionhost              = count.index == 0 ? true : false
   vault_allowed_cidr_blocks_replication = ["0.0.0.0/0"]
   vault_aws_certificate_arn             = aws_acm_certificate.default_eu[count.index].arn
@@ -132,9 +132,9 @@ module "vault_eu" {
 # Call the module.
 module "vault_us" {
   count                                 = length(aws_acm_certificate.default_us)
-  allow_ssh                             = true
+  vault_allow_ssh                       = true
   vault_api_addr                        = "https://vault-us-${count.index}.meinit.nl:8200"
-  aws_kms_key_id                        = data.terraform_remote_state.default.outputs.aws_kms_key_id_us
+  vault_aws_kms_key_id                  = data.terraform_remote_state.default.outputs.aws_kms_key_id_us
   vault_allowed_cidr_blocks_replication = ["0.0.0.0/0"]
   vault_create_bastionhost              = count.index == 0 ? true : false
   vault_aws_certificate_arn             = aws_acm_certificate.default_us[count.index].arn

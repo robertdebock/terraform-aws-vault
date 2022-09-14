@@ -32,7 +32,7 @@ resource "aws_route53_record" "validation" {
 
 # Call the module.
 module "vault" {
-  allow_ssh                 = true
+  vault_allow_ssh           = true
   vault_api_addr            = "https://dev.meinit.nl:8200"
   vault_aws_certificate_arn = aws_acm_certificate.default.arn
   default_lease_ttl         = "24h"

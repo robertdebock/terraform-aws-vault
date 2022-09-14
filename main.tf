@@ -3,15 +3,15 @@
 
 # Make a key for unsealing.
 resource "aws_kms_key" "default" {
-  count       = var.aws_kms_key_id == "" ? 1 : 0
+  count       = var.vault_aws_kms_key_id == "" ? 1 : 0
   description = "Vault unseal key - ${var.vault_name}"
   tags        = local.tags
 }
 
 # Find the key for unsealing.
 data "aws_kms_key" "default" {
-  count  = var.aws_kms_key_id == "" ? 0 : 1
-  key_id = var.aws_kms_key_id
+  count  = var.vault_aws_kms_key_id == "" ? 0 : 1
+  key_id = var.vault_aws_kms_key_id
 }
 
 # Find the region.
@@ -48,7 +48,7 @@ resource "aws_launch_template" "default" {
     vcpu_count {
       min = local.minimum_vcpus
     }
-    cpu_manufacturers    = [var.cpu_manufacturer]
+    cpu_manufacturers    = [var.vault_asg_cpu_manufacturer]
     instance_generations = ["current"]
   }
   key_name               = local.vault_aws_key_name
@@ -58,23 +58,23 @@ resource "aws_launch_template" "default" {
   user_data = base64encode(templatefile("${path.module}/user_data_vault.sh.tpl",
     {
       api_addr                       = local.api_addr
-      audit_device                   = var.audit_device
-      audit_device_path              = var.audit_device_path
-      audit_device_size              = var.audit_device_size
-      cloudwatch_monitoring          = var.cloudwatch_monitoring
+      audit_device                   = var.vault_audit_device
+      audit_device_path              = var.vault_audit_device_path
+      audit_device_size              = var.vault_audit_device_size
+      cloudwatch_monitoring          = var.vault_enable_cloudwatch
       default_lease_ttl              = var.vault_default_lease_time
       instance_name                  = local.instance_name
       kms_key_id                     = local.aws_kms_key_id
       log_level                      = var.vault_log_level
       max_lease_ttl                  = var.vault_max_lease_time
       vault_name                     = var.vault_name
-      prometheus_disable_hostname    = var.prometheus_disable_hostname
-      prometheus_retention_time      = var.prometheus_retention_time
+      prometheus_disable_hostname    = var.vault_prometheus_disable_hostname
+      prometheus_retention_time      = var.vault_prometheus_retention_time
       random_string                  = random_string.default.result
       region                         = data.aws_region.default.name
       target_group_arns              = local.target_group_arns
-      telemetry                      = var.telemetry
-      unauthenticated_metrics_access = var.telemetry_unauthenticated_metrics_access
+      telemetry                      = var.vault_enable_telemetry
+      unauthenticated_metrics_access = var.vault_enable_telemetry_unauthenticated_metrics_access
       vault_ca_cert                  = file(var.vault_ca_cert_path)
       vault_ca_key                   = file(var.vault_ca_key_path)
       vault_data_path                = var.vault_data_path
@@ -82,11 +82,11 @@ resource "aws_launch_template" "default" {
       vault_version                  = var.vault_version
       vault_package                  = local.vault_package
       vault_license                  = try(var.vault_license, null)
-      warmup                         = var.warmup
+      warmup                         = var.vault_asg_warmup_seconds
     }
   ))
   dynamic "block_device_mappings" {
-    for_each = var.audit_device ? local.disks_with_audit : local.disks_without_audit
+    for_each = var.vault_audit_device ? local.disks_with_audit : local.disks_without_audit
     content {
       device_name = block_device_mappings.value.device_name
 
@@ -124,12 +124,12 @@ resource "aws_autoscaling_group" "default" {
   desired_capacity = local.amount
   enabled_metrics  = ["GroupDesiredCapacity", "GroupInServiceCapacity", "GroupPendingCapacity", "GroupMinSize", "GroupMaxSize", "GroupInServiceInstances", "GroupPendingInstances", "GroupStandbyInstances", "GroupStandbyCapacity", "GroupTerminatingCapacity", "GroupTerminatingInstances", "GroupTotalCapacity", "GroupTotalInstances"]
   # Base the health check on weaker "EC2" if:
-  # - var.telemetry is enabled AND var.telemetry_unauthenticated_metrics_access is disabled.
+  # - var.vault_enable_telemetry is enabled AND var.telemetry_unauthenticated_metrics_access is disabled.
   # Or if:
   # - var.vault_allow_replication is enabled.
   # Otherwise, use "ELB", which is stronger, but not always applicable..
-  # health_check_type   = var.telemetry && !var.telemetry_unauthenticated_metrics_access ? "EC2" : "ELB"
-  health_check_type     = var.vault_allow_replication || (var.telemetry && !var.telemetry_unauthenticated_metrics_access) ? "EC2" : "ELB"
+  # health_check_type   = var.vault_enable_telemetry && !var.vault_enable_telemetry_unauthenticated_metrics_access ? "EC2" : "ELB"
+  health_check_type     = var.vault_allow_replication || (var.vault_enable_telemetry && !var.vault_enable_telemetry_unauthenticated_metrics_access) ? "EC2" : "ELB"
   max_instance_lifetime = var.vault_asg_instance_lifetime
   max_size              = local.amount + 1
   min_size              = local.amount - 1
@@ -161,7 +161,7 @@ resource "aws_autoscaling_group" "default" {
   vpc_zone_identifier = local.private_subnet_ids
   instance_refresh {
     preferences {
-      instance_warmup        = var.warmup
+      instance_warmup        = var.vault_asg_warmup_seconds
       min_healthy_percentage = 90
     }
     strategy = "Rolling"

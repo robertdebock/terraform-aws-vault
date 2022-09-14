@@ -138,7 +138,10 @@ variable "vault_asg_instance_lifetime" {
 variable "vault_aws_certificate_arn" {
   description = "The ARN to an existing certificate."
   type        = string
-  # TODO: Add validation.
+  validation {
+    condition     = can(regex("^arn:aws:acm:", var.vault_aws_certificate_arn))
+    error_message = "Please specify a valid ARN, staring with \"arn:aws:acm:"
+  }
 }
 
 variable "vault_log_level" {
@@ -265,150 +268,162 @@ variable "vault_allow_replication" {
   default     = false
 }
 
-variable "telemetry" {
+variable "vault_enable_telemetry" {
   description = "Enable telemetry; uses a weaker health check on the ASG."
   type        = bool
   default     = false
 }
 
-variable "prometheus_retention_time" {
+variable "vault_prometheus_retention_time" {
   description = "Specifies the amount of time that Prometheus metrics are retained in memory."
   type        = string
   default     = "24h"
   validation {
-    condition     = try(can(regex("^[1-9][0-9]*(s|m|h)$", var.prometheus_retention_time)), var.prometheus_retention_time == 0)
+    condition     = try(can(regex("^[1-9][0-9]*(s|m|h)$", var.vault_prometheus_retention_time)), var.vault_prometheus_retention_time == 0)
     error_message = "Please use time indicator, starting with a number, ending in s, m or h. 0 can also be used to disable retention."
   }
 }
-variable "prometheus_disable_hostname" {
+variable "vault_prometheus_disable_hostname" {
   description = "It is recommended to also enable the option disable_hostname to avoid having prefixed metrics with hostname."
   type        = bool
   default     = false
 }
 
-variable "telemetry_unauthenticated_metrics_access" {
+variable "vault_enable_telemetry_unauthenticated_metrics_access" {
   description = "If set to true, allows unauthenticated access to the /v1/sys/metrics endpoint."
   type        = bool
   default     = false
 }
 
-variable "aws_kms_key_id" {
+variable "vault_aws_kms_key_id" {
   description = "You can optionally bring your own AWS KMS key."
   type        = string
   default     = ""
+  validation {
+    condition     = length(var.vault_aws_kms_key_id) == 36
+    error_message = "Please specify an AWS KMS key with a length of 36."
+  }
 }
 
-variable "warmup" {
+variable "vault_asg_warmup_seconds" {
   description = "The warm period in seconds to use for the autoscaling group and health check."
   type        = number
   default     = 300
   validation {
-    condition     = var.warmup >= 60 && var.warmup <= 600
+    condition     = var.vault_asg_warmup_seconds >= 60 && var.vault_asg_warmup_seconds <= 600
     error_message = "Please use a warmup period between 60 and 600 seconds."
   }
 }
 
-variable "api_port" {
+variable "vault_api_port" {
   description = "The TCP port where the API should listen."
   type        = number
   default     = 8200
   validation {
-    condition     = var.api_port >= 1 && var.api_port <= 65535
+    condition     = var.vault_api_port >= 1 && var.vault_api_port <= 65535
     error_message = "Please choose a port number between 1 and 65535."
   }
 }
 
-variable "replication_port" {
+variable "vault_replication_port" {
   description = "The TCP port where replication should listen."
   type        = number
   default     = 8201
   validation {
-    condition     = var.replication_port >= 1 && var.replication_port <= 65535
+    condition     = var.vault_replication_port >= 1 && var.vault_replication_port <= 65535
     error_message = "Please choose a port number between 1 and 65535."
   }
 }
 
-variable "vault_aws_s3_snapshots_bucket" {
+variable "vault_aws_s3_snapshots_bucket_name" {
   description = "Specify an AWS S3 bucket to store snapshots in."
   type        = string
   default     = ""
   validation {
-    condition     = (length(var.vault_aws_s3_snapshots_bucket) >= 3 && length(var.vault_aws_s3_snapshots_bucket) <= 63) || var.vault_aws_s3_snapshots_bucket == ""
+    condition     = (length(var.vault_aws_s3_snapshots_bucket_name) >= 3 && length(var.vault_aws_s3_snapshots_bucket_name) <= 63) || var.vault_aws_s3_snapshots_bucket_name == ""
     error_message = "Please use a bucket name between 3 and 63 characters."
   }
 }
 
-variable "aws_lb_internal" {
-  description = "Specify if the loadbalancer is exposed to the internet or not."
-  type        = bool
-  default     = false
+variable "vault_aws_lb_availability" {
+  description = "Specify if the load balancer is exposed to the internet or not."
+  type        = string
+  default     = "internal"
+  validation {
+    condition     = contains(["internal", "external"], var.vault_aws_lb_availability)
+    error_message = "Please use \"internal\" or \"external\" to indicate the availability of the load balancer."
+  }
 }
 
-variable "extra_security_group_ids" {
+variable "vault_extra_security_group_ids" {
   description = "Specify the security group ids that should also have access to Vault."
   type        = list(string)
   default     = []
 }
 
-variable "audit_device" {
+variable "vault_audit_device" {
   description = "You can specify an audit device to be created. This will create a mount on the Vault nodes."
   type        = bool
   default     = false
 }
 
-variable "audit_device_size" {
+variable "vault_audit_device_size" {
   description = "The size (in GB) of the audit device when `var.audit_device` is enabled."
   type        = number
   default     = 32
   validation {
-    condition     = var.audit_device_size >= 16
+    condition     = var.vault_audit_device_size >= 16
     error_message = "Please use 16 (GB) or more."
   }
 }
 
-variable "audit_device_path" {
+variable "vault_audit_device_path" {
   description = "The absolute pah to where Vault can store audit logs."
   type        = string
   default     = "/var/log/vault"
   validation {
-    condition     = can(regex("^/", var.audit_device_path))
+    condition     = can(regex("^/", var.vault_audit_device_path))
     error_message = "Please specify an absolute path."
   }
 }
 
-variable "allow_ssh" {
+variable "vault_allow_ssh" {
   description = "You can (dis-) allow SSH access to the Vault nodes."
   type        = bool
   default     = false
 }
 
-variable "minimum_memory" {
-  description = "When using a custom size, the minimum amount of memoroy (in megabytes) can be set."
+variable "vault_asg_minimum_required_memory" {
+  description = "When using a custom size, the minimum amount of memory (in megabytes) can be set."
   type        = number
   default     = 8192
   validation {
-    condition     = var.minimum_memory >= 512
-    error_message = "Please use 512 or more."
+    condition     = var.vault_asg_minimum_required_memory >= 512
+    error_message = "Please use 512 (megabytes) or more."
   }
 }
 
-variable "minimum_vcpus" {
+variable "vault_asg_minimum_required_vcpus" {
   description = "When using a custom size, the minimum amount of vcpus can be set."
   type        = number
   default     = 2
+  validation {
+    condition     = var.vault_asg_minimum_required_vcpus >= 1
+    error_message = "Please specify at least 1 for the CPU count."
+  }
 }
 
-variable "cpu_manufacturer" {
+variable "vault_asg_cpu_manufacturer" {
   description = "You can choose the cpu manufacturer."
   type        = string
   default     = "amazon-web-services"
   validation {
-    condition     = contains(["amazon-web-services", "amd", "intel"], var.cpu_manufacturer)
+    condition     = contains(["amazon-web-services", "amd", "intel"], var.vault_asg_cpu_manufacturer)
     error_message = "Please choosse from \"amazon-web-services\", \"amd\" or \"intel\"."
   }
 }
 
-variable "cloudwatch_monitoring" {
+variable "vault_enable_cloudwatch" {
   description = "When true, installs the AWS Cloudwatch agent on the Vault nodes."
   type        = bool
   default     = false

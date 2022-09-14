@@ -38,7 +38,7 @@ resource "aws_route53_record" "validation" {
 
 # Call the module.
 module "vault" {
-  allow_ssh                   = true
+  vault_allow_ssh             = true
   vault_api_addr              = "https://custom.meinit.nl"
   api_port                    = 443
   audit_device                = true
