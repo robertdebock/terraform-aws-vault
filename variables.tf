@@ -140,7 +140,7 @@ variable "vault_aws_certificate_arn" {
   type        = string
   validation {
     condition     = can(regex("^arn:aws:acm:", var.vault_aws_certificate_arn))
-    error_message = "Please specify a valid ARN, staring with \"arn:aws:acm:"
+    error_message = "Please specify a valid ARN, staring with \"arn:aws:acm:\"."
   }
 }
 
