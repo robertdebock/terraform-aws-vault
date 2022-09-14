@@ -4,16 +4,16 @@ This module can either create all network resources, or use subnets that are alr
 
 To create all network resources:
 
-- Don't set `var.vpc_id`.
-- Don't set `var.private_subnet_ids`.
-- Don't set `var.private_subnet_ids`.
+- Don't set `var.vault_aws_vpc_id`.
+- Don't set `var.vault_private_subnet_ids`.
+- Don't set `var.vault_public_subnet_ids`.
 
 To use existing network resources:
 
-- Set the `var.vpc_id`.
-- Set `var.private_subnet_ids` to a subnet with a NAT router.
-- Set `var.private_subnet_ids` to a subnet with an internet gateway.
-- Optionally set `var.vpc_cidr_block_start` to the first two CIDR octets available in the VPC.
+- Set the `var.vpvault_aws_vpc_idc_id`.
+- Set `var.vault_private_subnet_ids` to a subnet with a NAT router.
+- Set `var.vault_public_subnet_ids` to a subnet with an internet gateway.
+- Optionally set `var.vault_vpc_cidr_block_start` to the first two CIDR octets available in the VPC.
 
 ## API and replication
 

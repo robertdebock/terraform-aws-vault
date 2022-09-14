@@ -78,7 +78,7 @@ locals {
   vault_aws_key_name = try(aws_key_pair.default[0].id, var.vault_aws_key_name)
 
   # Form the cidr_block based on a variable.
-  cidr_block = "${var.vpc_cidr_block_start}.0.0/16"
+  cidr_block = "${var.vault_vpc_cidr_block_start}.0.0/16"
 
   # Select the vpc_id, either created or set as a variable.
   vpc_id = try(aws_vpc.default[0].id, var.vault_aws_vpc_id)

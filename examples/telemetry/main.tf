@@ -35,7 +35,7 @@ module "vault" {
   vault_aws_certificate_arn = aws_acm_certificate.default.arn
   vault_name                = "tlmtr"
   source                    = "../../"
-  telemetry                 = true
+  vault_enable_telemetry    = true
   vault_keyfile_path        = "id_rsa.pub"
   vault_tags = {
     owner = "robertdebock"

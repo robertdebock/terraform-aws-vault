@@ -1,6 +1,6 @@
 # Telemetry
 
-You can enable telemetry in Vault by setting the variable `telemetry` to `true`.
+You can enable telemetry in Vault by setting the variable `vault_enable_telemetry` to `true`.
 
 Enabling this has a couple of effects:
 
@@ -10,7 +10,7 @@ Enabling this has a couple of effects:
 
 These limitation are required, because only the leader can be used to request telemetry data on.
 
-Vault has a policy that prevents unauthenticated access to "/v1/sys/metrics". Setting `telemetry_unauthenticated_metrics_access` to `true`, allows anybody to access metrics on any Vault node. The side-effect is that any node will be used in the load balancing configuration, and ELB health checks can be used for the auto-scaling group.
+Vault has a policy that prevents unauthenticated access to "/v1/sys/metrics". Setting `vault_enable_telemetry_unauthenticated_metrics_access` to `true`, allows anybody to access metrics on any Vault node. The side-effect is that any node will be used in the load balancing configuration, and ELB health checks can be used for the auto-scaling group.
 
 ## Heath endpoint
 
@@ -27,7 +27,7 @@ See [documentation on the health endpoint](https://www.vaultproject.io/api-docs/
 
 TL;DR: Try to use ELB checks, but fail back to EC2 if that's not possible.
 
-With `telemetry` on, there are some limitations. Telemetry can only be served from the leader, unless `telemetry_unauthenticated_metrics_access` is on, in that case both leader and follower will serve telemetry data.
+With `vault_enable_telemetry` on, there are some limitations. Telemetry can only be served from the leader, unless `vault_enable_telemetry_unauthenticated_metrics_access` is on, in that case both leader and follower will serve telemetry data.
 
 This table explains the different settings and its effects.
 

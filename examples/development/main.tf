@@ -35,10 +35,10 @@ module "vault" {
   vault_allow_ssh           = true
   vault_api_addr            = "https://dev.meinit.nl:8200"
   vault_aws_certificate_arn = aws_acm_certificate.default.arn
-  default_lease_ttl         = "24h"
+  vault_default_lease_time  = "24h"
   vault_keyfile_path        = "id_rsa.pub"
   vault_log_level           = "debug"
-  max_lease_ttl             = "168h"
+  vault_max_lease_time      = "168h"
   vault_name                = "dvlpm"
   vault_size                = "development"
   source                    = "../../"

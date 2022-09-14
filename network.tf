@@ -78,7 +78,7 @@ data "aws_availability_zones" "default" {
 resource "aws_subnet" "private" {
   count             = var.vault_aws_vpc_id == "" ? min(length(data.aws_availability_zones.default.names), local.amount) : 0
   availability_zone = data.aws_availability_zones.default.names[count.index]
-  cidr_block        = "${var.vpc_cidr_block_start}.${count.index}.0/24"
+  cidr_block        = "${var.vault_vpc_cidr_block_start}.${count.index}.0/24"
   tags              = local.private_tags
   vpc_id            = local.vpc_id
 }
@@ -87,7 +87,7 @@ resource "aws_subnet" "private" {
 resource "aws_subnet" "public" {
   count             = var.vault_aws_vpc_id == "" ? min(length(data.aws_availability_zones.default.names), local.amount) : 0
   availability_zone = data.aws_availability_zones.default.names[count.index]
-  cidr_block        = "${var.vpc_cidr_block_start}.${count.index + 64}.0/24"
+  cidr_block        = "${var.vault_vpc_cidr_block_start}.${count.index + 64}.0/24"
   tags              = local.public_tags
   vpc_id            = local.vpc_id
 }

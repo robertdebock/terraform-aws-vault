@@ -12,7 +12,7 @@ The expected state depends on the configuration of this module.
 
 #### Telemetry disabled
 
-When `telemetry` is set to `false` or `telemetry_unauthenticated_metrics_access` is set to true:
+When `vault_enable_telemetry` is set to `false` or `vault_enable_telemetry_unauthenticated_metrics_access` is set to true:
 
 - 3 healthy instance.
 - no unhealthy instances.
@@ -20,7 +20,7 @@ When `telemetry` is set to `false` or `telemetry_unauthenticated_metrics_access`
 
 Basically all nodes receives all the API and UI traffic and the standby nodes forward traffic to the leader.
 
-When `telemetry` is set to `true` and `telemetry_unauthenticated_metrics_access` is set to false:
+When `vault_enable_telemetry` is set to `true` and `vault_enable_telemetry_unauthenticated_metrics_access` is set to false:
 
 - 1 healthy instance.
 - 2 unhealthy instances.

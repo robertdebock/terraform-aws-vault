@@ -111,7 +111,7 @@ variable "vault_create_bastionhost" {
 }
 
 # TODO: This feels cluncky, try to calculate the cidr block.
-variable "vpc_cidr_block_start" {
+variable "vault_vpc_cidr_block_start" {
   description = "The first two octets of the VPC cidr."
   type        = string
   default     = "172.16"
@@ -300,8 +300,8 @@ variable "vault_aws_kms_key_id" {
   type        = string
   default     = ""
   validation {
-    condition     = length(var.vault_aws_kms_key_id) == 36
-    error_message = "Please specify an AWS KMS key with a length of 36."
+    condition     = var.vault_aws_kms_key_id == "" || length(var.vault_aws_kms_key_id) >= 30
+    error_message = "Please specify an AWS KMS key with a length of 30 or more."
   }
 }
 

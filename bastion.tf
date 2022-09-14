@@ -49,7 +49,7 @@ data "aws_ami" "bastion" {
 resource "aws_subnet" "bastion" {
   count             = var.vault_create_bastionhost ? 1 : 0
   availability_zone = data.aws_availability_zones.default.names[0]
-  cidr_block        = "${var.vpc_cidr_block_start}.127.0/24"
+  cidr_block        = "${var.vault_vpc_cidr_block_start}.127.0/24"
   tags              = local.bastion_tags
   vpc_id            = local.vpc_id
 }
