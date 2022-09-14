@@ -4,7 +4,7 @@ resource "aws_acm_certificate" "default" {
   # After a deployment, this value (`domain_name`) can't be changed because the certificate is bound to the load balancer listener.
   validation_method = "DNS"
   tags = {
-    owner = "robertdebock"
+    owner = "Robert de Bock"
   }
 }
 
@@ -38,7 +38,7 @@ module "vault" {
   vault_enable_telemetry    = true
   vault_keyfile_path        = "id_rsa.pub"
   vault_tags = {
-    owner = "robertdebock"
+    owner = "Robert de Bock"
   }
 }
 

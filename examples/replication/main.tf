@@ -15,7 +15,7 @@ resource "aws_acm_certificate" "default_eu" {
   # After a deployment, this value (`domain_name`) can't be changed because the certificate is bound to the load balancer listener.
   validation_method = "DNS"
   tags = {
-    owner = "robertdebock"
+    owner = "Robert de Bock"
   }
 }
 
@@ -26,7 +26,7 @@ resource "aws_acm_certificate" "default_us" {
   # After a deployment, this value (`domain_name`) can't be changed because the certificate is bound to the load balancer listener.
   validation_method = "DNS"
   tags = {
-    owner = "robertdebock"
+    owner = "Robert de Bock"
   }
 }
 
@@ -125,7 +125,7 @@ module "vault_eu" {
   vault_public_subnet_ids               = data.terraform_remote_state.default.outputs.public_subnet_ids_eu
   vault_aws_vpc_id                      = data.terraform_remote_state.default.outputs.vpc_id_eu
   vault_tags = {
-    owner = "robertdebock"
+    owner = "Robert de Bock"
   }
 }
 
@@ -150,7 +150,7 @@ module "vault_us" {
   vault_public_subnet_ids               = data.terraform_remote_state.default.outputs.public_subnet_ids_us
   vault_aws_vpc_id                      = data.terraform_remote_state.default.outputs.vpc_id_us
   vault_tags = {
-    owner = "robertdebock"
+    owner = "Robert de Bock"
   }
 }
 
@@ -204,7 +204,7 @@ resource "aws_route53_health_check" "eu" {
   failure_threshold = "3"
   request_interval  = "10"
   tags = {
-    owner = "robertdebock"
+    owner = "Robert de Bock"
     Name  = "vault-eu-${count.index}"
   }
 }
@@ -219,7 +219,7 @@ resource "aws_route53_health_check" "us" {
   failure_threshold = "3"
   request_interval  = "10"
   tags = {
-    owner = "robertdebock"
+    owner = "Robert de Bock"
     Name  = "vault-us-${count.index}"
   }
 }
