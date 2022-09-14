@@ -348,7 +348,7 @@ variable "vault_aws_s3_snapshots_bucket_name" {
 variable "vault_aws_lb_availability" {
   description = "Specify if the load balancer is exposed to the internet or not."
   type        = string
-  default     = "internal"
+  default     = "external"
   validation {
     condition     = contains(["internal", "external"], var.vault_aws_lb_availability)
     error_message = "Please use \"internal\" or \"external\" to indicate the availability of the load balancer."
