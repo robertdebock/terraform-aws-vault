@@ -40,7 +40,7 @@ These (most important) variables can be used.
 
 - `vault_name` - default: `"unset"`.
 - `vault_aws_certificate_arn` - The AWS certificate ARN that can be installed on the load balancer.
-- `vault_aws_key_name` - The key to use to login. (Conflicts wiht `vault_keyfile_path`. Use either, not both.)
+- `vault_aws_key_name` - The key to use to login. (Conflicts with `vault_keyfile_path`. Use either, not both.)
 
 More variables can be found in [variables.tf](variables.tf).
 
