@@ -32,8 +32,8 @@ resource "aws_route53_record" "validation" {
 
 # Call the module.
 module "vault" {
-  vault_aws_certificate_arn = aws_acm_certificate.default.arn
   source                    = "../../"
+  vault_aws_certificate_arn = aws_acm_certificate.default.arn
   vault_keyfile_path        = "id_rsa.pub"
   vault_tags = {
     owner = "Robert de Bock"

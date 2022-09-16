@@ -1,6 +1,5 @@
 resource "aws_cloudwatch_dashboard" "default" {
   count          = var.vault_enable_cloudwatch ? 1 : 0
-  dashboard_name = var.vault_name
   dashboard_body = <<EOF
 {
     "widgets": [
@@ -438,4 +437,5 @@ resource "aws_cloudwatch_dashboard" "default" {
     ]
 }
 EOF
+  dashboard_name = "vault-${var.vault_name}"
 }

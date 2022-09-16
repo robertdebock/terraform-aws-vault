@@ -1,7 +1,7 @@
 # Make a key for unsealing.
 resource "aws_kms_key" "default_us" {
-  provider    = aws.us-east-2
   description = "Vault unseal key"
+  provider    = aws.us-east-2
   tags = {
     owner = "robertdebock"
   }
@@ -9,8 +9,8 @@ resource "aws_kms_key" "default_us" {
 
 # Create a VCP.
 resource "aws_vpc" "default_us" {
-  provider   = aws.us-east-2
   cidr_block = "10.0.0.0/16"
+  provider   = aws.us-east-2
   tags = {
     owner   = "robertdebock"
     purpose = "ci-pr-dr"
@@ -38,10 +38,10 @@ resource "aws_route_table" "public_us" {
 
 # Add an internet route to the internet gateway.
 resource "aws_route" "public_us" {
-  provider               = aws.us-east-2
-  route_table_id         = aws_route_table.public_us.id
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = aws_internet_gateway.default_us.id
+  provider               = aws.us-east-2
+  route_table_id         = aws_route_table.public_us.id
 }
 
 # Create a routing table for the nat gateway.
@@ -61,11 +61,11 @@ resource "aws_eip" "default_us" {
 
 # Create the same amount of subnets as the amount of instances when we create the vpc.
 resource "aws_subnet" "private_us" {
-  provider          = aws.us-east-2
   count             = length(data.aws_availability_zones.default_us.names)
-  vpc_id            = aws_vpc.default_us.id
-  cidr_block        = "10.0.${count.index + 64}.0/24"
   availability_zone = data.aws_availability_zones.default_us.names[count.index]
+  cidr_block        = "10.0.${count.index + 64}.0/24"
+  provider          = aws.us-east-2
+  vpc_id            = aws_vpc.default_us.id
   tags = {
     owner   = "robertdebock"
     purpose = "ci-pr-dr"
@@ -74,8 +74,8 @@ resource "aws_subnet" "private_us" {
 
 # Make NAT gateways, for the Vault instances to reach the internet.
 resource "aws_nat_gateway" "default_us" {
-  provider      = aws.us-east-2
   allocation_id = aws_eip.default_us.id
+  provider      = aws.us-east-2
   subnet_id     = aws_subnet.public_us[0].id
   tags = {
     owner   = "robertdebock"
@@ -86,35 +86,35 @@ resource "aws_nat_gateway" "default_us" {
 
 # Add an internet route to the nat gateway.
 resource "aws_route" "private_us" {
-  provider               = aws.us-east-2
-  route_table_id         = aws_route_table.private_us.id
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id         = aws_nat_gateway.default_us.id
+  provider               = aws.us-east-2
+  route_table_id         = aws_route_table.private_us.id
 }
 
 # Associate the subnet to the routing table.
 resource "aws_route_table_association" "private_us" {
-  provider       = aws.us-east-2
   count          = length(data.aws_availability_zones.default_us.names)
-  subnet_id      = aws_subnet.private_us[count.index].id
+  provider       = aws.us-east-2
   route_table_id = aws_route_table.private_us.id
+  subnet_id      = aws_subnet.private_us[count.index].id
 }
 
 # Find availability_zones in this region.
 data "aws_availability_zones" "default_us" {
-  provider = aws.us-east-2
-  state    = "available"
   # The availability zone "us-east-2e" does not have all instance_types available.
   exclude_names = ["us-east-2e"]
+  provider = aws.us-east-2
+  state    = "available"
 }
 
 # Create the same amount of subnets as the amount of instances when we create the vpc.
 resource "aws_subnet" "public_us" {
-  provider          = aws.us-east-2
   count             = length(data.aws_availability_zones.default_us.names)
-  vpc_id            = aws_vpc.default_us.id
-  cidr_block        = "10.0.${count.index}.0/24"
   availability_zone = data.aws_availability_zones.default_us.names[count.index]
+  cidr_block        = "10.0.${count.index}.0/24"
+  provider          = aws.us-east-2
+  vpc_id            = aws_vpc.default_us.id
   tags = {
     owner   = "robertdebock"
     purpose = "ci-pr-dr"
@@ -123,8 +123,8 @@ resource "aws_subnet" "public_us" {
 
 # Associate the subnet to the routing table.
 resource "aws_route_table_association" "public_us" {
-  provider       = aws.us-east-2
   count          = length(data.aws_availability_zones.default_us.names)
-  subnet_id      = aws_subnet.public_us[count.index].id
+  provider       = aws.us-east-2
   route_table_id = aws_route_table.public_us.id
+  subnet_id      = aws_subnet.public_us[count.index].id
 }

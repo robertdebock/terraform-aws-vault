@@ -54,7 +54,6 @@ resource "aws_launch_template" "default" {
   key_name               = local.vault_aws_key_name
   name_prefix            = "${var.vault_name}-"
   update_default_version = true
-  vpc_security_group_ids = [aws_security_group.private.id, aws_security_group.public.id]
   user_data = base64encode(templatefile("${path.module}/user_data_vault.sh.tpl",
     {
       api_addr                       = local.api_addr
@@ -83,8 +82,8 @@ resource "aws_launch_template" "default" {
       vault_package                  = local.vault_package
       vault_license                  = try(var.vault_license, null)
       warmup                         = var.vault_asg_warmup_seconds
-    }
-  ))
+    }))
+  vpc_security_group_ids = [aws_security_group.private.id, aws_security_group.public.id]
   dynamic "block_device_mappings" {
     for_each = var.vault_audit_device ? local.disks_with_audit : local.disks_without_audit
     content {

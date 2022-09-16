@@ -41,16 +41,16 @@ resource "aws_route53_record" "validation" {
 
 # Call the module.
 module "vault" {
+  source                         = "../../"
   vault_api_addr                 = "https://mysubnet.meinit.nl:8200"
   vault_aws_certificate_arn      = aws_acm_certificate.default.arn
+  vault_aws_vpc_id               = data.terraform_remote_state.default.outputs.vpc_id
   vault_extra_security_group_ids = [data.terraform_remote_state.default.outputs.security_group_id]
   vault_keyfile_path             = "id_rsa.pub"
   vault_name                     = "mysbn"
-  source                         = "../../"
-  vault_vpc_cidr_block_start     = "192.168"
   vault_private_subnet_ids       = data.terraform_remote_state.default.outputs.private_subnet_ids
   vault_public_subnet_ids        = data.terraform_remote_state.default.outputs.public_subnet_ids
-  vault_aws_vpc_id               = data.terraform_remote_state.default.outputs.vpc_id
+  vault_vpc_cidr_block_start     = "192.168"
   vault_tags = {
     owner = "Robert de Bock"
   }
@@ -59,8 +59,8 @@ module "vault" {
 # Add a loadbalancer record to DNS zone.
 resource "aws_route53_record" "default" {
   name    = "mysbt"
-  type    = "CNAME"
-  ttl     = 300
   records = [module.vault.aws_lb_dns_name]
+  ttl     = 300
+  type    = "CNAME"
   zone_id = data.aws_route53_zone.default.id
 }

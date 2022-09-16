@@ -7,7 +7,7 @@ resource "aws_s3_bucket" "default" {
 # Add the cloudwatch script to the bucket.
 resource "aws_s3_object" "cloudwatch" {
   bucket = aws_s3_bucket.default.id
+  etag = filemd5("${path.module}/scripts/cloudwatch.sh")
   key    = "cloudwatch.sh"
   source = "${path.module}/scripts/cloudwatch.sh"
-  etag = filemd5("${path.module}/scripts/cloudwatch.sh")
 }
