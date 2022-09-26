@@ -140,7 +140,7 @@ variable "vault_aws_certificate_arn" {
   type        = string
   validation {
     condition     = can(regex("^arn:aws:acm:", var.vault_aws_certificate_arn))
-    error_message = "Please specify a valid ARN, staring with \"arn:aws:acm:\"."
+    error_message = "Please specify a valid ARN, starting with \"arn:aws:acm:\"."
   }
 }
 
@@ -427,4 +427,25 @@ variable "vault_enable_cloudwatch" {
   description = "When true, installs the AWS Cloudwatch agent on the Vault nodes."
   type        = bool
   default     = false
+}
+
+
+variable "vault_custom_script_s3_url" {
+  description = "The URL to the script stored on s3."
+  type        = string
+  default     = ""
+  validation {
+    condition = can(regex("^s3://", var.vault_custom_script_s3_url)) || var.vault_custom_script_s3_url == ""
+    error_message = "Please use an s3 URL, starting with \"s3://\"."
+  }
+}
+
+variable "vault_custom_script_s3_bucket_arn" {
+  description = "The arn where the custom script are stored."
+  type        = string
+  default     = ""
+  validation {
+    condition     = can(regex("^arn:aws:s3:", var.vault_custom_script_s3_bucket_arn)) || var.vault_custom_script_s3_bucket_arn == ""
+    error_message = "Please specify a valid ARN, starting with \"arn:aws:s3:\"."
+  }
 }

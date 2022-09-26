@@ -24,6 +24,13 @@ my_ipaddress="$(curl http://169.254.169.254/latest/meta-data/local-ipv4)"
 my_instance_id="$(curl http://169.254.169.254/latest/meta-data/instance-id)"
 my_region="$(curl http://169.254.169.254/latest/dynamic/instance-identity/document | grep region | cut -d\" -f4)"
 
+
+# Run a custom, user-provided script.
+if [ "${vault_custom_script_s3_url}" != "" ] ; then
+  aws s3 cp "${vault_custom_script_s3_url}" /custom.sh
+  sh /custom.sh
+fi
+
 # Install, configure and initialize the AWS Cloudwatch agent
 if [ "${cloudwatch_monitoring}" = "true" ] ; then
   aws s3 cp "s3://vault-scripts-${random_string}/cloudwatch.sh" /cloudwatch.sh

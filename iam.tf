@@ -106,7 +106,7 @@ data "aws_iam_policy_document" "autosnapshot" {
   }
 }
 
-# Make a policy to allow downloading scripts from S3.
+# Make a policy to allow downloading vault scripts from S3.
 data "aws_iam_policy_document" "scripts" {
   count = var.vault_enable_cloudwatch ? 1 : 0
   statement {
@@ -128,6 +128,30 @@ data "aws_iam_policy_document" "scripts" {
     ]
   }
 }
+
+# Make a policy to allow downloading custom scripts from S3.
+data "aws_iam_policy_document" "custom_scripts" {
+  count = var.vault_custom_script_s3_url == "" ? 0 : 1
+  statement {
+    effect = "Allow"
+    actions = [
+      "s3:GetObject"
+    ]
+    resources = [
+      "${var.vault_custom_script_s3_bucket_arn}/*.sh"
+    ]
+  }
+  statement {
+    effect = "Allow"
+    actions = [
+      "s3:ListBucket"
+    ]
+    resources = [
+      "${var.vault_custom_script_s3_bucket_arn}"
+    ]
+  }
+}
+
 
 # Make a role to allow role assumption.
 resource "aws_iam_role" "default" {
@@ -180,6 +204,15 @@ resource "aws_iam_role_policy" "scripts" {
   policy = data.aws_iam_policy_document.scripts[0].json
   role   = aws_iam_role.default.id
 }
+
+# Link the custom scripts policy to the default role.
+resource "aws_iam_role_policy" "custom_scripts" {
+  count  = var.vault_custom_script_s3_url == "" ? 0 : 1
+  name   = "${var.vault_name}-vault-custom-scripts"
+  policy = data.aws_iam_policy_document.custom_scripts[0].json
+  role   = aws_iam_role.default.id
+}
+
 
 # Link the AWS managed policy "CloudWatchAgentServerPolicy" to the default role. 
 resource "aws_iam_role_policy_attachment" "cloudwatch_agent" {

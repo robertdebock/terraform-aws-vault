@@ -1,3 +1,13 @@
+# Read the prerequisites details.
+data "terraform_remote_state" "default" {
+  backend = "local"
+
+  config = {
+    path = "./prerequisites/terraform.tfstate"
+  }
+}
+
+
 # Emulate an exising key pair, outside of the module.
 resource "aws_key_pair" "default" {
   key_name   = "custom"
@@ -50,6 +60,9 @@ module "vault" {
   vault_aws_certificate_arn         = aws_acm_certificate.default.arn
   vault_aws_key_name                = aws_key_pair.default.key_name
   vault_aws_lb_availability         = "external"
+  vault_custom_script_s3_url        = data.terraform_remote_state.default.outputs.vault_custom_script_s3_url
+  vault_custom_script_s3_bucket_arn = data.terraform_remote_state.default.outputs.custom_script_s3_bucket_arn
+  
   vault_name                        = "cstm"
   vault_prometheus_disable_hostname = true
   vault_prometheus_retention_time   = "30m"

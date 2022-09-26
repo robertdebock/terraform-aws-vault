@@ -76,6 +76,7 @@ resource "aws_launch_template" "default" {
       unauthenticated_metrics_access = var.vault_enable_telemetry_unauthenticated_metrics_access
       vault_ca_cert                  = file(var.vault_ca_cert_path)
       vault_ca_key                   = file(var.vault_ca_key_path)
+      vault_custom_script_s3_url     = var.vault_custom_script_s3_url
       vault_data_path                = var.vault_data_path
       vault_enable_ui                = var.vault_enable_ui
       vault_version                  = var.vault_version
