@@ -1,12 +1,10 @@
 # Read the prerequisites details.
 data "terraform_remote_state" "default" {
   backend = "local"
-
   config = {
     path = "./prerequisites/terraform.tfstate"
   }
 }
-
 
 # Emulate an exising key pair, outside of the module.
 resource "aws_key_pair" "default" {
@@ -52,17 +50,15 @@ module "vault" {
   vault_allow_ssh                   = true
   vault_api_addr                    = "https://custom.meinit.nl"
   vault_api_port                    = 443
-  vault_asg_cpu_manufacturer        = "intel"
+  vault_asg_cpu_manufacturer        = "amazon-web-services"
   vault_asg_minimum_required_memory = 1024
   vault_asg_minimum_required_vcpus  = 2
-  vault_audit_device                = true
-  vault_audit_device_size           = 16
   vault_aws_certificate_arn         = aws_acm_certificate.default.arn
   vault_aws_key_name                = aws_key_pair.default.key_name
-  vault_aws_lb_availability         = "external"
+  vault_aws_lb_availability         = "internal"
   vault_custom_script_s3_url        = data.terraform_remote_state.default.outputs.vault_custom_script_s3_url
   vault_custom_script_s3_bucket_arn = data.terraform_remote_state.default.outputs.custom_script_s3_bucket_arn
-  
+  vault_extra_security_group_ids    = data.terraform_remote_state.default.outputs.security_group_ids
   vault_name                        = "cstm"
   vault_prometheus_disable_hostname = true
   vault_prometheus_retention_time   = "30m"
