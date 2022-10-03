@@ -22,11 +22,3 @@ resource "aws_s3_object" "default" {
   key    = "my_script.sh"
   source = "${path.module}/scripts/my_script.sh"
 }
-
-output "vault_custom_script_s3_url" {
-  value = "s3://${aws_s3_bucket.default.bucket}/${aws_s3_object.default.key}"
-}
-
-output "custom_script_s3_bucket_arn" {
-  value = aws_s3_bucket.default.arn
-}
