@@ -3,7 +3,6 @@
 # Always update packages installed.
 yum update -y
 
-
 # Make a directory for Raft, certificates and init information.
 mkdir -p "${vault_data_path}"
 mkfs.ext4 /dev/sda1
@@ -23,7 +22,6 @@ my_hostname="$(curl http://169.254.169.254/latest/meta-data/hostname)"
 my_ipaddress="$(curl http://169.254.169.254/latest/meta-data/local-ipv4)"
 my_instance_id="$(curl http://169.254.169.254/latest/meta-data/instance-id)"
 my_region="$(curl http://169.254.169.254/latest/dynamic/instance-identity/document | grep region | cut -d\" -f4)"
-
 
 # Run a custom, user-provided script.
 if [ "${vault_custom_script_s3_url}" != "" ] ; then
