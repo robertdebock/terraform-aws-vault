@@ -170,7 +170,6 @@ fi
 systemctl --now enable vault
 
 # Setup logrotate if the audit_device is enabled.
-
 if [[ "${audit_device}" = "true" || "${cloudwatch_monitoring}" = "true" ]] ; then
   cat << EOF > /etc/logrotate.d/vault
 ${audit_device_path}/*.log {
