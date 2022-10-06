@@ -35,6 +35,7 @@ module "vault" {
   source                    = "../../"
   vault_allow_ssh           = true
   vault_api_addr            = "https://dev.meinit.nl:8200"
+  vault_audit_device        = true
   vault_aws_certificate_arn = aws_acm_certificate.default.arn
   vault_default_lease_time  = "24h"
   vault_keyfile_path        = "id_rsa.pub"
