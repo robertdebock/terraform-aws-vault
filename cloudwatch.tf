@@ -1,3 +1,15 @@
+resource "aws_cloudwatch_log_group" "cloudinitlog" {
+  count             = var.vault_enable_cloudwatch ? 1 : 0
+  name              = "${var.vault_name}-cloudinitlog"
+  retention_in_days = 7
+}
+
+resource "aws_cloudwatch_log_group" "vaultlog" {
+  count             = var.vault_enable_cloudwatch ? 1 : 0
+  name              = "${var.vault_name}-vaultlog"
+  retention_in_days = 7
+}
+
 resource "aws_cloudwatch_dashboard" "default" {
   count          = var.vault_enable_cloudwatch ? 1 : 0
   dashboard_body = <<EOF
