@@ -171,21 +171,9 @@ systemctl --now enable vault
 
 # Setup logrotate if the audit_device is enabled.
 if [[ "${audit_device}" = "true" || "${cloudwatch_monitoring}" = "true" ]] ; then
-  cat << EOF > /etc/logrotate.d/vault
-${audit_device_path}/*.log {
-  rotate $[${audit_device_size}*4]
-  missingok
-  compress
-  size 512M
-  postrotate
-    /usr/bin/systemctl reload vault 2> /dev/null || true
-  endscript
-}
-EOF
+  aws s3 cp "s3://vault-scripts-${random_string}/setup_logrotate.sh" /setup_logrotate.sh
+  sh /setup_logrotate.sh -a "${audit_device_path}" -s "$[${audit_device_size}*4]"
 fi
-
-# Run logrotate hourly.
-cp /etc/cron.daily/logrotate /etc/cron.hourly/logrotate
 
 # Allow users to use `vault`.
 echo "export VAULT_ADDR=https://$${my_ipaddress}:8200" >> /etc/profile.d/vault.sh

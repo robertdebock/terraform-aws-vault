@@ -108,7 +108,7 @@ data "aws_iam_policy_document" "autosnapshot" {
 
 # Make a policy to allow downloading vault scripts from S3.
 data "aws_iam_policy_document" "scripts" {
-  count = var.vault_enable_cloudwatch ? 1 : 0
+  count = var.vault_enable_cloudwatch || var.vault_audit_device? 1 : 0
   statement {
     effect = "Allow"
     actions = [
@@ -199,7 +199,7 @@ resource "aws_iam_role_policy" "autosnapshot" {
 
 # Link the scripts policy to the default role.
 resource "aws_iam_role_policy" "scripts" {
-  count  = var.vault_enable_cloudwatch ? 1 : 0
+  count  = var.vault_enable_cloudwatch || var.vault_audit_device ? 1 : 0
   name   = "${var.vault_name}-vault-scripts"
   policy = data.aws_iam_policy_document.scripts[0].json
   role   = aws_iam_role.default.id
