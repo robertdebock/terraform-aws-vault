@@ -368,7 +368,7 @@ variable "vault_audit_device" {
 }
 
 variable "vault_audit_device_size" {
-  description = "The size (in GB) of the audit device when `var.audit_device` is enabled."
+  description = "The size (in GB) of the audit device when `var.vault_audit_device` is enabled."
   type        = number
   default     = 32
   validation {
