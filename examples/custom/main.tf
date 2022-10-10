@@ -62,10 +62,14 @@ module "vault" {
   vault_name                        = "cstm"
   vault_prometheus_disable_hostname = true
   vault_prometheus_retention_time   = "30m"
+  vault_private_subnet_ids          = data.terraform_remote_state.default.outputs.private_subnet_ids
+  vault_public_subnet_ids           = data.terraform_remote_state.default.outputs.public_subnet_ids
   vault_size                        = "custom"
   vault_volume_iops                 = 3200
   vault_volume_size                 = 64
   vault_volume_type                 = "io1"
+  vault_vpc_cidr_block_start        = "10.70"
+  vault_aws_vpc_id                  = data.terraform_remote_state.default.outputs.vpc_id
   vault_tags = {
     owner = "Robert de Bock"
   }
