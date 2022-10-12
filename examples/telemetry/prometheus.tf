@@ -6,7 +6,7 @@ resource "local_file" "prometheus" {
   content = templatefile("${path.module}/user_data_prometheus.sh.tpl",
     {
       # You don't know the `credenial` before initializing Vault.
-      credenial = "hvs.lkFuVPHlbLlHRq0x5Sahp5Cz"
+      credenial = "hvs.OBFUSCATEDOBFUSCATEDOBFU"
       target    = aws_route53_record.default.fqdn
     }
   )
