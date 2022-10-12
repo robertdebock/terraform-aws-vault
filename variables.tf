@@ -191,7 +191,7 @@ variable "vault_private_subnet_ids" {
 }
 
 variable "vault_public_subnet_ids" {
-  description = "The ids of the public subnets to deploy the load balancer to. Only required when `vault_aws_vpc_id` is set."
+  description = "The ids of the subnets to deploy the load balancer to. Use public subnets to expose the service to the internet, otherwise use private subnets. Only required when `vault_aws_vpc_id` is set."
   type        = list(string)
   default     = []
 }
