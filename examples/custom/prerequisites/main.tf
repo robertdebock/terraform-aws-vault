@@ -44,6 +44,9 @@ resource "aws_internet_gateway" "default" {
 # Create a routing table for the internet gateway.
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.default.id
+  tags = {
+    Name = "public"
+  }
 }
 
 # Add an internet route to the internet gateway.
@@ -56,6 +59,9 @@ resource "aws_route" "public" {
 # Create a routing table for the nat gateway.
 resource "aws_route_table" "private" {
   vpc_id = aws_vpc.default.id
+  tags = {
+    Name = "private"
+  }
 }
 
 # Reserve external IP addresses. (It's for the NAT gateways.)
@@ -70,6 +76,7 @@ resource "aws_subnet" "private" {
   cidr_block        = "10.70.${count.index + 64}.0/24"
   vpc_id            = aws_vpc.default.id
   tags = {
+    Name    = "private"
     owner   = "robertdebock"
     purpose = "ci-testing"
   }
@@ -80,6 +87,7 @@ resource "aws_nat_gateway" "default" {
   allocation_id = aws_eip.default.id
   subnet_id     = aws_subnet.public[0].id
   tags = {
+    Name    = "custom"
     owner   = "robertdebock"
     purpose = "ci-testing"
   }
@@ -105,6 +113,7 @@ resource "aws_subnet" "public" {
   cidr_block        = "10.70.${count.index}.0/24"
   vpc_id            = aws_vpc.default.id
   tags = {
+    Name    = "public"
     owner   = "robertdebock"
     purpose = "ci-testing"
   }
@@ -115,4 +124,11 @@ resource "aws_route_table_association" "public" {
   count          = length(data.aws_availability_zones.default.names)
   route_table_id = aws_route_table.public.id
   subnet_id      = aws_subnet.public[count.index].id
+}
+
+# Associate the subnet to the routing table.
+resource "aws_route_table_association" "private" {
+  count          = length(data.aws_availability_zones.default.names)
+  route_table_id = aws_route_table.private.id
+  subnet_id      = aws_subnet.private[count.index].id
 }
