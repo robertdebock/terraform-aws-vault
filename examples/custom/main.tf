@@ -51,6 +51,7 @@ module "vault" {
   vault_api_addr                    = "https://custom.meinit.nl"
   vault_api_port                    = 443
   vault_asg_cpu_manufacturer        = "amazon-web-services"
+  vault_asg_instance_lifetime       = 604800
   vault_asg_minimum_required_memory = 1024
   vault_asg_minimum_required_vcpus  = 2
   vault_aws_certificate_arn         = aws_acm_certificate.default.arn
@@ -63,11 +64,12 @@ module "vault" {
   vault_prometheus_disable_hostname = true
   vault_prometheus_retention_time   = "30m"
   vault_private_subnet_ids          = data.terraform_remote_state.default.outputs.private_subnet_ids
-  vault_public_subnet_ids           = data.terraform_remote_state.default.outputs.public_subnet_ids
+  # The `vault_public_subnet_ids` can be set to "private" subnets. This variable determines where the load balancer is deployed.
+  vault_public_subnet_ids           = data.terraform_remote_state.default.outputs.private_subnet_ids
   vault_size                        = "custom"
-  vault_volume_iops                 = 3200
+  # vault_volume_iops                 = 3200 # gp2/gp3 do not support specifying iops.
   vault_volume_size                 = 64
-  vault_volume_type                 = "io1"
+  vault_volume_type                 = "gp2"
   vault_vpc_cidr_block_start        = "10.70"
   vault_aws_vpc_id                  = data.terraform_remote_state.default.outputs.vpc_id
   vault_tags = {
