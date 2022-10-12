@@ -14,7 +14,7 @@ sslcacert=/etc/pki/tls/certs/ca-bundle.crt
 EOF
 
 # Install Grafana
-yum install -y grafana
+yum install -y grafana-9.0.9-1.aarch64
 
 # Start Grafana
 sudo systemctl enable --now grafana-server
