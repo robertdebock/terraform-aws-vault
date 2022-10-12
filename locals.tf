@@ -131,7 +131,7 @@ locals {
       device_name = "/dev/sda1"
       ebs = {
         encrypted   = true
-        iops        = local.volume_iops
+        iops        = contains(["gp2", "gp3"], local.volume_type) ? null : local.volume_iops
         volume_size = local.volume_size
         volume_type = local.volume_type
       }
@@ -144,7 +144,7 @@ locals {
       device_name = "/dev/sda1"
       ebs = {
         encrypted   = true
-        iops        = local.volume_iops
+        iops        = contains(["gp2", "gp3"], local.volume_type) ? null : local.volume_iops
         volume_size = local.volume_size
         volume_type = local.volume_type
       }
