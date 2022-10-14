@@ -19,6 +19,12 @@ data "aws_internet_gateway" "default" {
     name   = "attachment.vpc-id"
     values = [local.vpc_id]
   }
+  lifecycle {
+    postcondition {
+      condition     = length(self) != 1
+      error_message = "No Internet Gateway was found in the VPC."
+    }
+  }
 }
 
 # Reserve external IP addresses. (It's for the NAT gateways.)
@@ -28,7 +34,7 @@ resource "aws_eip" "default" {
   vpc   = true
 }
 
-# Make NAT gateways, for the Vault instances to reach the internet.
+# Make NAT gateway, for the Vault instances to reach the internet.
 resource "aws_nat_gateway" "default" {
   count         = var.vault_aws_vpc_id == "" ? 1 : 0
   allocation_id = aws_eip.default[0].id
