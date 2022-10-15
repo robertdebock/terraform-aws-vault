@@ -47,6 +47,13 @@ yum install -y "${vault_package}"
 # Change ownership for the `vault_data_path``.
 chown vault:vault "${vault_data_path}"
 
+# Create and configure the Vault data folder when it is different from the default path created by the rpm.
+if [ "${vault_data_path}" != "/opt/vault" ] ; then
+  mkdir ${vault_data_path}/data
+  chown vault:vault ${vault_data_path}/data
+  chmod 755 ${vault_data_path}/data
+fi
+
 # Optionally change ownership for `audit_device_path`.
 if [ -d "${audit_device_path}" ] ; then
   chown vault:vault "${audit_device_path}"
