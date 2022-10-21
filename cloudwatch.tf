@@ -54,7 +54,7 @@ resource "aws_cloudwatch_dashboard" "default" {
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ { "expression": "SELECT MAX(disk_used_percent) FROM SCHEMA(\"${local.instance_name}_cwagent\", AutoScalingGroupName,InstanceId,device,fstype,path) WHERE AutoScalingGroupName = '${var.vault_name}' AND path = '${var.vault_data_path}' GROUP BY InstanceId", "label": "", "id": "q1", "region": "${data.aws_region.default.name}" } ]
+                    [ { "expression": "SELECT MAX(disk_used_percent) FROM SCHEMA(\"${local.vault_cloudwatch_namespace}\", AutoScalingGroupName,InstanceId,device,fstype,path) WHERE AutoScalingGroupName = '${var.vault_name}' AND path = '${var.vault_data_path}' GROUP BY InstanceId", "label": "", "id": "q1", "region": "${data.aws_region.default.name}" } ]
                 ],
                 "view": "timeSeries",
                 "stacked": false,
@@ -85,7 +85,7 @@ resource "aws_cloudwatch_dashboard" "default" {
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ { "expression": "SELECT MAX(disk_used_percent) FROM SCHEMA(\"${local.instance_name}_cwagent\", AutoScalingGroupName,InstanceId,device,fstype,path) WHERE AutoScalingGroupName = '${var.vault_name}' AND path = '/' GROUP BY InstanceId", "label": "", "id": "q1", "period": 60, "region": "${data.aws_region.default.name}" } ]
+                    [ { "expression": "SELECT MAX(disk_used_percent) FROM SCHEMA(\"${local.vault_cloudwatch_namespace}\", AutoScalingGroupName,InstanceId,device,fstype,path) WHERE AutoScalingGroupName = '${var.vault_name}' AND path = '/' GROUP BY InstanceId", "label": "", "id": "q1", "period": 60, "region": "${data.aws_region.default.name}" } ]
                 ],
                 "view": "timeSeries",
                 "stacked": false,
@@ -117,7 +117,7 @@ resource "aws_cloudwatch_dashboard" "default" {
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ "AWS/AutoScaling", "GroupInServiceInstances", "AutoScalingGroupName", "watch", { "color": "#7f7f7f" } ]
+                    [ "AWS/AutoScaling", "GroupInServiceInstances", "AutoScalingGroupName", "${var.vault_name}", { "color": "#7f7f7f" } ]
                 ],
                 "view": "timeSeries",
                 "stacked": true,
@@ -146,7 +146,7 @@ resource "aws_cloudwatch_dashboard" "default" {
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ "AWS/AutoScaling", "GroupTerminatingInstances", "AutoScalingGroupName", "watch", { "color": "#d62728" } ]
+                    [ "AWS/AutoScaling", "GroupTerminatingInstances", "AutoScalingGroupName", "${var.vault_name}", { "color": "#d62728" } ]
                 ],
                 "view": "timeSeries",
                 "stacked": true,
@@ -176,7 +176,7 @@ resource "aws_cloudwatch_dashboard" "default" {
             "properties": {
                 "metrics": [
                     [ { "expression": "SELECT AVG(NetworkIn) FROM SCHEMA(\"AWS/EC2\", AutoScalingGroupName) WHERE AutoScalingGroupName = '${var.vault_name}'", "label": "Netwerk In (Bytes)", "id": "q1", "region": "${data.aws_region.default.name}", "color": "#9467bd" } ],
-                    [ "AWS/EC2", "NetworkIn", "AutoScalingGroupName", "watch", { "id": "m1", "visible": false } ]
+                    [ "AWS/EC2", "NetworkIn", "AutoScalingGroupName", "${var.vault_name}", { "id": "m1", "visible": false } ]
                 ],
                 "view": "timeSeries",
                 "stacked": false,
@@ -205,7 +205,7 @@ resource "aws_cloudwatch_dashboard" "default" {
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ "AWS/EC2", "NetworkOut", "AutoScalingGroupName", "watch", { "color": "#9467bd", "label": "Network Out (Bytes)" } ]
+                    [ "AWS/EC2", "NetworkOut", "AutoScalingGroupName", "${var.vault_name}", { "color": "#9467bd", "label": "Network Out (Bytes)" } ]
                 ],
                 "view": "timeSeries",
                 "stacked": false,
@@ -234,7 +234,7 @@ resource "aws_cloudwatch_dashboard" "default" {
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ { "expression": "SELECT MAX(mem_used_percent) FROM SCHEMA(\"${local.instance_name}_cwagent\", AutoScalingGroupName,InstanceId) WHERE AutoScalingGroupName = '${var.vault_name}' GROUP BY InstanceId", "label": "", "id": "q1", "period": 60, "region": "${data.aws_region.default.name}" } ],
+                    [ { "expression": "SELECT MAX(mem_used_percent) FROM SCHEMA(\"${local.vault_cloudwatch_namespace}\", AutoScalingGroupName,InstanceId) WHERE AutoScalingGroupName = '${var.vault_name}' GROUP BY InstanceId", "label": "", "id": "q1", "period": 60, "region": "${data.aws_region.default.name}" } ],
                     [ "CWAgent", "mem_used_percent", "InstanceId", "i-0add6009056a2d366", "AutoScalingGroupName", "watch", { "id": "m1", "visible": false } ]
                 ],
                 "view": "timeSeries",
@@ -266,7 +266,7 @@ resource "aws_cloudwatch_dashboard" "default" {
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ "AWS/AutoScaling", "GroupDesiredCapacity", "AutoScalingGroupName", "watch", { "color": "#7f7f7f" } ]
+                    [ "AWS/AutoScaling", "GroupDesiredCapacity", "AutoScalingGroupName", "${var.vault_name}", { "color": "#7f7f7f" } ]
                 ],
                 "view": "timeSeries",
                 "stacked": true,
@@ -325,7 +325,7 @@ resource "aws_cloudwatch_dashboard" "default" {
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ { "expression": "SELECT MAX(disk_used_percent) FROM SCHEMA(\"${local.instance_name}_cwagent\", AutoScalingGroupName,InstanceId,device,fstype,path) WHERE path = '/'", "label": "Max used disk - /", "id": "q1", "region": "${data.aws_region.default.name}", "period": 60, "color": "#2ca02c" } ]
+                    [ { "expression": "SELECT MAX(disk_used_percent) FROM SCHEMA(\"${local.vault_cloudwatch_namespace}\", AutoScalingGroupName,InstanceId,device,fstype,path) WHERE path = '/'", "label": "Max used disk - /", "id": "q1", "region": "${data.aws_region.default.name}", "period": 60, "color": "#2ca02c" } ]
                 ],
                 "view": "gauge",
                 "region": "${data.aws_region.default.name}",
@@ -348,7 +348,7 @@ resource "aws_cloudwatch_dashboard" "default" {
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ { "expression": "SELECT MAX(disk_used_percent) FROM SCHEMA(\"${local.instance_name}_cwagent\", AutoScalingGroupName,InstanceId,device,fstype,path) WHERE path = '${var.vault_data_path}'", "label": "Max used disk - ${var.vault_data_path}", "id": "q1", "region": "${data.aws_region.default.name}", "period": 60, "color": "#2ca02c" } ]
+                    [ { "expression": "SELECT MAX(disk_used_percent) FROM SCHEMA(\"${local.vault_cloudwatch_namespace}\", AutoScalingGroupName,InstanceId,device,fstype,path) WHERE path = '${var.vault_data_path}'", "label": "Max used disk - ${var.vault_data_path}", "id": "q1", "region": "${data.aws_region.default.name}", "period": 60, "color": "#2ca02c" } ]
                 ],
                 "view": "gauge",
                 "region": "${data.aws_region.default.name}",
@@ -372,7 +372,7 @@ resource "aws_cloudwatch_dashboard" "default" {
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ { "expression": "SELECT MAX(mem_used_percent) FROM SCHEMA(\"${local.instance_name}_cwagent\", AutoScalingGroupName,InstanceId)", "label": "Max memory used", "id": "q1", "region": "${data.aws_region.default.name}", "period": 60, "color": "#2ca02c" } ]
+                    [ { "expression": "SELECT MAX(mem_used_percent) FROM SCHEMA(\"${local.vault_cloudwatch_namespace}\", AutoScalingGroupName,InstanceId)", "label": "Max memory used", "id": "q1", "region": "${data.aws_region.default.name}", "period": 60, "color": "#2ca02c" } ]
                 ],
                 "view": "gauge",
                 "region": "${data.aws_region.default.name}",
