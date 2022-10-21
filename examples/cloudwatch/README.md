@@ -1,6 +1,6 @@
 # Cloudwatch scenario for Vault
 
-Spin up a HashiCorp Vault cluster with the AWS Cloudwatchthat automatically unseals and members joins based on AWS tags.
+Spin up a HashiCorp Vault cluster with AWS Cloudwatch metrics, logs and alarms enabled.
 
 ## Setup
 

@@ -2,13 +2,13 @@
 
 # A function to instruct on usage.
 usage() {
-  echo "$0 -i INSTANCE_ID -n VAULT_NAME -N INSTANCE_NAME"
+  echo "$0 -i INSTANCE_ID -n VAULT_NAME -N INSTANCE_NAME -r RANDOM_STRING -p VAULT_PATH -s VAULT_CLOUDWATCH_NAMESPACE"
   echo ""
   exit 1
 }
 
 # Read the specified arguments.
-while getopts :i:n:N:r:p: flag ; do
+while getopts :i:n:N:r:p:s: flag ; do
   case "${flag}" in
     i)
       instance_id="${OPTARG}"
@@ -24,6 +24,9 @@ while getopts :i:n:N:r:p: flag ; do
     ;;
     p)
       vault_path="${OPTARG}"
+    ;;
+    s)
+      vault_cloudwatch_namespace="${OPTARG}"
     ;;
     \?)
       echo "The option ${OPTARG} is invalid."
@@ -57,9 +60,23 @@ if [ -z "${instance_name}" ] ; then
   usage
 fi
 
-# Check that the random_string is set.
+# Check that random_string is set.
 if [ -z "${random_string}" ] ; then
   echo "Please specify an random string."
+  echo ""
+  usage
+fi
+
+# Check that vault_path is set.
+if [ -z "${vault_path}" ] ; then
+  echo "Please specify the vault path."
+  echo ""
+  usage
+fi
+
+# Check that vault_cloudwatch_namespace is set.
+if [ -z "${vault_cloudwatch_namespace}" ] ; then
+  echo "Please specify the cloudwatch namespace for vault."
   echo ""
   usage
 fi
@@ -115,7 +132,7 @@ cat << EOF > /opt/aws/amazon-cloudwatch-agent/bin/config.json
     }
   },
   "metrics": {
-    "namespace": "vault-${vault_name}-${random_string}_cwagent",
+    "namespace": "${vault_cloudwatch_namespace}",
     "aggregation_dimensions": [
       ["InstanceId","AutoScalingGroupName"],
       []
