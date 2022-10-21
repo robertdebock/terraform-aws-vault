@@ -3,7 +3,6 @@
 # Always update packages installed.
 yum update -y
 
-
 # Make a directory for Raft, certificates and init information.
 mkdir -p "${vault_data_path}"
 mkfs.ext4 /dev/sda1
@@ -23,7 +22,6 @@ my_hostname="$(curl http://169.254.169.254/latest/meta-data/hostname)"
 my_ipaddress="$(curl http://169.254.169.254/latest/meta-data/local-ipv4)"
 my_instance_id="$(curl http://169.254.169.254/latest/meta-data/instance-id)"
 my_region="$(curl http://169.254.169.254/latest/dynamic/instance-identity/document | grep region | cut -d\" -f4)"
-
 
 # Run a custom, user-provided script.
 if [ "${vault_custom_script_s3_url}" != "" ] ; then
@@ -180,21 +178,9 @@ systemctl --now enable vault
 
 # Setup logrotate if the audit_device is enabled.
 if [[ "${audit_device}" = "true" || "${cloudwatch_monitoring}" = "true" ]] ; then
-  cat << EOF > /etc/logrotate.d/vault
-${audit_device_path}/*.log {
-  rotate $[${audit_device_size}*4]
-  missingok
-  compress
-  size 512M
-  postrotate
-    /usr/bin/systemctl reload vault 2> /dev/null || true
-  endscript
-}
-EOF
+  aws s3 cp "s3://vault-scripts-${random_string}/setup_logrotate.sh" /setup_logrotate.sh
+  sh /setup_logrotate.sh -a "${audit_device_path}" -s "$[${audit_device_size}*4]"
 fi
-
-# Run logrotate hourly.
-cp /etc/cron.daily/logrotate /etc/cron.hourly/logrotate
 
 # Allow users to use `vault`.
 echo "export VAULT_ADDR=https://$${my_ipaddress}:8200" >> /etc/profile.d/vault.sh

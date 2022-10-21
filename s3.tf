@@ -11,3 +11,11 @@ resource "aws_s3_object" "cloudwatch" {
   key    = "cloudwatch.sh"
   source = "${path.module}/scripts/cloudwatch.sh"
 }
+
+# Add the logrotate setup script to the bucket.
+resource "aws_s3_object" "logrotate_script" {
+  bucket = aws_s3_bucket.default.id
+  etag   = filemd5("${path.module}/scripts/setup_logrotate.sh")
+  key    = "setup_logrotate.sh"
+  source = "${path.module}/scripts/setup_logrotate.sh"
+}

@@ -39,12 +39,12 @@ jobs:
         with:
           files: "./examples/${{ matrix.config.name }}/prerequisites"
       - name: terraform prerequisites init
-        uses: robertdebock/terraform-action@1.1.2
+        uses: robertdebock/terraform-action@1.1.4
         with:
           directory: ./examples//${{ matrix.config.name }}/prerequisites  
         if: steps.check_files.outputs.files_exists == 'true'
       - name: terraform prerequisites apply
-        uses: robertdebock/terraform-action@1.1.2
+        uses: robertdebock/terraform-action@1.1.4
         with:
           action: apply
           directory: ./examples//${{ matrix.config.name }}/prerequisites
@@ -52,28 +52,28 @@ jobs:
           TF_CLI_ARGS: "-input=false -auto-approve"
         if: steps.check_files.outputs.files_exists == 'true'
       - name: terraform init
-        uses: robertdebock/terraform-action@1.1.2
+        uses: robertdebock/terraform-action@1.1.4
         with:
           directory: ./examples/${{ matrix.config.name }}
       - name: terraform validate
-        uses: robertdebock/terraform-action@1.1.2
+        uses: robertdebock/terraform-action@1.1.4
         with:
           action: validate
           directory: ./examples/${{ matrix.config.name }}
       - name: terraform plan
-        uses: robertdebock/terraform-action@1.1.2
+        uses: robertdebock/terraform-action@1.1.4
         with:
           action: plan
           directory: ./examples/${{ matrix.config.name }}
       - name: terraform apply
-        uses: robertdebock/terraform-action@1.1.2
+        uses: robertdebock/terraform-action@1.1.4
         with:
           action: apply
           directory: ./examples/${{ matrix.config.name }}
         env:
           TF_CLI_ARGS: "-input=false -auto-approve"
       - name: terraform destroy
-        uses: robertdebock/terraform-action@1.1.2
+        uses: robertdebock/terraform-action@1.1.4
         with:
           action: destroy
           directory: ./examples/${{ matrix.config.name }}
@@ -81,7 +81,7 @@ jobs:
           TF_CLI_ARGS: "-input=false -auto-approve"
         if: ${{ always() }}
       - name: terraform prerequisites destroy
-        uses: robertdebock/terraform-action@1.1.2
+        uses: robertdebock/terraform-action@1.1.4
         with:
           action: destroy
           directory: ./examples//${{ matrix.config.name }}/prerequisites

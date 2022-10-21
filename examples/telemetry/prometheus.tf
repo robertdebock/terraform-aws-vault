@@ -6,7 +6,7 @@ resource "local_file" "prometheus" {
   content = templatefile("${path.module}/user_data_prometheus.sh.tpl",
     {
       # You don't know the `credenial` before initializing Vault.
-      credenial = "hvs.lkFuVPHlbLlHRq0x5Sahp5Cz"
+      credenial = "hvs.OBFUSCATEDOBFUSCATEDOBFU"
       target    = aws_route53_record.default.fqdn
     }
   )
@@ -89,15 +89,3 @@ resource "aws_instance" "prometheus" {
     Name = "prometheus"
   }
 }
-
-# # Show the Prometheus public IP.
-# output "prometheus_public_ip" {
-#   description = "The Prometheus public IP address."
-#   value       = aws_instance.prometheus.public_ip
-# }
-#
-# # Show the Prometheus private IP.
-# output "prometheus_private_ip" {
-#   description = "The Prometheus private IP address."
-#   value       = aws_instance.prometheus.private_ip
-# }
