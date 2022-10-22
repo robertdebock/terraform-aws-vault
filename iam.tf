@@ -231,7 +231,7 @@ resource "aws_iam_instance_profile" "default" {
 # Create a role with attached policies for Lambda function that automatically creates Cloudwatch alarms for newly created ASG instances
 resource "aws_iam_role" "lambda" {
   count              = var.vault_enable_cloudwatch ? 1 : 0
-  name               = "iam_for_lambda"
+  name               = "${var.vault_name}-vault-lambda"
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -256,8 +256,23 @@ resource "aws_iam_role_policy" "lambda" {
   role   = aws_iam_role.lambda[0].id
 }
 
+data "aws_partition" "current" {}
+
+data "aws_region" "current" {}
+
+data "aws_caller_identity" "current" {}
+
 data "aws_iam_policy_document" "lambda" {
   count  = var.vault_enable_cloudwatch ? 1 : 0
+  statement {
+    effect  = "Allow"
+    actions = [
+      "cloudwatch:PutMetricData"
+    ]
+    resources = [
+    "*"
+    ]
+  }
   statement {
     effect  = "Allow"
     actions = [
@@ -267,8 +282,8 @@ data "aws_iam_policy_document" "lambda" {
       "logs:DescribeLogGroups"
     ]
     resources = [
-      # TODO should be --> Resource: !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:*"
-      "*"
+      "arn:${data.aws_partition.current.partition}:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.id}:log-group:*",
+      "arn:${data.aws_partition.current.partition}:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.id}:log-group:*:log-stream:*"
     ]
   }
   statement {
@@ -277,8 +292,7 @@ data "aws_iam_policy_document" "lambda" {
       "logs:PutLogEvents"
     ]
     resources = [
-      # TODO should be --> Resource: !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:*:log-stream:*"
-      "*"
+      "arn:${data.aws_partition.current.partition}:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.id}:log-group:*:log-stream:*",
     ]
   }
   statement {
@@ -288,17 +302,6 @@ data "aws_iam_policy_document" "lambda" {
       "ec2:DescribeImages"
     ]
     resources = [
-      "*"
-    ]
-  }
-  statement {
-    effect  = "Allow"
-    actions = [
-      "ec2:DescribeInstances",
-      "ec2:DescribeImages"
-    ]
-    resources = [
-      # TODO should be --> Resource: !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:instance/*"
       "*"
     ]
   }
@@ -310,8 +313,7 @@ data "aws_iam_policy_document" "lambda" {
       "cloudwatch:PutMetricAlarm"
     ]
     resources = [
-      # TODO should be --> Resource:  !Sub "arn:${AWS::Partition}:cloudwatch:${AWS::Region}:${AWS::AccountId}:alarm:AutoAlarm-*"
-      "*"
+      "arn:${data.aws_partition.current.partition}:cloudwatch:${data.aws_region.current.name}:${data.aws_caller_identity.current.id}:alarm:AutoAlarm-*"
     ]
   }
   statement {
@@ -320,7 +322,7 @@ data "aws_iam_policy_document" "lambda" {
       "cloudwatch:DescribeAlarms"
     ]
     resources = [
-      "*"
+    "*"
     ]
   }
   statement {
@@ -329,8 +331,7 @@ data "aws_iam_policy_document" "lambda" {
       "ec2:CreateTags"
     ]
     resources = [
-      # TODO should be --> Resource: !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:instance/*"
-      "*"
+      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.id}:instance/*"
     ]
   }
 }
