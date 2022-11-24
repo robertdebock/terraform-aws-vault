@@ -100,3 +100,71 @@ Because a single bastion host is used for each region, please be aware that you 
 7. Create a DR token on vault-us-0: `vault write sys/replication/dr/primary/secondary-token id="vault-us-1"`
 8. Enable DR secondary on vault-eu-1: `vault write sys/replication/dr/secondary/enable token=WRAPPING_TOKEN`
 9. Enable DR secondary on vault-us-1: `vault write sys/replication/dr/secondary/enable token=WRAPPING_TOKEN`
+
+### Performance Replication parameters
+
+Both the primary and secondary have parameters when setting up Vault replication. This can be confusing, here is a table and some situations that should clarify the required values for these parameters.
+
+|               | primary_api_addr                               | primary_cluster_addr                                |
+|---------------|------------------------------------------------|-----------------------------------------------------|
+| Description   | Loadbalancer or node on port 8200              | Loadbalancer or node on port 8201                   |
+| Applicable to | sys/replication/performance/secondary/enable   | sys/replication/performance/primary/secondary-token |
+| Run on        | Your intended SECONDARY                        | Your intended PRIMARY                               |
+| When to set   | When Vault is load balanced, or not resolvable | When Vault is load balanced, or not resolvable      |
+
+Here are a couple of scenarios and their required parameter values.
+
+#### Fully reachable
+
+Situation: Vault clusters can reach each other on both :8200/tcp and :8201/tcp. Resolving hosts is possible from all nodes in both clusters.
+
+```text
++--- Vault primary ---+   +--- Vault secondary ---+
+|                     |   |                       |
++---------------------+   +-----------------------+
+```
+
+1. Primary: `vault write -f sys/replication/performance/primary/enable
+2. Primary: `vault write -f sys/replication/performance/primary/secondary-token id=vault-us-0`
+3. Secondary: `vault write sys/replication/performance/secondary/enable token=WRAPPING_TOKEN`
+
+No specific guidance is required to tell Vault where to find the API or cluster.
+
+#### Resolving issues
+
+Situation: The two Vault clusters can't resolve the hostnames of the other cluster members.
+
+```text
++--- Vault primary ---+   +--- Vault secondary ---+
+|                     |   |                       |
++---------------------+   +-----------------------+
+            |                        |
+            +--- NO DNS RESOLVING ---+
+```
+
+1. Primary: `vault write -f sys/replication/performance/primary/enable primary_cluster_addr=https://NODE_IP_ADDR:8201
+2. Primary: `vault write -f sys/replication/performance/primary/secondary-token id=vault-us-0`
+3. Secondary: `vault write sys/replication/performance/secondary/enable token=WRAPPING_TOKEN primary_api_addr=http://NODE_IP_ADDR:8200`
+
+The NODE_IP_ADDR is any node on the primary cluster. Port 8200 and 8201 should be reachable from the nodes in the secondary cluster.
+
+#### Behind a load balancer
+
+Situation: If Vault is deployed behind a load balancer, the nodes will not know the address of the load balancer. When the secondary node joins the primary, we have to help Vault by explaining where to reach the primary Vault.
+
+```text
++--- load balancer ---+
+|                     |
++---------------------+
+           |
+           V
++--- Vault primary ---+   +--- Vault secondary ---+
+|                     |   |                       |
++---------------------+   +-----------------------+
+```
+
+1. Primary: `vault write -f sys/replication/performance/primary/enable`
+2. Primary: `vault write -f sys/replication/performance/primary/secondary-token id=vault-us-0`
+3. Secondary: `vault write sys/replication/performance/secondary/enable token=WRAPPING_TOKEN primary_api_addr=https://LOAD_BALANCER:8200`
+
+The LOAD_BALANCER is the DNS name or IP address of the load balancer serving the Vault nodes on the primary cluster.
