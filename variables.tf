@@ -429,7 +429,6 @@ variable "vault_enable_cloudwatch" {
   default     = false
 }
 
-
 variable "vault_custom_script_s3_url" {
   description = "The URL to the script stored on s3."
   type        = string
