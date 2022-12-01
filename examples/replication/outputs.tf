@@ -20,5 +20,5 @@ output "instructions_us" {
 
 output "vault_url" {
   description = "The global endpoint, routing to the nearest active Vault cluster."
-  value       = "https://vault.meinit.nl`:8200/"
+  value       = "https://vault.meinit.nl:8200/"
 }
