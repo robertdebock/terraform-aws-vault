@@ -93,11 +93,11 @@ vault write auth/userpass/users/tester password="changeme" policies="superuser"
 
 Because a single bastion host is used for each region, please be aware that you may be logged in to another Vault instance. You may need to set (or unset) the `VAULT_TOKEN` and reset the `VAULT_ADDR` variable.
 
-1. Enable PR primary on vault-eu-0 `vault write -f sys/replication/performance/primary/enable primary_cluster_addr=https://replication-eu-0.meinit.nl:8201`
+1. Enable PR primary on vault-eu-0 `vault write -f sys/replication/performance/primary/enable primary_cluster_addr=https://replication-eu-0.${var.domain}:8201`
 2. Create a PR token on vault-eu-0: `vault write -f sys/replication/performance/primary/secondary-token id=vault-us-0`
 3. Enable PR secondary on vault-us-0: `vault write sys/replication/performance/secondary/enable token=WRAPPING_TOKEN`.
-4. Enable DR primary on vault-eu-0: `vault write -f sys/replication/dr/primary/enable primary_cluster_addr=https://replication-eu-0.meinit.nl:8201`.
-5. Enable DR primary on vault-us-0: `unset VAULT_TOKEN && vault login -method=userpass username=tester && vault write -f sys/replication/dr/primary/enable primary_cluster_addr=https://replication-us-0.meinit.nl:8201`
+4. Enable DR primary on vault-eu-0: `vault write -f sys/replication/dr/primary/enable primary_cluster_addr=https://replication-eu-0.${var.domain}:8201`.
+5. Enable DR primary on vault-us-0: `unset VAULT_TOKEN && vault login -method=userpass username=tester && vault write -f sys/replication/dr/primary/enable primary_cluster_addr=https://replication-us-0.${var.domain}:8201`
 6. Create a DR token on vault-eu-0: `vault write sys/replication/dr/primary/secondary-token id="vault-eu-1"`
 7. Create a DR token on vault-us-0: `vault write sys/replication/dr/primary/secondary-token id="vault-us-1"`
 8. Enable DR secondary on vault-eu-1: `vault write sys/replication/dr/secondary/enable token=WRAPPING_TOKEN`
