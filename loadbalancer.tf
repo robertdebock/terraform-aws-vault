@@ -79,14 +79,13 @@ resource "aws_lb_listener" "api" {
   }
 }
 
+# Redirect traffic from port 80 to the API port.
 resource "aws_lb_listener" "api_redirect" {
   load_balancer_arn = aws_lb.api.arn
   port              = "80"
   protocol          = "HTTP"
-
   default_action {
     type = "redirect"
-
     redirect {
       port        = var.vault_api_port
       protocol    = "HTTPS"
