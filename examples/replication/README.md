@@ -27,12 +27,10 @@ The intent of these clusters is as follows:
 Create all network components in us-east-2 and eu-west-1:
 
 ```shell
-cd us-east-2
+cd prerequisites
 terraform init
 terraform apply
-cd ../eu-west-1
-terraform init
-terraform apply
+cd ../
 ```
 
 Download all terraform material.
@@ -55,9 +53,13 @@ Generate a CA key and certificate.
 
 ## Deploying
 
+> Note: Remember to set the vault license in `main.tf`
+
 ```shell
 terraform apply
 ```
+
+Follow the instructions to initialize the Vault clusters.
 
 ### Create a user
 
