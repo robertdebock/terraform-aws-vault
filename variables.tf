@@ -440,7 +440,7 @@ variable "vault_custom_script_s3_url" {
 }
 
 variable "vault_custom_script_s3_bucket_arn" {
-  description = "The arn where the custom script are stored."
+  description = "The arn where the custom script are stored for the Vault nodes."
   type        = string
   default     = ""
   validation {
@@ -450,9 +450,19 @@ variable "vault_custom_script_s3_bucket_arn" {
 }
 
 variable "vault_bastion_allowed_cidr_blocks" {
-  description = "What CIDR blocks are allowed to access the Bastion host over SSH."
+  description = "What CIDR blocks are allowed to access the bastion host over SSH."
   type        = list(string)
   default     = ["0.0.0.0/0"]
+}
+
+variable "vault_bastion_custom_script_s3_bucket_arn" {
+  description = "The arn where the custom script are stored for the bastion host."
+  type        = string
+  default     = ""
+  validation {
+    condition     = can(regex("^arn:aws:s3:", var.vault_bastion_custom_script_s3_bucket_arn)) || var.vault_bastion_custom_script_s3_bucket_arn == ""
+    error_message = "Please specify a valid ARN, starting with \"arn:aws:s3:\"."
+  }
 }
 
 variable "vault_bastion_custom_script_s3_url" {
