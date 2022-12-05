@@ -80,6 +80,7 @@ resource "aws_route_table_association" "bastion" {
 resource "aws_instance" "bastion" {
   count                       = var.vault_create_bastionhost ? 1 : 0
   ami                         = data.aws_ami.bastion[0].id
+  iam_instance_profile        = aws_iam_instance_profile.bastion.name
   associate_public_ip_address = true
   instance_type               = "t4g.nano"
   key_name                    = local.vault_aws_key_name
@@ -103,4 +104,78 @@ resource "aws_instance" "bastion" {
     delete_on_termination = true
   }
   depends_on = [local.gateway_id]
+}
+
+# Make an S3 bucket to store backups.
+resource "aws_s3_bucket" "bastion" {
+  bucket = "vault-backups-${random_string.default.result}"
+  tags   = local.scripts_tags
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "bastion" {
+  bucket = aws_s3_bucket.bastion.bucket
+  rule {
+    apply_server_side_encryption_by_default {
+      kms_master_key_id = local.aws_kms_key_id
+      sse_algorithm     = "aws:kms"
+    }
+  }
+}
+
+# Make a role to allow role assumption.
+resource "aws_iam_role" "bastion" {
+  assume_role_policy = data.aws_iam_policy_document.assumerole.json
+  description        = "Vault bastion role - ${var.vault_name}"
+  name               = var.vault_name
+  tags               = local.tags
+}
+
+# Make a policy to allow storing backups to S3.
+data "aws_iam_policy_document" "backup" {
+  count = var.vault_bastion_create_s3_bucket ? 1 : 0
+  statement {
+    effect = "Allow"
+    actions = [
+      "s3:PutObject",
+      "s3:DeleteObject"
+    ]
+    resources = [
+      "arn:aws:s3:::${var.vault_aws_s3_snapshots_bucket_name}/*.snap",
+      "arn:aws:s3:::${var.vault_aws_s3_snapshots_bucket_name}/*/*.snap"
+    ]
+  }
+  statement {
+    effect = "Allow"
+    actions = [
+      "s3:ListBucketVersions",
+      "s3:ListBucket"
+    ]
+    resources = ["arn:aws:s3:::${var.vault_aws_s3_snapshots_bucket_name}"]
+  }
+  statement {
+    effect = "Allow"
+    actions = [
+      "s3:GetObject",
+      "s3:ListBucket"
+    ]
+    resources = [
+      "arn:aws:s3:::${var.vault_aws_s3_snapshots_bucket_name}",
+      "arn:aws:s3:::${var.vault_aws_s3_snapshots_bucket_name}/*"
+    ]
+  }
+}
+
+# Link the backup policy to the backup role.
+resource "aws_iam_role_policy" "backup" {
+  count  = var.vault_bastion_create_s3_bucket ? 1 : 0
+  name   = "${var.vault_name}-vault-bastion-backup"
+  policy = data.aws_iam_policy_document.backup[0].json
+  role   = aws_iam_role.bastion.id
+}
+
+# Make an iam instance profile
+resource "aws_iam_instance_profile" "bastion" {
+  name = var.vault_name
+  role = aws_iam_role.bastion.name
+  tags = local.tags
 }

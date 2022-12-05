@@ -464,3 +464,9 @@ variable "vault_bastion_custom_script_s3_url" {
     error_message = "Please use an s3 URL, starting with \"s3://\"."
   }
 }
+
+variable "vault_bastion_create_s3_bucket" {
+  description = "Should an S3 bucket be create that the bastion host can use for backups?"
+  type        = bool
+  default     = true
+}
