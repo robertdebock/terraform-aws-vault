@@ -7,3 +7,8 @@ output "instructions" {
   description = "How to initialize Vault."
   value       = module.vault.instructions
 }
+
+output "bastion_s3_bucket_arn" {
+  description = "The AWS S3 arn for storing backups from the Bastion host."
+  value       = module.vault.aws_s3_bucket_bastion_arn
+}
