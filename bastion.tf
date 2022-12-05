@@ -130,6 +130,29 @@ resource "aws_iam_role" "bastion" {
   tags               = local.tags
 }
 
+# Make a policy to allow downloading custom scripts from S3.
+data "aws_iam_policy_document" "custom_scripts_bastion" {
+  count = var.vault_custom_script_s3_url == "" ? 0 : 1
+  statement {
+    effect = "Allow"
+    actions = [
+      "s3:GetObject"
+    ]
+    resources = [
+      "${var.vault_bastion_custom_script_s3_bucket_arn}/*.sh"
+    ]
+  }
+  statement {
+    effect = "Allow"
+    actions = [
+      "s3:ListBucket"
+    ]
+    resources = [
+      "${var.vault_bastion_custom_script_s3_bucket_arn}"
+    ]
+  }
+}
+
 # Make a policy to allow storing backups to S3.
 data "aws_iam_policy_document" "backup" {
   count = var.vault_bastion_create_s3_bucket ? 1 : 0
@@ -165,13 +188,22 @@ data "aws_iam_policy_document" "backup" {
   }
 }
 
-# Link the backup policy to the backup role.
+# Link the backup policy to the bastion role.
 resource "aws_iam_role_policy" "backup" {
   count  = var.vault_bastion_create_s3_bucket ? 1 : 0
   name   = "${var.vault_name}-vault-bastion-backup"
   policy = data.aws_iam_policy_document.backup[0].json
   role   = aws_iam_role.bastion.id
 }
+
+# Link the custom script policy to the bastion role.
+resource "aws_iam_role_policy" "custom_script" {
+  count  = var.vault_custom_script_s3_url == "" ? 0 : 1
+  name   = "${var.vault_name}-vault-bastion-custom_script"
+  policy = data.aws_iam_policy_document.custom_scripts_bastion[0].json
+  role   = aws_iam_role.bastion.id
+}
+
 
 # Make an iam instance profile
 resource "aws_iam_instance_profile" "bastion" {
