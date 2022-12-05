@@ -42,3 +42,8 @@ output "aws_lb_api_arn" {
   description = "The ARN of the API load balancer."
   value       = aws_lb.api.arn
 }
+
+output "aws_s3_bucket_bastion_arn" {
+  description = "The "
+  value       = aws_s3_bucket.bastion.arn
+}
