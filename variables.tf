@@ -430,7 +430,7 @@ variable "vault_enable_cloudwatch" {
 }
 
 variable "vault_custom_script_s3_url" {
-  description = "The URL to the script stored on s3."
+  description = "The URL to the script stored on s3 that should run on the Vault hosts."
   type        = string
   default     = ""
   validation {
@@ -453,4 +453,14 @@ variable "vault_bastion_allowed_cidr_blocks" {
   description = "What CIDR blocks are allowed to access the Bastion host over SSH."
   type        = list(string)
   default     = ["0.0.0.0/0"]
+}
+
+variable "vault_bastion_custom_script_s3_url" {
+  description = "The URL to the script stored on s3 that should run on the bastion host."
+  type        = string
+  default     = ""
+  validation {
+    condition = can(regex("^s3://", var.vault_bastion_custom_script_s3_url)) || var.vault_bastion_custom_script_s3_url == ""
+    error_message = "Please use an s3 URL, starting with \"s3://\"."
+  }
 }

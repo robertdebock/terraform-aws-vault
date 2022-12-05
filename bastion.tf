@@ -87,10 +87,11 @@ resource "aws_instance" "bastion" {
   tags                        = local.bastion_tags
   user_data = templatefile("${path.module}/user_data_bastion.sh.tpl",
     {
-      api_addr           = local.api_addr
-      vault_ca_cert_path = file("tls/vault_ca.crt")
-      vault_version      = var.vault_version
-      vault_package      = local.vault_package
+      api_addr                           = local.api_addr
+      vault_ca_cert_path                 = file("tls/vault_ca.crt")
+      vault_bastion_custom_script_s3_url = var.vault_bastion_custom_script_s3_url
+      vault_version                      = var.vault_version
+      vault_package                      = local.vault_package
     }
   )
   user_data_replace_on_change = true
