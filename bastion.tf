@@ -175,7 +175,7 @@ resource "aws_iam_role_policy" "backup" {
 
 # Make an iam instance profile
 resource "aws_iam_instance_profile" "bastion" {
-  name = var.vault_name
+  name = "${var.vault_name}-bastion"
   role = aws_iam_role.bastion.name
   tags = local.tags
 }
