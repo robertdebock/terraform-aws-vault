@@ -126,7 +126,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "bastion" {
 resource "aws_iam_role" "bastion" {
   assume_role_policy = data.aws_iam_policy_document.assumerole.json
   description        = "Vault bastion role - ${var.vault_name}"
-  name               = var.vault_name
+  name               = "${var.vault_name}-bastion"
   tags               = local.tags
 }
 
