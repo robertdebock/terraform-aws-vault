@@ -87,7 +87,7 @@ locals {
   private_subnet_ids = coalescelist(var.vault_private_subnet_ids, aws_subnet.private[*].id)
 
   # Select the public_subnet_ids, either created or set as a variable.
-  public_subnet_ids = coalescelist(var.vault_public_subnet_ids, aws_subnet.public[*].id)
+  public_subnet_ids = try(coalescelist(var.vault_public_subnet_ids, aws_subnet.public[*].id), [])
 
   # Select the gateway_id, either the created resource or the found resource.
   gateway_id = try(aws_internet_gateway.default[0].id, data.aws_internet_gateway.default[0].id)
