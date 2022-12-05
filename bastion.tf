@@ -13,7 +13,7 @@ resource "aws_security_group" "bastion" {
 # Allow SSH to the security group.
 resource "aws_security_group_rule" "bastion-ssh" {
   count             = var.vault_create_bastionhost ? 1 : 0
-  cidr_blocks       = ["0.0.0.0/0"]
+  cidr_blocks       = var.vault_bastion_allowed_cidr_blocks
   description       = "ssh"
   from_port         = 22
   protocol          = "TCP"

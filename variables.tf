@@ -448,3 +448,9 @@ variable "vault_custom_script_s3_bucket_arn" {
     error_message = "Please specify a valid ARN, starting with \"arn:aws:s3:\"."
   }
 }
+
+variable "vault_bastion_allowed_cidr_blocks" {
+  description = "What CIDR blocks are allowed to access the Bastion host over SSH."
+  type        = list(string)
+  default     = ["0.0.0.0/0"]
+}
