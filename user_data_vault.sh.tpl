@@ -32,7 +32,7 @@ fi
 # Install, configure and initialize the AWS Cloudwatch agent
 if [ "${cloudwatch_monitoring}" = "true" ] ; then
   aws s3 cp "s3://vault-scripts-${random_string}/cloudwatch.sh" /cloudwatch.sh
-  sh /cloudwatch.sh -n "${vault_name}" -N "$${my_hostname}" -i "$${my_instance_id}" -r "${random_string}" -p "${vault_data_path}"
+  sh /cloudwatch.sh -n "${vault_name}" -N "$${my_hostname}" -i "$${my_instance_id}" -r "${random_string}" -p "${vault_data_path}" -s "${vault_cloudwatch_namespace}"
 fi
 
 # Add the HashiCorp RPM repository.

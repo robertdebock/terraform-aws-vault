@@ -93,19 +93,30 @@ To restore a snapshot, run:
 vault operator raft snapshot restore FILE
 ```
 
-## Monitoring & Logging
+## Logging, monitoring and alerting
 
-Currently monitoring and logging is available with AWS native tools by setting the `vault_enable_cloudwatch` boolean to `true`, see also: `examples/cloudwatch`.
+Currently logging, monitoring and alerting are available with AWS native tools by setting the `vault_enable_cloudwatch` boolean to `true`, see also: `examples/cloudwatch`.
 
-The following logs and metrics are being collected by the Cloudwatch agent:
+> Known bug: `terraform destroy` will not clean up Cloudwatch Alarms, the lambda function that is ment to clean the alarms is destroyed before it has a chance to clean the alarms.
+
+- TODO something about where to send the alerts to, mail,mobile,slack ?
+
+By default the following logs and metrics are being collected by the Cloudwatch agent:
 
 - Metrics:
   - memory_used_percent
   - disk_used_percent - /opt/vault
   - disk_used_percent - /
-- Logs
+- Logs:
   - /var/log/vault/vault.log
   - /var/log/cloud-init-output.log
+
+By default the following alarms are created:
+
+- Alarms:
+  - at 80% - memory_used_percent
+  - at 80% - disk_used_percent - /opt/vault
+  - at 80% - disk_used_percent - /
 
 Metrics dashboard preview:  
 ![Cloudwatch dashboard preview.](./README.d/Cloudwatch_dashboard_preview.png)
