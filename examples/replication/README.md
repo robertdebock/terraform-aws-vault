@@ -100,8 +100,8 @@ Because a single bastion host is used for each region, please be aware that you 
 5. Enable DR primary on vault-us-0: `unset VAULT_TOKEN && vault login -method=userpass username=tester && vault write -f sys/replication/dr/primary/enable primary_cluster_addr=https://replication-us-0.${var.domain}:8201`
 6. Create a DR token on vault-eu-0: `vault write sys/replication/dr/primary/secondary-token id="vault-eu-1"`
 7. Create a DR token on vault-us-0: `vault write sys/replication/dr/primary/secondary-token id="vault-us-1"`
-8. Enable DR secondary on vault-eu-1: `vault write sys/replication/dr/secondary/enable token=WRAPPING_TOKEN`
-9. Enable DR secondary on vault-us-1: `vault write sys/replication/dr/secondary/enable token=WRAPPING_TOKEN`
+8. Enable DR secondary on vault-eu-1: `vault write sys/replication/dr/secondary/enable token=WRAPPING_TOKEN_FROM_EU_0`
+9. Enable DR secondary on vault-us-1: `vault write sys/replication/dr/secondary/enable token=WRAPPING_TOKEN_FROM_US_0`
 
 ### Performance Replication parameters
 
