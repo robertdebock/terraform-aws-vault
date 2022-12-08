@@ -32,7 +32,7 @@ resource "aws_acm_certificate" "default_us" {
 
 # Lookup DNS zone.
 data "aws_route53_zone" "default" {
-  name = "${var.domain}"
+  name = var.domain
 }
 
 # Add validation details to the DNS zone.

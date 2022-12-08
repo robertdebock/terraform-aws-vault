@@ -8,7 +8,7 @@ data "terraform_remote_state" "default" {
 
 # Make a certificate.
 resource "aws_acm_certificate" "default" {
-  domain_name = "mykey.meinit.nl"
+  domain_name = "mykey.${var.domain}"
   # After a deployment, this value (`domain_name`) can't be changed because the certificate is bound to the load balancer listener.
   validation_method = "DNS"
   tags = {
@@ -18,7 +18,7 @@ resource "aws_acm_certificate" "default" {
 
 # Lookup DNS zone.
 data "aws_route53_zone" "default" {
-  name = "meinit.nl"
+  name = var.domain
 }
 
 # Add validation details to the DNS zone.
