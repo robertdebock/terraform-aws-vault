@@ -2,7 +2,7 @@
 resource "aws_vpc" "default" {
   count      = var.vault_aws_vpc_id == "" ? 1 : 0
   cidr_block = local.cidr_block
-  tags       = local.tags
+  tags       = local.vpc_tags
 }
 
 # Create an internet gateway if the VPC is not provided.

@@ -10,10 +10,14 @@ locals {
   public_tags      = merge({ Name = "public-${var.vault_name}-${random_string.default.result}" }, var.vault_tags)
   replication_tags = merge({ Name = "replication-${var.vault_name}-${random_string.default.result}" }, var.vault_tags)
   scripts_tags     = merge({ Name = "scripts-${var.vault_name}-${random_string.default.result}" },  var.vault_tags)
+  vpc_tags         = merge({ Name = "vpc-${var.vault_name}-${random_string.default.result}" },  var.vault_tags)
   tags             = merge({ Name = "${var.vault_name}-${random_string.default.result}" }, var.vault_tags)
   
   # Compose the name of the instances.
   instance_name = "vault-${var.vault_name}-${random_string.default.result}"
+
+  # Compose a name for other resources.
+  name = "${var.vault_name}-${random_string.default.result}"
 
   # Combine api arn and (optionally) replication arn.
   target_group_arns = compact([aws_lb_target_group.api.arn, try(aws_lb_target_group.replication[0].arn, null)])
@@ -39,7 +43,6 @@ locals {
     maximum     = 8
   }
   minimum_vcpus = local._minimum_vcpus[var.vault_size]
-
 
   # A map from `vault_size` to `volume_type`.
   _volume_type = {

@@ -20,7 +20,7 @@ data "aws_region" "default" {}
 # Place an SSH key.
 resource "aws_key_pair" "default" {
   count      = var.vault_keyfile_path == "" ? 0 : 1
-  key_name   = var.vault_name
+  key_name   = local.name
   public_key = file(var.vault_keyfile_path)
   tags       = local.tags
 }
@@ -146,7 +146,7 @@ resource "aws_autoscaling_group" "default" {
       }
     }
   }
-  name            = var.vault_name
+  name            = local.name
   placement_group = aws_placement_group.default.id
   tag {
     key                 = "Name"

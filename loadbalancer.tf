@@ -1,6 +1,6 @@
 # Create a placement group that spreads.
 resource "aws_placement_group" "default" {
-  name         = var.vault_name
+  name         = local.name
   spread_level = "rack"
   strategy     = "spread"
   tags         = local.tags

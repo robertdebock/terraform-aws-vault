@@ -156,7 +156,7 @@ data "aws_iam_policy_document" "custom_scripts" {
 resource "aws_iam_role" "default" {
   assume_role_policy = data.aws_iam_policy_document.assumerole.json
   description        = "Vault role - ${var.vault_name}"
-  name               = var.vault_name
+  name               = local.name
   tags               = local.tags
 }
 
@@ -221,7 +221,7 @@ resource "aws_iam_role_policy_attachment" "cloudwatch_agent" {
 
 # Make an iam instance profile
 resource "aws_iam_instance_profile" "default" {
-  name = var.vault_name
+  name = local.name
   role = aws_iam_role.default.name
   tags = local.tags
 }
