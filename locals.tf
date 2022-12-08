@@ -98,7 +98,7 @@ locals {
   # Set the key arn, based on either the created key or the specified key.
   aws_kms_key_arn = try(aws_kms_key.default[0].arn, data.aws_kms_key.default[0].arn)
 
-  # Calculate the amount of instances in the ASG. A user can overrule this by setting `var.amount`.
+  # Calculate the amount of instances in the ASG. A user can (partially) overrule this by setting `var.amount`.
   # Because of the complexity, here a bit of a break up of the components.
   #
   # `index` returns the first field that matches an argument. (`true` in this example.)
@@ -106,10 +106,12 @@ locals {
   # `length` returns the amount of items in a list.
   # `try` returns the first result that does not produce an error. In this case, the number of availability zones can be less than 3. In that case, spin up 3 instances anyway.
   # So basically:
-  # - Either use the `var.amount`. (If specified.)
+  # - If replication is enabled, deploy 5 machines, no matter what. (https://developer.hashicorp.com/vault/docs/internals/integrated-storage#minimums-scaling)
+  # - Use the `var.amount`. (If specified.)
   # - Or use 5 for "large" regions. (5 or more availability zones)
   # - Or use 3 for "small" regions. (3 or less availability zones)
-  amount = var.vault_node_amount != null ? var.vault_node_amount : try(index([floor(length(data.aws_availability_zones.default.names) / 5) >= 1, floor(length(data.aws_availability_zones.default.names) / 3) >= 1], true) == 0 ? 5 : 3, 3)
+  #
+  amount = var.vault_allow_replication ? 5 : var.vault_node_amount != null ? var.vault_node_amount : try(index([floor(length(data.aws_availability_zones.default.names) / 5) >= 1, floor(length(data.aws_availability_zones.default.names) / 3) >= 1], true) == 0 ? 5 : 3, 3)
 
   # Compose the package name based on the `vault_type`.
   _vault_package = {
