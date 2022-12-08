@@ -482,7 +482,7 @@ EOF
 resource "aws_lambda_function" "CloudWatchAutoAlarms" {
   count            = var.vault_enable_cloudwatch ? 1 : 0
   filename         = "${path.module}/scripts/cloudwatch_alarms/amazon-cloudwatch-auto-alarms.zip"
-  function_name    = "CloudWatchAutoAlarms"
+  function_name    = "CloudWatchAutoAlarms-${random_string.default.result}"
   role             = aws_iam_role.lambda[0].arn
   handler          = "cw_auto_alarms.lambda_handler"
   source_code_hash = filebase64sha256("${path.module}/scripts/cloudwatch_alarms/amazon-cloudwatch-auto-alarms.zip")
@@ -507,7 +507,7 @@ resource "aws_lambda_function" "CloudWatchAutoAlarms" {
 
 resource "aws_cloudwatch_event_rule" "ec2_alarms" {
   count       = var.vault_enable_cloudwatch ? 1 : 0
-  name        = "Initiate-CloudWatchAutoAlarmsEC2"
+  name        = "Initiate-CloudWatchAutoAlarmsEC2-${random_string.default.result}"
   description = "Creates CloudWatch alarms on instance start via Lambda CloudWatchAutoAlarms and deletes them on instance termination."
   event_pattern = <<EOF
 {

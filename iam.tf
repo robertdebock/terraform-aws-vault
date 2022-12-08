@@ -229,7 +229,7 @@ resource "aws_iam_instance_profile" "default" {
 # Create a role with attached policies for Lambda function that automatically creates Cloudwatch alarms for newly created ASG instances
 resource "aws_iam_role" "lambda" {
   count              = var.vault_enable_cloudwatch ? 1 : 0
-  name               = "iam_for_lambda"
+  name               = "${var.vault_name}-lambda-${random_string.default.result}"
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
