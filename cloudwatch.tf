@@ -451,13 +451,13 @@ resource "aws_cloudwatch_dashboard" "default" {
     ]
 }
 EOF
-  dashboard_name = "vault-${var.vault_name}"
+  dashboard_name = "vault-${var.vault_name}-${random_string.default.result}"
 }
 
 # Cloudwatch alerting feature
 resource "aws_sns_topic" "alerts" {
   count           = var.vault_enable_cloudwatch ? 1 : 0
-  name            = "CloudWatchAutoAlarmsSNSTopic"
+  name            = "CloudWatchAutoAlarmsSNSTopic-${random_string.default.result}"
   delivery_policy = <<EOF
 {
   "http": {
@@ -545,7 +545,7 @@ resource "aws_lambda_permission" "ec2_alarms" {
 
 resource "aws_cloudwatch_event_rule" "lambda" {
   count       = var.vault_enable_cloudwatch ? 1 : 0
-  name        = "Initiate-CloudWatchAutoAlarmsLambda"
+  name        = "Initiate-CloudWatchAutoAlarmsLambda-${random_string.default.result}"
   description = "Creates CloudWatch alarms on for lambda functions with the CloudWatchAutoAlarms activation tag"
   event_pattern = <<EOF
 {
