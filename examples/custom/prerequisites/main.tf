@@ -9,7 +9,7 @@ resource "random_string" "default" {
 # Make an S3 bucket to store scripts.
 resource "aws_s3_bucket" "default" {
   bucket = "custom-scripts-${random_string.default.result}"
-  tags   = {
+  tags = {
     Name  = "custom-scripts-${random_string.default.result}"
     owner = "Robert de Bock"
   }
