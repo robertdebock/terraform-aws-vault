@@ -1,12 +1,12 @@
 resource "aws_cloudwatch_log_group" "cloudinitlog" {
   count             = var.vault_enable_cloudwatch ? 1 : 0
-  name              = "${var.vault_name}-cloudinitlog"
+  name              = "cloudinitlog-${var.vault_name}-${random_string.default.result}"
   retention_in_days = 7
 }
 
 resource "aws_cloudwatch_log_group" "vaultlog" {
   count             = var.vault_enable_cloudwatch ? 1 : 0
-  name              = "${var.vault_name}-vaultlog"
+  name              = "vaultlog-${var.vault_name}-${random_string.default.result}"
   retention_in_days = 7
 }
 
