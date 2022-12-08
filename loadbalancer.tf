@@ -8,10 +8,11 @@ resource "aws_placement_group" "default" {
 
 # Add a load balancer for the API/UI.
 resource "aws_lb" "api" {
+  # TODO: Read more on what "internal=true" means.
   internal        = var.vault_aws_lb_availability == "internal" ? true : false
   name            = "${var.vault_name}-api-${random_string.default.result}"
   security_groups = concat([aws_security_group.public.id, aws_security_group.private.id], var.vault_extra_security_group_ids)
-  subnets         = local.public_subnet_ids
+  subnets         = var.vault_aws_lb_availability == "internal" ? local.private_subnet_ids : local.public_subnet_ids
   tags            = local.api_tags
 }
 
@@ -21,7 +22,7 @@ resource "aws_lb" "replication" {
   internal           = var.vault_aws_lb_availability == "internal" ? true : false
   load_balancer_type = "network"
   name               = "${var.vault_name}-replication-${random_string.default.result}"
-  subnets            = local.public_subnet_ids
+  subnets            = var.vault_aws_lb_availability == "internal" ? local.private_subnet_ids : local.public_subnet_ids
   tags               = local.replication_tags
 }
 
@@ -79,14 +80,13 @@ resource "aws_lb_listener" "api" {
   }
 }
 
+# Redirect traffic from port 80 to the API port.
 resource "aws_lb_listener" "api_redirect" {
   load_balancer_arn = aws_lb.api.arn
   port              = "80"
   protocol          = "HTTP"
-
   default_action {
     type = "redirect"
-
     redirect {
       port        = var.vault_api_port
       protocol    = "HTTPS"

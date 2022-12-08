@@ -152,7 +152,6 @@ data "aws_iam_policy_document" "custom_scripts" {
   }
 }
 
-
 # Make a role to allow role assumption.
 resource "aws_iam_role" "default" {
   assume_role_policy = data.aws_iam_policy_document.assumerole.json
@@ -212,7 +211,6 @@ resource "aws_iam_role_policy" "custom_scripts" {
   policy = data.aws_iam_policy_document.custom_scripts[0].json
   role   = aws_iam_role.default.id
 }
-
 
 # Link the AWS managed policy "CloudWatchAgentServerPolicy" to the default role. 
 resource "aws_iam_role_policy_attachment" "cloudwatch_agent" {

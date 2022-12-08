@@ -56,7 +56,7 @@ The Vault nodes are not ready to service requests.
 
 ### Solution 3
 
-The solution is to wait a minute and retry.
+The solution is to wait a minute and retry. It can be the Vault did not start up properly, for example an incorrect license was used.
 
 ## Vault is sealed
 

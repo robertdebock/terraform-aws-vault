@@ -23,3 +23,9 @@ echo "export VAULT_SKIP_VERIFY=1" >> /etc/profile.d/vault.sh
 
 # Set the history to ignore all commands that start with vault.
 echo "export HISTIGNORE=\"&:vault*\"" >> /etc/profile.d/vault.sh
+
+# Run a custom, user-provided script.
+if [ "${vault_bastion_custom_script_s3_url}" != "" ] ; then
+  aws s3 cp "${vault_bastion_custom_script_s3_url}" /custom.sh
+  sh /custom.sh
+fi

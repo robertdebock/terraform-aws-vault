@@ -15,13 +15,22 @@ resource "aws_s3_bucket" "default" {
   }
 }
 
-# Add the cloudwatch script to the bucket.
-resource "aws_s3_object" "default" {
+# Add the custom script for the Vault hosts to the bucket.
+resource "aws_s3_object" "vault" {
   bucket = aws_s3_bucket.default.id
-  etag   = filemd5("./scripts/my_script.sh")
-  key    = "my_script.sh"
-  source = "${path.module}/scripts/my_script.sh"
+  etag   = filemd5("./scripts/my_script_vault.sh")
+  key    = "my_script_vault.sh"
+  source = "${path.module}/scripts/my_script_vault.sh"
 }
+
+# Add the custom script for the bastion host to the bucket.
+resource "aws_s3_object" "bastion" {
+  bucket = aws_s3_bucket.default.id
+  etag   = filemd5("./scripts/my_script_bastion.sh")
+  key    = "my_script_bastion.sh"
+  source = "${path.module}/scripts/my_script_bastion.sh"
+}
+
 
 # Create a VCP.
 resource "aws_vpc" "default" {
