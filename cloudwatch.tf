@@ -1,3 +1,4 @@
+# Cloudwatch logs feature
 resource "aws_cloudwatch_log_group" "cloudinitlog" {
   count             = var.vault_enable_cloudwatch ? 1 : 0
   name              = "${var.vault_name}-cloudinitlog"
@@ -10,6 +11,7 @@ resource "aws_cloudwatch_log_group" "vaultlog" {
   retention_in_days = 7
 }
 
+# Cloudwatch metrics dashboard feature
 resource "aws_cloudwatch_dashboard" "default" {
   count          = var.vault_enable_cloudwatch ? 1 : 0
   dashboard_body = <<EOF
@@ -54,7 +56,7 @@ resource "aws_cloudwatch_dashboard" "default" {
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ { "expression": "SELECT MAX(disk_used_percent) FROM SCHEMA(\"${local.instance_name}_cwagent\", AutoScalingGroupName,InstanceId,device,fstype,path) WHERE AutoScalingGroupName = '${var.vault_name}' AND path = '${var.vault_data_path}' GROUP BY InstanceId", "label": "", "id": "q1", "region": "${data.aws_region.default.name}" } ]
+                    [ { "expression": "SELECT MAX(disk_used_percent) FROM SCHEMA(\"${local.vault_cloudwatch_namespace}\", AutoScalingGroupName,InstanceId,device,fstype,path) WHERE AutoScalingGroupName = '${var.vault_name}' AND path = '${var.vault_data_path}' GROUP BY InstanceId", "label": "", "id": "q1", "region": "${data.aws_region.default.name}" } ]
                 ],
                 "view": "timeSeries",
                 "stacked": false,
@@ -85,7 +87,7 @@ resource "aws_cloudwatch_dashboard" "default" {
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ { "expression": "SELECT MAX(disk_used_percent) FROM SCHEMA(\"${local.instance_name}_cwagent\", AutoScalingGroupName,InstanceId,device,fstype,path) WHERE AutoScalingGroupName = '${var.vault_name}' AND path = '/' GROUP BY InstanceId", "label": "", "id": "q1", "period": 60, "region": "${data.aws_region.default.name}" } ]
+                    [ { "expression": "SELECT MAX(disk_used_percent) FROM SCHEMA(\"${local.vault_cloudwatch_namespace}\", AutoScalingGroupName,InstanceId,device,fstype,path) WHERE AutoScalingGroupName = '${var.vault_name}' AND path = '/' GROUP BY InstanceId", "label": "", "id": "q1", "period": 60, "region": "${data.aws_region.default.name}" } ]
                 ],
                 "view": "timeSeries",
                 "stacked": false,
@@ -117,7 +119,7 @@ resource "aws_cloudwatch_dashboard" "default" {
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ "AWS/AutoScaling", "GroupInServiceInstances", "AutoScalingGroupName", "watch", { "color": "#7f7f7f" } ]
+                    [ "AWS/AutoScaling", "GroupInServiceInstances", "AutoScalingGroupName", "${var.vault_name}", { "color": "#7f7f7f" } ]
                 ],
                 "view": "timeSeries",
                 "stacked": true,
@@ -146,7 +148,7 @@ resource "aws_cloudwatch_dashboard" "default" {
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ "AWS/AutoScaling", "GroupTerminatingInstances", "AutoScalingGroupName", "watch", { "color": "#d62728" } ]
+                    [ "AWS/AutoScaling", "GroupTerminatingInstances", "AutoScalingGroupName", "${var.vault_name}", { "color": "#d62728" } ]
                 ],
                 "view": "timeSeries",
                 "stacked": true,
@@ -176,7 +178,7 @@ resource "aws_cloudwatch_dashboard" "default" {
             "properties": {
                 "metrics": [
                     [ { "expression": "SELECT AVG(NetworkIn) FROM SCHEMA(\"AWS/EC2\", AutoScalingGroupName) WHERE AutoScalingGroupName = '${var.vault_name}'", "label": "Netwerk In (Bytes)", "id": "q1", "region": "${data.aws_region.default.name}", "color": "#9467bd" } ],
-                    [ "AWS/EC2", "NetworkIn", "AutoScalingGroupName", "watch", { "id": "m1", "visible": false } ]
+                    [ "AWS/EC2", "NetworkIn", "AutoScalingGroupName", "${var.vault_name}", { "id": "m1", "visible": false } ]
                 ],
                 "view": "timeSeries",
                 "stacked": false,
@@ -205,7 +207,7 @@ resource "aws_cloudwatch_dashboard" "default" {
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ "AWS/EC2", "NetworkOut", "AutoScalingGroupName", "watch", { "color": "#9467bd", "label": "Network Out (Bytes)" } ]
+                    [ "AWS/EC2", "NetworkOut", "AutoScalingGroupName", "${var.vault_name}", { "color": "#9467bd", "label": "Network Out (Bytes)" } ]
                 ],
                 "view": "timeSeries",
                 "stacked": false,
@@ -234,7 +236,7 @@ resource "aws_cloudwatch_dashboard" "default" {
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ { "expression": "SELECT MAX(mem_used_percent) FROM SCHEMA(\"${local.instance_name}_cwagent\", AutoScalingGroupName,InstanceId) WHERE AutoScalingGroupName = '${var.vault_name}' GROUP BY InstanceId", "label": "", "id": "q1", "period": 60, "region": "${data.aws_region.default.name}" } ],
+                    [ { "expression": "SELECT MAX(mem_used_percent) FROM SCHEMA(\"${local.vault_cloudwatch_namespace}\", AutoScalingGroupName,InstanceId) WHERE AutoScalingGroupName = '${var.vault_name}' GROUP BY InstanceId", "label": "", "id": "q1", "period": 60, "region": "${data.aws_region.default.name}" } ],
                     [ "CWAgent", "mem_used_percent", "InstanceId", "i-0add6009056a2d366", "AutoScalingGroupName", "watch", { "id": "m1", "visible": false } ]
                 ],
                 "view": "timeSeries",
@@ -266,7 +268,7 @@ resource "aws_cloudwatch_dashboard" "default" {
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ "AWS/AutoScaling", "GroupDesiredCapacity", "AutoScalingGroupName", "watch", { "color": "#7f7f7f" } ]
+                    [ "AWS/AutoScaling", "GroupDesiredCapacity", "AutoScalingGroupName", "${var.vault_name}", { "color": "#7f7f7f" } ]
                 ],
                 "view": "timeSeries",
                 "stacked": true,
@@ -325,7 +327,7 @@ resource "aws_cloudwatch_dashboard" "default" {
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ { "expression": "SELECT MAX(disk_used_percent) FROM SCHEMA(\"${local.instance_name}_cwagent\", AutoScalingGroupName,InstanceId,device,fstype,path) WHERE path = '/'", "label": "Max used disk - /", "id": "q1", "region": "${data.aws_region.default.name}", "period": 60, "color": "#2ca02c" } ]
+                    [ { "expression": "SELECT MAX(disk_used_percent) FROM SCHEMA(\"${local.vault_cloudwatch_namespace}\", AutoScalingGroupName,InstanceId,device,fstype,path) WHERE path = '/'", "label": "Max used disk - /", "id": "q1", "region": "${data.aws_region.default.name}", "period": 60, "color": "#2ca02c" } ]
                 ],
                 "view": "gauge",
                 "region": "${data.aws_region.default.name}",
@@ -348,7 +350,7 @@ resource "aws_cloudwatch_dashboard" "default" {
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ { "expression": "SELECT MAX(disk_used_percent) FROM SCHEMA(\"${local.instance_name}_cwagent\", AutoScalingGroupName,InstanceId,device,fstype,path) WHERE path = '${var.vault_data_path}'", "label": "Max used disk - ${var.vault_data_path}", "id": "q1", "region": "${data.aws_region.default.name}", "period": 60, "color": "#2ca02c" } ]
+                    [ { "expression": "SELECT MAX(disk_used_percent) FROM SCHEMA(\"${local.vault_cloudwatch_namespace}\", AutoScalingGroupName,InstanceId,device,fstype,path) WHERE path = '${var.vault_data_path}'", "label": "Max used disk - ${var.vault_data_path}", "id": "q1", "region": "${data.aws_region.default.name}", "period": 60, "color": "#2ca02c" } ]
                 ],
                 "view": "gauge",
                 "region": "${data.aws_region.default.name}",
@@ -372,7 +374,7 @@ resource "aws_cloudwatch_dashboard" "default" {
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ { "expression": "SELECT MAX(mem_used_percent) FROM SCHEMA(\"${local.instance_name}_cwagent\", AutoScalingGroupName,InstanceId)", "label": "Max memory used", "id": "q1", "region": "${data.aws_region.default.name}", "period": 60, "color": "#2ca02c" } ]
+                    [ { "expression": "SELECT MAX(mem_used_percent) FROM SCHEMA(\"${local.vault_cloudwatch_namespace}\", AutoScalingGroupName,InstanceId)", "label": "Max memory used", "id": "q1", "region": "${data.aws_region.default.name}", "period": 60, "color": "#2ca02c" } ]
                 ],
                 "view": "gauge",
                 "region": "${data.aws_region.default.name}",
@@ -450,4 +452,134 @@ resource "aws_cloudwatch_dashboard" "default" {
 }
 EOF
   dashboard_name = "vault-${var.vault_name}"
+}
+
+# Cloudwatch alerting feature
+resource "aws_sns_topic" "alerts" {
+  count           = var.vault_enable_cloudwatch ? 1 : 0
+  name            = "CloudWatchAutoAlarmsSNSTopic"
+  delivery_policy = <<EOF
+{
+  "http": {
+    "defaultHealthyRetryPolicy": {
+      "minDelayTarget": 20,
+      "maxDelayTarget": 20,
+      "numRetries": 3,
+      "numMaxDelayRetries": 0,
+      "numNoDelayRetries": 0,
+      "numMinDelayRetries": 0,
+      "backoffFunction": "linear"
+    },
+    "disableSubscriptionOverrides": false,
+    "defaultThrottlePolicy": {
+      "maxReceivesPerSecond": 1
+    }
+  }
+}
+EOF
+}
+
+resource "aws_lambda_function" "CloudWatchAutoAlarms" {
+  count            = var.vault_enable_cloudwatch ? 1 : 0
+  filename         = "${path.module}/scripts/cloudwatch_alarms/amazon-cloudwatch-auto-alarms.zip"
+  function_name    = "CloudWatchAutoAlarms"
+  role             = aws_iam_role.lambda[0].arn
+  handler          = "cw_auto_alarms.lambda_handler"
+  source_code_hash = filebase64sha256("${path.module}/scripts/cloudwatch_alarms/amazon-cloudwatch-auto-alarms.zip")
+  runtime          = "python3.8"
+  memory_size      = 128
+
+  environment {
+    variables = {
+      ALARM_TAG = "Create_Auto_Alarms"
+      CREATE_DEFAULT_ALARMS = true
+      CLOUDWATCH_NAMESPACE = local.vault_cloudwatch_namespace
+      ALARM_MEMORY_HIGH_THRESHOLD = 80
+      ALARM_DISK_PERCENT_LOW_THRESHOLD = 20
+      CLOUDWATCH_APPEND_DIMENSIONS = "InstanceId, AutoScalingGroupName"
+      ALARM_LAMBDA_ERROR_THRESHOLD = 0
+      ALARM_LAMBDA_THROTTLE_THRESHOLD = 0
+      DEFAULT_ALARM_SNS_TOPIC_ARN = aws_sns_topic.alerts[0].arn
+      VAULT_PATH = var.vault_data_path
+    }
+  }
+}
+
+resource "aws_cloudwatch_event_rule" "ec2_alarms" {
+  count       = var.vault_enable_cloudwatch ? 1 : 0
+  name        = "Initiate-CloudWatchAutoAlarmsEC2"
+  description = "Creates CloudWatch alarms on instance start via Lambda CloudWatchAutoAlarms and deletes them on instance termination."
+  event_pattern = <<EOF
+{
+  "source": [
+    "aws.ec2"
+  ],
+  "detail-type": [
+    "EC2 Instance State-change Notification"
+  ],
+  "detail": {
+    "state": [
+      "running",
+      "terminated"
+    ]
+  }
+}
+EOF
+}
+
+resource "aws_cloudwatch_event_target" "ec2_alarms" {
+  count     = var.vault_enable_cloudwatch ? 1 : 0
+  rule      = aws_cloudwatch_event_rule.ec2_alarms[0].name
+  target_id = "ec2_alarms_event_target"
+  arn       = aws_lambda_function.CloudWatchAutoAlarms[0].arn
+}
+
+resource "aws_lambda_permission" "ec2_alarms" {
+  count         = var.vault_enable_cloudwatch ? 1 : 0
+  statement_id  = "AllowCloudWatchAutoAlarmCloudwatchEventEC2"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.CloudWatchAutoAlarms[0].function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.ec2_alarms[0].arn
+}
+
+resource "aws_cloudwatch_event_rule" "lambda" {
+  count       = var.vault_enable_cloudwatch ? 1 : 0
+  name        = "Initiate-CloudWatchAutoAlarmsLambda"
+  description = "Creates CloudWatch alarms on for lambda functions with the CloudWatchAutoAlarms activation tag"
+  event_pattern = <<EOF
+{
+  "source": [
+    "aws.lambda"
+  ],
+  "detail-type": [
+    "AWS API Call via CloudTrail"
+  ],
+  "detail": {
+    "eventSource": [
+      "lambda.amazonaws.com"
+    ],
+    "eventName": [
+      "TagResource20170331v2",
+      "DeleteFunction20150331"
+    ]
+  }
+}
+EOF
+}
+
+resource "aws_cloudwatch_event_target" "lambda" {
+  count     = var.vault_enable_cloudwatch ? 1 : 0
+  rule      = aws_cloudwatch_event_rule.lambda[0].name
+  target_id = "alarms_event_target"
+  arn       = aws_lambda_function.CloudWatchAutoAlarms[0].arn
+}
+
+resource "aws_lambda_permission" "lambda_cloudwatch" {
+  count         = var.vault_enable_cloudwatch ? 1 : 0
+  statement_id  = "AllowCloudWatchAutoAlarmCloudwatchEventLambda"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.CloudWatchAutoAlarms[0].function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.lambda[0].arn
 }

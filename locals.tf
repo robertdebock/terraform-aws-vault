@@ -159,4 +159,10 @@ locals {
       }
     }
   ]
+
+# The AWS Cloudwatch namespace where all metrics of the Vault deployment are collected. 
+# Do not use dashes "-" in the namespace or automatic alarm functionality will break.
+vault_cloudwatch_namespace = "vault_${var.vault_name}_${random_string.default.result}_cwagent"
+
 }
+

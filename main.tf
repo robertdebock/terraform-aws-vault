@@ -76,6 +76,7 @@ resource "aws_launch_template" "default" {
       unauthenticated_metrics_access = var.vault_enable_telemetry_unauthenticated_metrics_access
       vault_ca_cert                  = file(var.vault_ca_cert_path)
       vault_ca_key                   = file(var.vault_ca_key_path)
+      vault_cloudwatch_namespace     = local.vault_cloudwatch_namespace
       vault_custom_script_s3_url     = var.vault_custom_script_s3_url
       vault_data_path                = var.vault_data_path
       vault_enable_ui                = var.vault_enable_ui
@@ -99,6 +100,14 @@ resource "aws_launch_template" "default" {
           volume_type           = try(ebs.value.volume_type, null)
         }
       }
+    }
+  }
+  tag_specifications {
+    resource_type = "instance"
+
+    tags = {
+      # Create_Auto_Alarms is ment to have no value.
+      Create_Auto_Alarms = ""
     }
   }
   lifecycle {

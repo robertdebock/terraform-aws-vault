@@ -225,3 +225,111 @@ resource "aws_iam_instance_profile" "default" {
   role = aws_iam_role.default.name
   tags = local.tags
 }
+
+# Create a role with attached policies for Lambda function that automatically creates Cloudwatch alarms for newly created ASG instances
+resource "aws_iam_role" "lambda" {
+  count              = var.vault_enable_cloudwatch ? 1 : 0
+  name               = "iam_for_lambda"
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "lambda.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy" "lambda" {
+  count  = var.vault_enable_cloudwatch ? 1 : 0
+  name   = "${var.vault_name}-vault-lambda"
+  policy = data.aws_iam_policy_document.lambda[0].json
+  role   = aws_iam_role.lambda[0].id
+}
+
+data "aws_iam_policy_document" "lambda" {
+  count  = var.vault_enable_cloudwatch ? 1 : 0
+  statement {
+    effect  = "Allow"
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+      "logs:DescribeLogGroups"
+    ]
+    resources = [
+      # TODO should be --> Resource: !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:*"
+      "*"
+    ]
+  }
+  statement {
+    effect  = "Allow"
+    actions = [
+      "logs:PutLogEvents"
+    ]
+    resources = [
+      # TODO should be --> Resource: !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:*:log-stream:*"
+      "*"
+    ]
+  }
+  statement {
+    effect  = "Allow"
+    actions = [
+      "ec2:DescribeInstances",
+      "ec2:DescribeImages"
+    ]
+    resources = [
+      "*"
+    ]
+  }
+  statement {
+    effect  = "Allow"
+    actions = [
+      "ec2:DescribeInstances",
+      "ec2:DescribeImages"
+    ]
+    resources = [
+      # TODO should be --> Resource: !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:instance/*"
+      "*"
+    ]
+  }
+  statement {
+    effect  = "Allow"
+    actions = [
+      "cloudwatch:DescribeAlarms",
+      "cloudwatch:DeleteAlarms",
+      "cloudwatch:PutMetricAlarm"
+    ]
+    resources = [
+      # TODO should be --> Resource:  !Sub "arn:${AWS::Partition}:cloudwatch:${AWS::Region}:${AWS::AccountId}:alarm:AutoAlarm-*"
+      "*"
+    ]
+  }
+  statement {
+    effect  = "Allow"
+    actions = [
+      "cloudwatch:DescribeAlarms"
+    ]
+    resources = [
+      "*"
+    ]
+  }
+  statement {
+    effect  = "Allow"
+    actions = [
+      "ec2:CreateTags"
+    ]
+    resources = [
+      # TODO should be --> Resource: !Sub "arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:instance/*"
+      "*"
+    ]
+  }
+}
+
