@@ -4,6 +4,16 @@ resource "aws_s3_bucket" "default" {
   tags   = local.scripts_tags
 }
 
+resource "aws_s3_bucket_server_side_encryption_configuration" "default" {
+  bucket = aws_s3_bucket.default.bucket
+  rule {
+    apply_server_side_encryption_by_default {
+      kms_master_key_id = local.aws_kms_key_id
+      sse_algorithm     = "aws:kms"
+    }
+  }
+}
+
 # Add the cloudwatch script to the bucket.
 resource "aws_s3_object" "cloudwatch" {
   bucket = aws_s3_bucket.default.id

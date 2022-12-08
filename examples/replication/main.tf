@@ -10,7 +10,7 @@ data "terraform_remote_state" "default" {
 # Make a certificate for EU.
 resource "aws_acm_certificate" "default_eu" {
   count       = 2
-  domain_name = "vault-eu-${count.index}.meinit.nl"
+  domain_name = "vault-eu-${count.index}.${var.domain}"
   # After a deployment, this value (`domain_name`) can't be changed because the certificate is bound to the load balancer listener.
   provider    = aws.eu-west-1
   validation_method = "DNS"
@@ -22,7 +22,7 @@ resource "aws_acm_certificate" "default_eu" {
 # Make a certificate for US.
 resource "aws_acm_certificate" "default_us" {
   count       = 2
-  domain_name = "vault-us-${count.index}.meinit.nl"
+  domain_name = "vault-us-${count.index}.${var.domain}"
   # After a deployment, this value (`domain_name`) can't be changed because the certificate is bound to the load balancer listener.
   validation_method = "DNS"
   tags = {
@@ -32,7 +32,7 @@ resource "aws_acm_certificate" "default_us" {
 
 # Lookup DNS zone.
 data "aws_route53_zone" "default" {
-  name = "meinit.nl"
+  name = "${var.domain}"
 }
 
 # Add validation details to the DNS zone.
@@ -111,11 +111,12 @@ module "vault_eu" {
   vault_allow_replication               = true
   vault_allow_ssh                       = true
   vault_allowed_cidr_blocks_replication = ["0.0.0.0/0"]
-  vault_api_addr                        = "https://vault-eu-${count.index}.meinit.nl:8200"
+  vault_api_addr                        = "https://vault-eu-${count.index}.${var.domain}:8200"
   vault_aws_certificate_arn             = aws_acm_certificate.default_eu[count.index].arn
   vault_aws_kms_key_id                  = data.terraform_remote_state.default.outputs.aws_kms_key_id_eu
   vault_aws_vpc_id                      = data.terraform_remote_state.default.outputs.vpc_id_eu
   vault_create_bastionhost              = count.index == 0 ? true : false
+  vault_enable_cloudwatch               = true
   vault_keyfile_path                    = "id_rsa.pub"
   vault_license                         = "OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFU"
   vault_name                            = "veu-${count.index}"
@@ -136,11 +137,12 @@ module "vault_us" {
   vault_allow_replication               = true
   vault_allow_ssh                       = true
   vault_allowed_cidr_blocks_replication = ["0.0.0.0/0"]
-  vault_api_addr                        = "https://vault-us-${count.index}.meinit.nl:8200"
+  vault_api_addr                        = "https://vault-us-${count.index}.${var.domain}:8200"
   vault_aws_certificate_arn             = aws_acm_certificate.default_us[count.index].arn
   vault_aws_kms_key_id                  = data.terraform_remote_state.default.outputs.aws_kms_key_id_us
   vault_aws_vpc_id                      = data.terraform_remote_state.default.outputs.vpc_id_us
   vault_create_bastionhost              = count.index == 0 ? true : false
+  vault_enable_cloudwatch               = true
   vault_keyfile_path                    = "id_rsa.pub"
   vault_license                         = "OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFUSCATED_BY_DESIGN_OBFU"
   vault_name                            = "vus-${count.index}"
@@ -228,7 +230,7 @@ resource "aws_route53_health_check" "us" {
 resource "aws_route53_record" "eu" {
   count           = length(aws_acm_certificate.default_eu)
   health_check_id = aws_route53_health_check.eu[count.index].id
-  name            = "vault.eu.meinit.nl"
+  name            = "vault.eu.${var.domain}"
   records         = [module.vault_eu[count.index].aws_lb_dns_name]
   set_identifier  = count.index == 0 ? "eu-primary" : "eu-secondary"
   ttl             = "60"
@@ -243,7 +245,7 @@ resource "aws_route53_record" "eu" {
 resource "aws_route53_record" "us" {
   count           = length(aws_acm_certificate.default_us)
   health_check_id = aws_route53_health_check.us[count.index].id
-  name            = "vault.us.meinit.nl"
+  name            = "vault.us.${var.domain}"
   records         = [module.vault_us[count.index].aws_lb_dns_name]
   set_identifier  = count.index == 0 ? "us-primary" : "us-secondary"
   ttl             = "60"
@@ -254,10 +256,10 @@ resource "aws_route53_record" "us" {
   }
 }
 
-# Add "vault.eu" to "vault" for Europe.
-resource "aws_route53_record" "eu_endpoint" {
-  name           = "vault.meinit.nl"
-  records        = ["vault.eu.meinit.nl"]
+# Add "vault.eu" to "vault".
+resource "aws_route53_record" "global_endpoint_eu" {
+  name           = "vault.${var.domain}"
+  records        = [aws_route53_record.eu[0].name]
   set_identifier = "EU Load Balancer"
   ttl            = 60
   type           = "CNAME"
@@ -267,10 +269,10 @@ resource "aws_route53_record" "eu_endpoint" {
   }
 }
 
-# Add "vault.us" to "vault" for the rest of the world.
-resource "aws_route53_record" "us_endpoint" {
-  name           = "vault.meinit.nl"
-  records        = ["vault.us.meinit.nl"]
+# Add "vault.us" to "vault".
+resource "aws_route53_record" "global_endpoint_us" {
+  name           = "vault.${var.domain}"
+  records        = [aws_route53_record.us[0].name]
   set_identifier = "US Load Balancer"
   ttl            = 60
   type           = "CNAME"

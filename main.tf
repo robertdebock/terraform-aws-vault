@@ -90,10 +90,8 @@ resource "aws_launch_template" "default" {
     for_each = var.vault_audit_device ? local.disks_with_audit : local.disks_without_audit
     content {
       device_name = block_device_mappings.value.device_name
-
       dynamic "ebs" {
         for_each = flatten([try(block_device_mappings.value.ebs, [])])
-
         content {
           delete_on_termination = try(ebs.value.delete_on_termination, null)
           encrypted             = try(ebs.value.encrypted, null)
