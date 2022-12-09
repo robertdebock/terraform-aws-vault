@@ -197,13 +197,14 @@ cat << EOF >> /usr/local/bin/aws_health.sh
 #!/bin/sh
 
 # This script checks that status of Vault and reports that status to the ASG.
-# If vault fails, the instance is replaced.
+# If Vault fails, the instance is replaced.
 
-# Tell vault how to connect.
+# Tell Vault how to connect.
 export VAULT_ADDR=https://$${my_ipaddress}:8200
 export VAULT_CACERT="${vault_data_path}/tls/vault_ca.crt"
 
 # Get the status of Vault and report to AWS ASG.
+# TODO: This check is not sufficient; 0 is returned in many cases.
 if vault status > /dev/null 2>&1 ; then
   aws --region $${my_region} autoscaling set-instance-health --instance-id $${my_instance_id} --health-status Healthy
 else
