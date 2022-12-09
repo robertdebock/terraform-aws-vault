@@ -56,6 +56,27 @@ This will deploy all resources. The Prometheus installation needs access to Vaul
 curl -H "X-Vault-Token: YOUR_TOKEN" https://telemetry.meinit.nl:8200/v1/sys/metrics?format=prometheus
 ```
 
+### Status in the lifecycle of Vault
+
+When `vault_enable_telemetry_unauthenticated_metrics_access` is `false` (default):
+
+| Stage                         | Comment                                     |
+|-------------------------------|---------------------------------------------|
+| Before `vault operator init`. | All nodes unhealthy.                        |
+| After `vault operator init`.  | Leader of each cluster healthy.             |
+
+When `vault_enable_telemetry_unauthenticated_metrics_access` is `true`:
+
+| Stage                         | Comment                                     |
+|-------------------------------|---------------------------------------------|
+| Before `vault operator init`. | All nodes unhealthy.                        |
+| After `vault operator init`.  | All nodes healthy.                          |
+
+Changing `vault_enable_telemetry_unauthenticated_metrics_access` from `false` (default) to `true` has this effect:
+
+1. The healthcheck changes from `EC2` to `ELB`.
+2. The targetgroup matcher adds `429` as an acceptable state.
+
 ### Interesting items
 
 [Stolen](https://www.datadoghq.com/blog/monitor-vault-metrics-and-logs/).
