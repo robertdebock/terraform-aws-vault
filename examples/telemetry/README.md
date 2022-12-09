@@ -49,6 +49,7 @@ This will deploy all resources. The Prometheus installation needs access to Vaul
 
 1. Spin up all resources, initialize Vault.
 2. Place a token (root-key) in `prometheus.tf`, under the "credential".
+3. Run `terraform apply` again.
 
 ## Testing
 
