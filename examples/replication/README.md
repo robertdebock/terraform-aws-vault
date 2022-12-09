@@ -103,6 +103,17 @@ Because a single bastion host is used for each region, please be aware that you 
 8. Enable DR secondary on vault-eu-1: `vault write sys/replication/dr/secondary/enable token=WRAPPING_TOKEN_FROM_EU_0`
 9. Enable DR secondary on vault-us-1: `vault write sys/replication/dr/secondary/enable token=WRAPPING_TOKEN_FROM_US_0`
 
+
+### Status in the lifecycle of Vault PR + DR
+
+| Stage                         | Comment                                     |
+|-------------------------------|---------------------------------------------|
+| Before `vault operator init`. | All nodes unhealthy.                        |
+| After `vault operator init`.  | Leader of each cluster healthy.             |
+| After PR setup.               | Leader of each cluster healthy.             |
+| After DR setup.               | DR Secondary clusters: all nodes unhealthy. |
+
+> During the setup of DR, the nodes of the DR secondaries will be replaced by the ASG.
 ### Performance Replication parameters
 
 Both the primary and secondary have parameters when setting up Vault replication. This can be confusing, here is a table and some situations that should clarify the required values for these parameters.
