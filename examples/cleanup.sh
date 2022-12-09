@@ -33,9 +33,10 @@ for scenario in * ; do
       terraform init
       echo "Running terraform fmt."
       terraform fmt
+      cd ../
     fi
     terraform destroy -auto-approve
-    for file in id_rsa id_rsa.pub init.txt terraform.tfstate terraform.tfstate.backup .terraform.lock.hcl .terraform ; do
+    for object in id_rsa id_rsa.pub init.txt terraform.tfstate terraform.tfstate.backup .terraform.lock.hcl .terraform ; do
       delete_object "${object}"
     done
     echo "Generating ssh-key."
