@@ -115,6 +115,12 @@ chown root:root "${vault_data_path}/tls/vault.crt"
 # Concatenate CA and server certificate.
 cat "${vault_data_path}/tls/vault_ca.crt" >> "${vault_data_path}/tls/vault.crt"
 
+# Store Amazon CA, required to bootstrap through loadbalancer.
+curl https://www.amazontrust.com/repository/AmazonRootCA1.pem --output "${vault_data_path}/tls/amazon_ca.crt"
+
+# Append the Amazon CA to Vault's CA.
+cat "${vault_data_path}/tls/amazon_ca.crt" >> "${vault_data_path}/tls/vault_ca.crt"
+
 # A single "$": passed from Terraform.
 # A double "$$": determined in the runtime of this script.
 
