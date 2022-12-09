@@ -40,9 +40,9 @@ resource "aws_lb_target_group" "api" {
   vpc_id = local.vpc_id
   health_check {
     interval = 5
-    # If vault_allow_replication is on: Only healthy nodes must receive traffic. (Otherwise the health_check on the route53 record will return non-healthy nodes.)
+    # If vault_allow_replication is on: Only the leader must receive traffic. (Otherwise the health_check on the route53 record will return non-healthy nodes.)
     # If telemetry is on: See TELEMETRY.md for an explanation
-    matcher  = var.vault_allow_replication ? "200" : var.vault_enable_telemetry && !var.vault_enable_telemetry ? "200,472,473" : "200,429,472,473"
+    matcher  = var.vault_allow_replication ? "200" : var.vault_enable_telemetry && var.vault_enable_telemetry_unauthenticated_metrics_access ? "200,429,472,473" : "200,472,473"
     path     = "/v1/sys/health"
     protocol = "HTTPS"
     timeout  = 2
