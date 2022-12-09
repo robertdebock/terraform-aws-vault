@@ -98,7 +98,7 @@ resource "aws_route_table_association" "private_eu" {
 data "aws_availability_zones" "default_eu" {
   # The availability zone "us-east-1e" does not have all instance_types available.
   exclude_names = ["us-east-1e"]
-  state = "available"
+  state         = "available"
 }
 
 # Create the same amount of subnets as the amount of instances when we create the vpc.
