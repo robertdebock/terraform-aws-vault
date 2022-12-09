@@ -2,6 +2,7 @@
 resource "aws_vpc" "default" {
   cidr_block = "192.168.0.0/16"
   tags = {
+    Name    = "mysubnet"
     owner   = "robertdebock"
     purpose = "ci-testing"
   }
@@ -11,6 +12,7 @@ resource "aws_vpc" "default" {
 resource "aws_internet_gateway" "default" {
   vpc_id = aws_vpc.default.id
   tags = {
+    name    = "mysubnet"
     owner   = "robertdebock"
     purpose = "ci-testing"
   }
@@ -45,6 +47,7 @@ resource "aws_subnet" "private" {
   cidr_block        = "192.168.${count.index + 64}.0/24"
   vpc_id            = aws_vpc.default.id
   tags = {
+    Name    = "mysubnet-private"
     owner   = "robertdebock"
     purpose = "ci-testing"
   }
@@ -55,6 +58,7 @@ resource "aws_nat_gateway" "default" {
   allocation_id = aws_eip.default.id
   subnet_id     = aws_subnet.public[0].id
   tags = {
+    Name    = "mysubnet"
     owner   = "robertdebock"
     purpose = "ci-testing"
   }
@@ -80,6 +84,7 @@ resource "aws_subnet" "public" {
   cidr_block        = "192.168.${count.index}.0/24"
   vpc_id            = aws_vpc.default.id
   tags = {
+    Name    = "mysubnet-public"
     owner   = "robertdebock"
     purpose = "ci-testing"
   }
@@ -92,6 +97,7 @@ resource "aws_subnet" "extra" {
   cidr_block        = "192.168.${count.index + 192}.0/24"
   vpc_id            = aws_vpc.default.id
   tags = {
+    Name    = "mysubnet-extra"
     owner   = "robertdebock"
     purpose = "ci-testing"
   }

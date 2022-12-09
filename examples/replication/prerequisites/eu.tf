@@ -2,6 +2,7 @@
 resource "aws_kms_key" "default_eu" {
   description = "Vault unseal key"
   tags = {
+    Name  = "replication-eu"
     owner = "robertdebock"
   }
 }
@@ -10,6 +11,7 @@ resource "aws_kms_key" "default_eu" {
 resource "aws_vpc" "default_eu" {
   cidr_block = "10.1.0.0/16"
   tags = {
+    Name    = "replication-eu"
     owner   = "robertdebock"
     purpose = "ci-pr-dr"
   }
@@ -19,6 +21,7 @@ resource "aws_vpc" "default_eu" {
 resource "aws_internet_gateway" "default_eu" {
   vpc_id = aws_vpc.default_eu.id
   tags = {
+    Name    = "replication-eu"
     owner   = "robertdebock"
     purpose = "ci-pr-dr"
   }
@@ -28,7 +31,7 @@ resource "aws_internet_gateway" "default_eu" {
 resource "aws_route_table" "public_eu" {
   vpc_id = aws_vpc.default_eu.id
   tags = {
-    Name = "Vault public"
+    Name = "replicaiton-eu-public"
   }
 }
 
@@ -43,9 +46,8 @@ resource "aws_route" "public_eu" {
 resource "aws_route_table" "private_eu" {
   vpc_id = aws_vpc.default_eu.id
   tags = {
-    Name = "Vault private"
+    Name = "replication-eu-private"
   }
-
 }
 
 # Reserve external IP addresses. (It's for the NAT gateways.)
@@ -60,7 +62,7 @@ resource "aws_subnet" "private_eu" {
   cidr_block        = "10.1.${count.index + 64}.0/24"
   vpc_id            = aws_vpc.default_eu.id
   tags = {
-    Name    = "Vault private"
+    Name    = "replication-eu-private"
     owner   = "robertdebock"
     purpose = "ci-pr-dr"
   }
@@ -71,6 +73,7 @@ resource "aws_nat_gateway" "default_eu" {
   allocation_id = aws_eip.default_eu.id
   subnet_id     = aws_subnet.public_eu[0].id
   tags = {
+    Name    = "replication-eu"
     owner   = "robertdebock"
     purpose = "ci-pr-dr"
   }
@@ -105,7 +108,7 @@ resource "aws_subnet" "public_eu" {
   cidr_block        = "10.1.${count.index}.0/24"
   vpc_id            = aws_vpc.default_eu.id
   tags = {
-    Name    = "Vault public"
+    Name    = "replication-eu-public"
     owner   = "robertdebock"
     purpose = "ci-pr-dr"
   }

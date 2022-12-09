@@ -3,6 +3,7 @@ resource "aws_kms_key" "default_us" {
   description = "Vault unseal key"
   provider    = aws.us-east-2
   tags = {
+    Name  = "replication-us"
     owner = "robertdebock"
   }
 }
@@ -12,6 +13,7 @@ resource "aws_vpc" "default_us" {
   cidr_block = "10.0.0.0/16"
   provider   = aws.us-east-2
   tags = {
+    Name    = "replication-us"
     owner   = "robertdebock"
     purpose = "ci-pr-dr"
   }
@@ -22,6 +24,7 @@ resource "aws_internet_gateway" "default_us" {
   provider = aws.us-east-2
   vpc_id   = aws_vpc.default_us.id
   tags = {
+    Name    = "replication-us"
     owner   = "robertdebock"
     purpose = "ci-pr-dr"
   }
@@ -32,7 +35,7 @@ resource "aws_route_table" "public_us" {
   provider = aws.us-east-2
   vpc_id   = aws_vpc.default_us.id
   tags = {
-    Name = "Vault public"
+    Name = "replication-us-public"
   }
 }
 
@@ -49,7 +52,7 @@ resource "aws_route_table" "private_us" {
   provider = aws.us-east-2
   vpc_id   = aws_vpc.default_us.id
   tags = {
-    Name = "Vault private"
+    Name = "replication-us-private"
   }
 }
 
@@ -67,6 +70,7 @@ resource "aws_subnet" "private_us" {
   provider          = aws.us-east-2
   vpc_id            = aws_vpc.default_us.id
   tags = {
+    Name    = "replication-us-private"
     owner   = "robertdebock"
     purpose = "ci-pr-dr"
   }
@@ -78,6 +82,7 @@ resource "aws_nat_gateway" "default_us" {
   provider      = aws.us-east-2
   subnet_id     = aws_subnet.public_us[0].id
   tags = {
+    Name    = "replication-us"
     owner   = "robertdebock"
     purpose = "ci-pr-dr"
   }
@@ -116,6 +121,7 @@ resource "aws_subnet" "public_us" {
   provider          = aws.us-east-2
   vpc_id            = aws_vpc.default_us.id
   tags = {
+    Name    = "replication-us-public"
     owner   = "robertdebock"
     purpose = "ci-pr-dr"
   }

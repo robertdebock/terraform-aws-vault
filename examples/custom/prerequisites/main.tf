@@ -36,6 +36,7 @@ resource "aws_s3_object" "bastion" {
 resource "aws_vpc" "default" {
   cidr_block = "10.70.0.0/16"
   tags = {
+    Name    = "custom"
     owner   = "robertdebock"
     purpose = "ci-testing"
   }
@@ -45,6 +46,7 @@ resource "aws_vpc" "default" {
 resource "aws_internet_gateway" "default" {
   vpc_id = aws_vpc.default.id
   tags = {
+    Name    = "custom"
     owner   = "robertdebock"
     purpose = "ci-testing"
   }
@@ -54,7 +56,7 @@ resource "aws_internet_gateway" "default" {
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.default.id
   tags = {
-    Name = "public"
+    Name = "custom-public"
   }
 }
 
@@ -69,7 +71,7 @@ resource "aws_route" "public" {
 resource "aws_route_table" "private" {
   vpc_id = aws_vpc.default.id
   tags = {
-    Name = "private"
+    Name = "custom-private"
   }
 }
 
@@ -85,7 +87,7 @@ resource "aws_subnet" "private" {
   cidr_block        = "10.70.${count.index + 64}.0/24"
   vpc_id            = aws_vpc.default.id
   tags = {
-    Name    = "private"
+    Name    = "custom-private"
     owner   = "robertdebock"
     purpose = "ci-testing"
   }
@@ -122,7 +124,7 @@ resource "aws_subnet" "public" {
   cidr_block        = "10.70.${count.index}.0/24"
   vpc_id            = aws_vpc.default.id
   tags = {
-    Name    = "public"
+    Name    = "custom-public"
     owner   = "robertdebock"
     purpose = "ci-testing"
   }
