@@ -480,3 +480,9 @@ variable "vault_bastion_create_s3_bucket" {
   type        = bool
   default     = true
 }
+
+variable "vault_bastion_public_ip" {
+  description = "Assign a public IP to the bastion host."
+  type        = bool
+  default     = true
+}

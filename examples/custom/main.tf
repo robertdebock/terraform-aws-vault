@@ -61,6 +61,7 @@ module "vault" {
   vault_custom_script_s3_bucket_arn         = data.terraform_remote_state.default.outputs.custom_script_s3_bucket_arn
   vault_bastion_custom_script_s3_url        = data.terraform_remote_state.default.outputs.vault_bastion_custom_script_s3_url
   vault_bastion_custom_script_s3_bucket_arn = data.terraform_remote_state.default.outputs.custom_script_s3_bucket_arn
+  vault_bastion_public_ip                   = false
   vault_extra_security_group_ids            = data.terraform_remote_state.default.outputs.security_group_ids
   vault_name                                = "cstm"
   vault_prometheus_disable_hostname         = true
