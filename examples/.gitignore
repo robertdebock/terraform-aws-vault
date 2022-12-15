@@ -13,5 +13,6 @@
 */prerequisites/id_rsa
 */prerequisites/id_rsa.pub
 */init.txt
+*/tls/*
 *.crt
 *.pem
