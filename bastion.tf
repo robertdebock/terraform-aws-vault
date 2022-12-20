@@ -81,7 +81,7 @@ resource "aws_instance" "bastion" {
   count                       = var.vault_create_bastionhost ? 1 : 0
   ami                         = data.aws_ami.bastion[0].id
   iam_instance_profile        = aws_iam_instance_profile.bastion.name
-  associate_public_ip_address = true
+  associate_public_ip_address = var.vault_bastion_public_ip
   instance_type               = "t4g.nano"
   key_name                    = local.vault_aws_key_name
   subnet_id                   = aws_subnet.bastion[0].id
