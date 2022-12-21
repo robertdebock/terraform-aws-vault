@@ -85,3 +85,16 @@ The certificate has not been validated. This validation process takes a minute o
 ### Solution 5
 
 The solution is to retry the deployment.
+
+## No raft cluster configuration found
+### Situation 6
+
+After `vault operator init`, `vault operator raft list-peers` shows: `No raft cluster configuration found` or `local node not active but active cluster node not found`.
+
+### Cause
+
+Quorum was lost.
+
+#### Solution
+
+Not easy, replace the cluster.
