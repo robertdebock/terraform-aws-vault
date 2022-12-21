@@ -15,6 +15,15 @@ resource "aws_s3_bucket" "default" {
   }
 }
 
+# Limit access to the S3 bucket.
+resource "aws_s3_bucket_public_access_block" "default" {
+  bucket                  = aws_s3_bucket.default.id
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
 # Add the custom script for the Vault hosts to the bucket.
 resource "aws_s3_object" "vault" {
   bucket = aws_s3_bucket.default.id
