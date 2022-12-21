@@ -134,10 +134,11 @@ resource "aws_autoscaling_group" "default" {
   # - var.vault_allow_replication is enabled.
   # Otherwise, use "ELB", which is stronger, but not always applicable..
   # health_check_type   = var.vault_enable_telemetry && !var.vault_enable_telemetry_unauthenticated_metrics_access ? "EC2" : "ELB"
-  health_check_type     = var.vault_allow_replication || (var.vault_enable_telemetry && !var.vault_enable_telemetry_unauthenticated_metrics_access) ? "EC2" : "ELB"
-  max_instance_lifetime = var.vault_asg_instance_lifetime
-  max_size              = local.amount + 1
-  min_size              = local.amount - 1
+  health_check_type         = var.vault_allow_replication || (var.vault_enable_telemetry && !var.vault_enable_telemetry_unauthenticated_metrics_access) ? "EC2" : "ELB"
+  health_check_grace_period = var.vault_asg_warmup_seconds
+  max_instance_lifetime     = var.vault_asg_instance_lifetime
+  max_size                  = local.amount + 1
+  min_size                  = local.amount - 1
   mixed_instances_policy {
     launch_template {
       launch_template_specification {
@@ -162,8 +163,9 @@ resource "aws_autoscaling_group" "default" {
     propagate_at_launch = true
     value               = local.instance_name
   }
-  target_group_arns   = local.target_group_arns
-  vpc_zone_identifier = local.private_subnet_ids
+  target_group_arns    = local.target_group_arns
+  termination_policies = ["OldestInstance"]
+  vpc_zone_identifier  = local.private_subnet_ids
   instance_refresh {
     preferences {
       instance_warmup        = var.vault_asg_warmup_seconds
