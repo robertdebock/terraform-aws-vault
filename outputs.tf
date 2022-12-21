@@ -10,13 +10,13 @@ output "aws_lb_zone_id" {
 
 output "bastion_host_public_ip" {
   description = "The IP address of the bastion host."
-  value       = try(aws_instance.bastion[0].public_ip, "No bastion host created.")
+  value       = coalesce(aws_instance.bastion[0].public_ip, "No bastion host created.")
 }
 
 output "instructions" {
   description = "How to bootstrap Vault."
   value       = <<EOF
-  1. Run: ssh ec2-user@${try(aws_instance.bastion[0].public_ip, "some-host-you-already-have")}
+  1. Run: ssh ec2-user@${coalesce(aws_instance.bastion[0].public_ip, "some-host-you-already-have")}
   2. Run: vault operator init
   3. Run: vault login
   4. Run: vault operator raft autopilot set-config -min-quorum=${local.amount} -cleanup-dead-servers=true -dead-server-last-contact-threshold=${var.vault_asg_cooldown_seconds / 2.5}
