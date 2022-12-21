@@ -103,6 +103,7 @@ Because a single bastion host is used for each region, please be aware that you 
 8. Enable DR secondary on vault-eu-1: `vault write sys/replication/dr/secondary/enable token=WRAPPING_TOKEN_FROM_EU_0`
 9. Enable DR secondary on vault-us-1: `vault write sys/replication/dr/secondary/enable token=WRAPPING_TOKEN_FROM_US_0`
 
+> NOTE: After enabling secondary replication, the auto-pilot configuration is wiped and needs to be re-applied.
 
 ### Status in the lifecycle of Vault PR + DR
 
