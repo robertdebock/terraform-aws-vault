@@ -1,7 +1,7 @@
 # Make a key for unsealing.
 resource "aws_kms_key" "default_us" {
   description = "Vault unseal key"
-  provider    = aws.us-east-2
+  provider    = aws.us-east-1
   tags = {
     Name  = "replication-us"
     owner = "robertdebock"
@@ -11,7 +11,7 @@ resource "aws_kms_key" "default_us" {
 # Create a VCP.
 resource "aws_vpc" "default_us" {
   cidr_block = "10.0.0.0/16"
-  provider   = aws.us-east-2
+  provider   = aws.us-east-1
   tags = {
     Name    = "replication-us"
     owner   = "robertdebock"
@@ -21,7 +21,7 @@ resource "aws_vpc" "default_us" {
 
 # Create an internet gateway.
 resource "aws_internet_gateway" "default_us" {
-  provider = aws.us-east-2
+  provider = aws.us-east-1
   vpc_id   = aws_vpc.default_us.id
   tags = {
     Name    = "replication-us"
@@ -32,7 +32,7 @@ resource "aws_internet_gateway" "default_us" {
 
 # Create a routing table for the internet gateway.
 resource "aws_route_table" "public_us" {
-  provider = aws.us-east-2
+  provider = aws.us-east-1
   vpc_id   = aws_vpc.default_us.id
   tags = {
     Name = "replication-us-public"
@@ -43,13 +43,13 @@ resource "aws_route_table" "public_us" {
 resource "aws_route" "public_us" {
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = aws_internet_gateway.default_us.id
-  provider               = aws.us-east-2
+  provider               = aws.us-east-1
   route_table_id         = aws_route_table.public_us.id
 }
 
 # Create a routing table for the nat gateway.
 resource "aws_route_table" "private_us" {
-  provider = aws.us-east-2
+  provider = aws.us-east-1
   vpc_id   = aws_vpc.default_us.id
   tags = {
     Name = "replication-us-private"
@@ -58,7 +58,7 @@ resource "aws_route_table" "private_us" {
 
 # Reserve external IP addresses. (It's for the NAT gateways.)
 resource "aws_eip" "default_us" {
-  provider = aws.us-east-2
+  provider = aws.us-east-1
   vpc      = true
 }
 
@@ -67,7 +67,7 @@ resource "aws_subnet" "private_us" {
   count             = length(data.aws_availability_zones.default_us.names)
   availability_zone = data.aws_availability_zones.default_us.names[count.index]
   cidr_block        = "10.0.${count.index + 64}.0/24"
-  provider          = aws.us-east-2
+  provider          = aws.us-east-1
   vpc_id            = aws_vpc.default_us.id
   tags = {
     Name    = "replication-us-private"
@@ -79,7 +79,7 @@ resource "aws_subnet" "private_us" {
 # Make NAT gateways, for the Vault instances to reach the internet.
 resource "aws_nat_gateway" "default_us" {
   allocation_id = aws_eip.default_us.id
-  provider      = aws.us-east-2
+  provider      = aws.us-east-1
   subnet_id     = aws_subnet.public_us[0].id
   tags = {
     Name    = "replication-us"
@@ -93,14 +93,14 @@ resource "aws_nat_gateway" "default_us" {
 resource "aws_route" "private_us" {
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id         = aws_nat_gateway.default_us.id
-  provider               = aws.us-east-2
+  provider               = aws.us-east-1
   route_table_id         = aws_route_table.private_us.id
 }
 
 # Associate the subnet to the routing table.
 resource "aws_route_table_association" "private_us" {
   count          = length(data.aws_availability_zones.default_us.names)
-  provider       = aws.us-east-2
+  provider       = aws.us-east-1
   route_table_id = aws_route_table.private_us.id
   subnet_id      = aws_subnet.private_us[count.index].id
 }
@@ -108,8 +108,8 @@ resource "aws_route_table_association" "private_us" {
 # Find availability_zones in this region.
 data "aws_availability_zones" "default_us" {
   # The availability zone "us-east-2e" does not have all instance_types available.
-  exclude_names = ["us-east-2e"]
-  provider      = aws.us-east-2
+  exclude_names = ["us-east-1e"]
+  provider      = aws.us-east-1
   state         = "available"
 }
 
@@ -118,7 +118,7 @@ resource "aws_subnet" "public_us" {
   count             = length(data.aws_availability_zones.default_us.names)
   availability_zone = data.aws_availability_zones.default_us.names[count.index]
   cidr_block        = "10.0.${count.index}.0/24"
-  provider          = aws.us-east-2
+  provider          = aws.us-east-1
   vpc_id            = aws_vpc.default_us.id
   tags = {
     Name    = "replication-us-public"
@@ -130,7 +130,7 @@ resource "aws_subnet" "public_us" {
 # Associate the subnet to the routing table.
 resource "aws_route_table_association" "public_us" {
   count          = length(data.aws_availability_zones.default_us.names)
-  provider       = aws.us-east-2
+  provider       = aws.us-east-1
   route_table_id = aws_route_table.public_us.id
   subnet_id      = aws_subnet.public_us[count.index].id
 }
