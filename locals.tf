@@ -114,6 +114,7 @@ locals {
   # - Or use 5 for "large" regions. (5 or more availability zones)
   # - Or use 3 for "small" regions. (3 or less availability zones)
   #
+  # TODO: It looks like "3" nodes for replication just works. If true, fix line below.
   amount = var.vault_allow_replication ? 5 : var.vault_node_amount != null ? var.vault_node_amount : try(index([floor(length(data.aws_availability_zones.default.names) / 5) >= 1, floor(length(data.aws_availability_zones.default.names) / 3) >= 1], true) == 0 ? 5 : 3, 3)
 
   # Compose the package name based on the `vault_type`.
