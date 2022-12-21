@@ -115,6 +115,7 @@ Because a single bastion host is used for each region, please be aware that you 
 | After DR setup.               | DR Secondary clusters: all nodes unhealthy. |
 
 > During the setup of DR, the nodes of the DR secondaries will be replaced by the ASG.
+
 ### Performance Replication parameters
 
 Both the primary and secondary have parameters when setting up Vault replication. This can be confusing, here is a table and some situations that should clarify the required values for these parameters.
