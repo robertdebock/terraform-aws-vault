@@ -96,15 +96,15 @@ Because a single bastion host is used for each region, please be aware that you 
 1. Enable PR primary on vault-eu-0 `vault write -f sys/replication/performance/primary/enable primary_cluster_addr=https://replication-eu-0.${var.domain}:8201`
 2. Create a PR token on vault-eu-0: `vault write -f sys/replication/performance/primary/secondary-token id=vault-us-0`
 3. Enable PR secondary on vault-us-0: `vault write sys/replication/performance/secondary/enable token=WRAPPING_TOKEN`.
-4. Re-enable autopilot on vault-us-0: `vault operator raft autopilot set-config -min-quorum=5 -cleanup-dead-servers=true -dead-server-last-contact-threshold=120`
+4. Re-enable autopilot on vault-us-0: `unset VAULT_TOKEN && vault login -method=userpass username=tester && vault operator raft autopilot set-config -min-quorum=5 -cleanup-dead-servers=true -dead-server-last-contact-threshold=120`
 5. Enable DR primary on vault-eu-0: `vault write -f sys/replication/dr/primary/enable primary_cluster_addr=https://replication-eu-0.${var.domain}:8201`.
-6. Enable DR primary on vault-us-0: `unset VAULT_TOKEN && vault login -method=userpass username=tester && vault write -f sys/replication/dr/primary/enable primary_cluster_addr=https://replication-us-0.${var.domain}:8201`
+6. Enable DR primary on vault-us-0: `vault write -f sys/replication/dr/primary/enable primary_cluster_addr=https://replication-us-0.${var.domain}:8201`
 7. Create a DR token on vault-eu-0: `vault write sys/replication/dr/primary/secondary-token id="vault-eu-1"`
 8. Create a DR token on vault-us-0: `vault write sys/replication/dr/primary/secondary-token id="vault-us-1"`
 9. Enable DR secondary on vault-eu-1: `vault write sys/replication/dr/secondary/enable token=WRAPPING_TOKEN_FROM_EU_0`
 10. Enable DR secondary on vault-us-1: `vault write sys/replication/dr/secondary/enable token=WRAPPING_TOKEN_FROM_US_0`
 
-> NOTE: After enabling secondary replication, the auto-pilot configuration is wiped and needs to be re-applied.
+> NOTE: The replication status may become "disconnected" for brief moments. The state will become "connected" again after a couple of moments.
 
 ### Status in the lifecycle of Vault PR + DR
 
