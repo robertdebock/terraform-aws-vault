@@ -1,21 +1,21 @@
 output "vault_url_eu_0" {
   description = "value"
-  value       = "https://${module.vault_eu[0].aws_lb_replication_dns_name}:8200"
+  value       = "https://${module.vault_eu[0].aws_lb_dns_name}:8200"
 }
 
 output "vault_url_eu_1" {
   description = "value"
-  value       = "https://${module.vault_eu[1].aws_lb_replication_dns_name}:8200"
+  value       = "https://${module.vault_eu[1].aws_lb_dns_name}:8200"
 }
 
 output "vault_url_us_0" {
   description = "value"
-  value       = "https://${module.vault_us[0].aws_lb_replication_dns_name}:8200"
+  value       = "https://${module.vault_us[0].aws_lb_dns_name}:8200"
 }
 
 output "vault_url_us_1" {
   description = "value"
-  value       = "https://${module.vault_us[1].aws_lb_replication_dns_name}:8200"
+  value       = "https://${module.vault_us[1].aws_lb_dns_name}:8200"
 }
 
 
