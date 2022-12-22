@@ -84,8 +84,10 @@ jobs:
         uses: robertdebock/terraform-action@1.1.4
         with:
           action: destroy
-          directory: ./examples//${{ matrix.config.name }}/prerequisites
+          directory: ./examples/${{ matrix.config.name }}/prerequisites
         env:
           TF_CLI_ARGS: "-input=false -auto-approve"
-        if: steps.check_files.outputs.files_exists == 'true'
+        # if: steps.check_files.outputs.files_exists == 'true'
+        if: ${{ always() }}
+
 
