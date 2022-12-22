@@ -97,4 +97,9 @@ Quorum was lost.
 
 #### Solution
 
-Not easy, replace the cluster.
+Replace the cluster. For example, to destroy the second ("1") European ("eu") cluster:
+
+```shell
+terraform destroy -target=module.vault_eu[1].aws_autoscaling_group.default
+terrafrom apply
+```
