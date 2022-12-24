@@ -133,9 +133,8 @@ resource "aws_autoscaling_group" "default" {
   # Or if:
   # - var.vault_allow_replication is enabled.
   # Otherwise, use "ELB", which is stronger, but not always applicable..
-  # health_check_type   = var.vault_enable_telemetry && !var.vault_enable_telemetry_unauthenticated_metrics_access ? "EC2" : "ELB"
   health_check_type         = var.vault_allow_replication || (var.vault_enable_telemetry && !var.vault_enable_telemetry_unauthenticated_metrics_access) ? "EC2" : "ELB"
-  health_check_grace_period = var.vault_asg_warmup_seconds
+  # health_check_grace_period = var.vault_asg_warmup_seconds
   max_instance_lifetime     = var.vault_asg_instance_lifetime
   max_size                  = local.amount + 1
   min_size                  = local.amount - 1
