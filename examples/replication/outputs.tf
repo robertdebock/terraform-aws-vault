@@ -1,20 +1,20 @@
 output "vault_url_eu_0" {
-  description = "value"
+  description = "URL for Vault in Europe, cluster 0"
   value       = "https://${module.vault_eu[0].aws_lb_dns_name}:8200"
 }
 
 output "vault_url_eu_1" {
-  description = "value"
+  description = "URL for Vault in Europe, cluster 1"
   value       = "https://${module.vault_eu[1].aws_lb_dns_name}:8200"
 }
 
 output "vault_url_us_0" {
-  description = "value"
+  description = "URL for Vault in United State, cluster 0"
   value       = "https://${module.vault_us[0].aws_lb_dns_name}:8200"
 }
 
 output "vault_url_us_1" {
-  description = "value"
+  description = "URL for Vault in United State, cluster 1"
   value       = "https://${module.vault_us[1].aws_lb_dns_name}:8200"
 }
 
