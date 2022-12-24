@@ -214,6 +214,10 @@ export VAULT_CACERT="${vault_data_path}/tls/vault_ca.crt"
 if vault status > /dev/null 2>&1 ; then
   aws --region $${my_region} autoscaling set-instance-health --instance-id $${my_instance_id} --health-status Healthy
 else
+  # Randominze the moment when to set the instance to unhealthy. This helps gradually replacing unhealthy instances.
+  # For example; a cluster that is configured as a replication secondary has all followers set to unhealthy, risking
+  # loosing quorum.
+  sleep $((RANDOM % 60))
   aws --region $${my_region} autoscaling set-instance-health --instance-id $${my_instance_id} --health-status Unhealthy
 fi
 EOF
