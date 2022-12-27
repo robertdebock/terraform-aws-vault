@@ -36,10 +36,10 @@ output "vault_url_global" {
 
 output "vault_url_eu" {
   description = "The EU endpoint, routing to the active Vault cluster."
-  value       = "https://${aws_route53_record.eu[0].name}:8200/"
+  value       = try("https://${aws_route53_record.eu[0].name}:8200/", "No cluster created.")
 }
 
 output "vault_url_us" {
   description = "The US endpoint, routing to the active Vault cluster."
-  value       = "https://${aws_route53_record.us[0].name}:8200/"
+  value       = try("https://${aws_route53_record.us[0].name}:8200/", "No cluster created.")
 }
