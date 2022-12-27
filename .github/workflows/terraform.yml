@@ -73,6 +73,7 @@ jobs:
           directory: ./examples/${{ matrix.config.name }}
         env:
           TF_CLI_ARGS: "-input=false -auto-approve"
+        continue-on-error: true
       - name: terraform destroy
         uses: robertdebock/terraform-action@1.1.4
         with:
@@ -88,4 +89,4 @@ jobs:
           directory: ./examples/${{ matrix.config.name }}/prerequisites
         env:
           TF_CLI_ARGS: "-input=false -auto-approve"
-        if: steps.terraform_prerequisites_apply.outcome != 'skipped' 
+        if: steps.terraform_prerequisites_apply.outcome != 'skipped'
