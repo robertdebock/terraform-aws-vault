@@ -1,0 +1,14 @@
+#!/usr/bin/env ansible-playbook
+---
+- name: Inialize Vault
+  hosts: vault
+  become: no
+  gather_facts: no
+
+  # Moved to group_vars.
+  # vars:
+  #   vault_cluster_name: vault-eu-0
+  #   vault_addr: "https://{{ vault_cluster_name }}.aws.adfinis.cloud:8200"
+
+  roles:
+    - name: initialize

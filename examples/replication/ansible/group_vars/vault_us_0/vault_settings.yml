@@ -1,0 +1,4 @@
+---
+
+vault_cluster_name: vault-us-0
+vault_addr: "https://{{ vault_cluster_name }}.aws.adfinis.cloud:8200"

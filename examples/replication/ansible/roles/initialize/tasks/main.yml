@@ -1,0 +1,72 @@
+---
+
+- name: Check Vaults status
+  ansible.builtin.command:
+    cmd: vault status -format=yaml
+  failed_when: no
+  changed_when: no
+  environment:
+    VAULT_ADDR: "{{ vault_addr }}"
+  register: vault_status_raw
+  delegate_to: localhost
+
+- name: Save vault_status
+  ansible.builtin.set_fact:
+    vault_status: "{{ vault_status_raw.stdout | from_yaml }}"
+  delegate_to: localhost
+
+- name: Initialize Vault
+  block:
+    - name: Run vault operator init
+      ansible.builtin.command:
+        cmd: vault operator init -format=yaml
+      environment:
+        VAULT_ADDR: "{{ vault_addr }}"
+      register: vault_init_raw
+      delegate_to: localhost
+
+    - name: Save vault_init
+      ansible.builtin.set_fact:
+        vault_init: "{{ vault_init_raw.stdout | from_yaml }}"
+      delegate_to: localhost
+
+    - name: Store root token
+      ansible.builtin.set_fact:
+        vault_root_token: "{{ vault_init.root_token }}"
+      delegate_to: localhost
+
+    - name: Save root token
+      ansible.builtin.template:
+        src: group_vars.yml.tpl
+        dest: group_vars/{{ vault_cluster_name | replace('-', '_') }}/vault.yml
+        mode: "0640"
+      delegate_to: localhost
+  when:
+    - not vault_status.initialized
+
+- name: Read autopilot configuration
+  ansible.builtin.command:
+    cmd: vault operator raft autopilot get-config -format=yaml
+  changed_when: no
+  register: vault_autopilot_configuration_raw
+  environment:
+    VAULT_ADDR: "{{ vault_addr }}"
+    VAULT_TOKEN: "{{ vault_root_token }}"
+  delegate_to: localhost
+
+- name: Save vault autopilot configuration
+  ansible.builtin.set_fact:
+    vault_autopilot_configuration: "{{ vault_autopilot_configuration_raw.stdout | from_yaml }}"
+  delegate_to: localhost
+
+- name: Configure autopilot
+  ansible.builtin.command:
+    cmd: vault operator raft autopilot set-config -min-quorum=5 -cleanup-dead-servers=true -dead-server-last-contact-threshold=120
+  environment:
+    VAULT_ADDR: "{{ vault_addr }}"
+    VAULT_TOKEN: "{{ vault_root_token }}"
+  delegate_to: localhost
+  when:
+    - not vault_autopilot_configuration.cleanup_dead_servers or
+      not vault_autopilot_configuration.dead_server_last_contact_threshold == "2m0s" or
+      not vault_autopilot_configuration.min_quorum == 5
