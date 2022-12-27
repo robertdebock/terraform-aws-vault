@@ -1,14 +1,41 @@
 #!/usr/bin/env ansible-playbook
 ---
-- name: Inialize Vault
+- name: Initialize Vault
   hosts: vault
   become: no
   gather_facts: no
 
-  # Moved to group_vars.
-  # vars:
-  #   vault_cluster_name: vault-eu-0
-  #   vault_addr: "https://{{ vault_cluster_name }}.aws.adfinis.cloud:8200"
-
   roles:
     - name: initialize
+
+# - name: Setup PR Primary
+#   hosts: vault_eu_0
+#   become: no
+#   gather_facts: no
+
+#   roles:
+#     - name: pr_primary
+
+# - name: Setup PR Secondary
+#   hosts: vault_us_0
+#   become: no
+#   gather_facts: no
+
+#   roles:
+#     - name: pr_secondary
+
+# - name: Setup DR Primary
+#   hosts: vault_eu_0:vault_us_0
+#   become: no
+#   gather_facts: no
+
+#   roles:
+#     - name: dr_primary
+
+# - name: Setup DR Secondary
+#   hosts: vault_eu_1:vault_us_1
+#   become: no
+#   gather_facts: no
+
+#   roles:
+#     - name: dr_secondary
