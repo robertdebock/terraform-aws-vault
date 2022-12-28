@@ -2,7 +2,7 @@
 resource "aws_vpc" "default" {
   count      = var.vault_aws_vpc_id == "" ? 1 : 0
   cidr_block = local.cidr_block
-  tags       = local.tags
+  tags       = local.vpc_tags
 }
 
 # Create an internet gateway if the VPC is not provided.
@@ -12,7 +12,7 @@ resource "aws_internet_gateway" "default" {
   vpc_id = local.vpc_id
 }
 
-# Find internet gateways if no vpc_id was specified.
+# Find internet gateways if vpc_id was specified.
 data "aws_internet_gateway" "default" {
   count = var.vault_aws_vpc_id != "" ? 1 : 0
   filter {
@@ -41,6 +41,12 @@ resource "aws_nat_gateway" "default" {
   subnet_id     = aws_subnet.public[0].id
   tags          = local.tags
   depends_on    = [aws_internet_gateway.default]
+}
+
+# Find the NAT gateway if the vpc_id was specified.
+data "aws_nat_gateway" "default" {
+  count     = var.vault_aws_vpc_id == "" ? 0 : 1
+  subnet_id = var.vault_public_subnet_ids[0]
 }
 
 # Create a routing table for the Vault instances.

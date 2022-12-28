@@ -12,7 +12,7 @@ resource "aws_acm_certificate" "default_eu" {
   count       = 2
   domain_name = "vault-eu-${count.index}.${var.domain}"
   # After a deployment, this value (`domain_name`) can't be changed because the certificate is bound to the load balancer listener.
-  provider    = aws.eu-west-1
+  provider          = aws.eu-west-1
   validation_method = "DNS"
   tags = {
     owner = "Robert de Bock"
@@ -32,7 +32,7 @@ resource "aws_acm_certificate" "default_us" {
 
 # Lookup DNS zone.
 data "aws_route53_zone" "default" {
-  name = "${var.domain}"
+  name = var.domain
 }
 
 # Add validation details to the DNS zone.

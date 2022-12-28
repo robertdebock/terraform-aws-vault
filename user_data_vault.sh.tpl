@@ -115,6 +115,12 @@ chown root:root "${vault_data_path}/tls/vault.crt"
 # Concatenate CA and server certificate.
 cat "${vault_data_path}/tls/vault_ca.crt" >> "${vault_data_path}/tls/vault.crt"
 
+# Store Amazon CA, required to bootstrap through loadbalancer.
+curl https://www.amazontrust.com/repository/AmazonRootCA1.pem --output "${vault_data_path}/tls/amazon_ca.crt"
+
+# Append the Amazon CA to Vault's CA.
+cat "${vault_data_path}/tls/amazon_ca.crt" >> "${vault_data_path}/tls/vault_ca.crt"
+
 # A single "$": passed from Terraform.
 # A double "$$": determined in the runtime of this script.
 
@@ -197,16 +203,21 @@ cat << EOF >> /usr/local/bin/aws_health.sh
 #!/bin/sh
 
 # This script checks that status of Vault and reports that status to the ASG.
-# If vault fails, the instance is replaced.
+# If Vault fails, the instance is replaced.
 
-# Tell vault how to connect.
+# Tell Vault how to connect.
 export VAULT_ADDR=https://$${my_ipaddress}:8200
 export VAULT_CACERT="${vault_data_path}/tls/vault_ca.crt"
 
 # Get the status of Vault and report to AWS ASG.
+# TODO: This check is not sufficient; 0 is returned in many cases.
 if vault status > /dev/null 2>&1 ; then
   aws --region $${my_region} autoscaling set-instance-health --instance-id $${my_instance_id} --health-status Healthy
 else
+  # Randominze the moment when to set the instance to unhealthy. This helps gradually replacing unhealthy instances.
+  # For example; a cluster that is configured as a replication secondary has all followers set to unhealthy, risking
+  # loosing quorum.
+  sleep $((RANDOM % 60))
   aws --region $${my_region} autoscaling set-instance-health --instance-id $${my_instance_id} --health-status Unhealthy
 fi
 EOF

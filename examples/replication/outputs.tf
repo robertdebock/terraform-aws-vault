@@ -1,21 +1,21 @@
 output "vault_url_eu_0" {
-  description = "value"
-  value       = "https://${module.vault_eu[0].aws_lb_replication_dns_name}:8200"
+  description = "URL for Vault in Europe, cluster 0"
+  value       = "https://${module.vault_eu[0].aws_lb_dns_name}:8200"
 }
 
 output "vault_url_eu_1" {
-  description = "value"
-  value       = "https://${module.vault_eu[1].aws_lb_replication_dns_name}:8200"
+  description = "URL for Vault in Europe, cluster 1"
+  value       = "https://${module.vault_eu[1].aws_lb_dns_name}:8200"
 }
 
 output "vault_url_us_0" {
-  description = "value"
-  value       = "https://${module.vault_us[0].aws_lb_replication_dns_name}:8200"
+  description = "URL for Vault in United State, cluster 0"
+  value       = "https://${module.vault_us[0].aws_lb_dns_name}:8200"
 }
 
 output "vault_url_us_1" {
-  description = "value"
-  value       = "https://${module.vault_us[1].aws_lb_replication_dns_name}:8200"
+  description = "URL for Vault in United State, cluster 1"
+  value       = "https://${module.vault_us[1].aws_lb_dns_name}:8200"
 }
 
 
@@ -36,10 +36,10 @@ output "vault_url_global" {
 
 output "vault_url_eu" {
   description = "The EU endpoint, routing to the active Vault cluster."
-  value       = "https://${aws_route53_record.eu[0].name}:8200/"
+  value       = try("https://${aws_route53_record.eu[0].name}:8200/", "No cluster created.")
 }
 
 output "vault_url_us" {
   description = "The US endpoint, routing to the active Vault cluster."
-  value       = "https://${aws_route53_record.us[0].name}:8200/"
+  value       = try("https://${aws_route53_record.us[0].name}:8200/", "No cluster created.")
 }

@@ -1,13 +1,13 @@
 # Cloudwatch logs feature
 resource "aws_cloudwatch_log_group" "cloudinitlog" {
   count             = var.vault_enable_cloudwatch ? 1 : 0
-  name              = "${var.vault_name}-cloudinitlog"
+  name              = "cloudinitlog-${var.vault_name}-${random_string.default.result}"
   retention_in_days = 7
 }
 
 resource "aws_cloudwatch_log_group" "vaultlog" {
   count             = var.vault_enable_cloudwatch ? 1 : 0
-  name              = "${var.vault_name}-vaultlog"
+  name              = "vaultlog-${var.vault_name}-${random_string.default.result}"
   retention_in_days = 7
 }
 
@@ -451,13 +451,13 @@ resource "aws_cloudwatch_dashboard" "default" {
     ]
 }
 EOF
-  dashboard_name = "vault-${var.vault_name}"
+  dashboard_name = "vault-${var.vault_name}-${random_string.default.result}"
 }
 
 # Cloudwatch alerting feature
 resource "aws_sns_topic" "alerts" {
   count           = var.vault_enable_cloudwatch ? 1 : 0
-  name            = "CloudWatchAutoAlarmsSNSTopic"
+  name            = "CloudWatchAutoAlarmsSNSTopic-${random_string.default.result}"
   delivery_policy = <<EOF
 {
   "http": {
@@ -482,7 +482,7 @@ EOF
 resource "aws_lambda_function" "CloudWatchAutoAlarms" {
   count            = var.vault_enable_cloudwatch ? 1 : 0
   filename         = "${path.module}/scripts/cloudwatch_alarms/amazon-cloudwatch-auto-alarms.zip"
-  function_name    = "CloudWatchAutoAlarms"
+  function_name    = "CloudWatchAutoAlarms-${random_string.default.result}"
   role             = aws_iam_role.lambda[0].arn
   handler          = "cw_auto_alarms.lambda_handler"
   source_code_hash = filebase64sha256("${path.module}/scripts/cloudwatch_alarms/amazon-cloudwatch-auto-alarms.zip")
@@ -507,7 +507,7 @@ resource "aws_lambda_function" "CloudWatchAutoAlarms" {
 
 resource "aws_cloudwatch_event_rule" "ec2_alarms" {
   count       = var.vault_enable_cloudwatch ? 1 : 0
-  name        = "Initiate-CloudWatchAutoAlarmsEC2"
+  name        = "Initiate-CloudWatchAutoAlarmsEC2-${random_string.default.result}"
   description = "Creates CloudWatch alarms on instance start via Lambda CloudWatchAutoAlarms and deletes them on instance termination."
   event_pattern = <<EOF
 {
@@ -545,7 +545,7 @@ resource "aws_lambda_permission" "ec2_alarms" {
 
 resource "aws_cloudwatch_event_rule" "lambda" {
   count       = var.vault_enable_cloudwatch ? 1 : 0
-  name        = "Initiate-CloudWatchAutoAlarmsLambda"
+  name        = "Initiate-CloudWatchAutoAlarmsLambda-${random_string.default.result}"
   description = "Creates CloudWatch alarms on for lambda functions with the CloudWatchAutoAlarms activation tag"
   event_pattern = <<EOF
 {

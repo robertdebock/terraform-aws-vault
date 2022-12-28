@@ -9,10 +9,19 @@ resource "random_string" "default" {
 # Make an S3 bucket to store scripts.
 resource "aws_s3_bucket" "default" {
   bucket = "custom-scripts-${random_string.default.result}"
-  tags   = {
+  tags = {
     Name  = "custom-scripts-${random_string.default.result}"
     owner = "Robert de Bock"
   }
+}
+
+# Limit access to the S3 bucket.
+resource "aws_s3_bucket_public_access_block" "default" {
+  bucket                  = aws_s3_bucket.default.id
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 }
 
 # Add the custom script for the Vault hosts to the bucket.
@@ -36,6 +45,7 @@ resource "aws_s3_object" "bastion" {
 resource "aws_vpc" "default" {
   cidr_block = "10.70.0.0/16"
   tags = {
+    Name    = "custom"
     owner   = "robertdebock"
     purpose = "ci-testing"
   }
@@ -45,6 +55,7 @@ resource "aws_vpc" "default" {
 resource "aws_internet_gateway" "default" {
   vpc_id = aws_vpc.default.id
   tags = {
+    Name    = "custom"
     owner   = "robertdebock"
     purpose = "ci-testing"
   }
@@ -54,7 +65,7 @@ resource "aws_internet_gateway" "default" {
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.default.id
   tags = {
-    Name = "public"
+    Name = "custom-public"
   }
 }
 
@@ -69,7 +80,7 @@ resource "aws_route" "public" {
 resource "aws_route_table" "private" {
   vpc_id = aws_vpc.default.id
   tags = {
-    Name = "private"
+    Name = "custom-private"
   }
 }
 
@@ -85,7 +96,7 @@ resource "aws_subnet" "private" {
   cidr_block        = "10.70.${count.index + 64}.0/24"
   vpc_id            = aws_vpc.default.id
   tags = {
-    Name    = "private"
+    Name    = "custom-private"
     owner   = "robertdebock"
     purpose = "ci-testing"
   }
@@ -122,7 +133,7 @@ resource "aws_subnet" "public" {
   cidr_block        = "10.70.${count.index}.0/24"
   vpc_id            = aws_vpc.default.id
   tags = {
-    Name    = "public"
+    Name    = "custom-public"
     owner   = "robertdebock"
     purpose = "ci-testing"
   }

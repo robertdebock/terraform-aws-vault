@@ -5,7 +5,7 @@ You can enable telemetry in Vault by setting the variable `vault_enable_telemetr
 Enabling this has a couple of effects:
 
 - The `vault.hcl` is changed to include telemetry stanza.
-- The health check on the target group only allows leader to be healthy.
+- The health check on the target group only allows the leader to be healthy.
 - The auto-scale-group bases the health of instances on "EC2", which is a check based on a script.
 
 These limitation are required, because only the leader can be used to request telemetry data on.

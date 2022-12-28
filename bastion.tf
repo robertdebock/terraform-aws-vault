@@ -24,7 +24,7 @@ resource "aws_security_group_rule" "bastion-ssh" {
 
 # Allow internet access.
 resource "aws_security_group_rule" "bastion-internet" {
-  count             = var.vault_create_bastionhost ? 1 : 0
+  count             = var.vault_create_bastionhost && var.vault_bastion_public_ip ? 1 : 0
   cidr_blocks       = ["0.0.0.0/0"]
   description       = "internet"
   from_port         = 0
@@ -65,7 +65,7 @@ resource "aws_route_table" "bastion" {
 resource "aws_route" "bastion" {
   count                  = var.vault_create_bastionhost ? 1 : 0
   destination_cidr_block = "0.0.0.0/0"
-  gateway_id             = local.gateway_id
+  gateway_id             = var.vault_bastion_public_ip ? local.gateway_id : try(data.aws_nat_gateway.default[0].id, aws_nat_gateway.default[0].id)
   route_table_id         = aws_route_table.bastion[0].id
 }
 
@@ -81,7 +81,7 @@ resource "aws_instance" "bastion" {
   count                       = var.vault_create_bastionhost ? 1 : 0
   ami                         = data.aws_ami.bastion[0].id
   iam_instance_profile        = aws_iam_instance_profile.bastion.name
-  associate_public_ip_address = true
+  associate_public_ip_address = var.vault_bastion_public_ip
   instance_type               = "t4g.nano"
   key_name                    = local.vault_aws_key_name
   subnet_id                   = aws_subnet.bastion[0].id

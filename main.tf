@@ -20,7 +20,7 @@ data "aws_region" "default" {}
 # Place an SSH key.
 resource "aws_key_pair" "default" {
   count      = var.vault_keyfile_path == "" ? 0 : 1
-  key_name   = var.vault_name
+  key_name   = local.name
   public_key = file(var.vault_keyfile_path)
   tags       = local.tags
 }
@@ -133,11 +133,11 @@ resource "aws_autoscaling_group" "default" {
   # Or if:
   # - var.vault_allow_replication is enabled.
   # Otherwise, use "ELB", which is stronger, but not always applicable..
-  # health_check_type   = var.vault_enable_telemetry && !var.vault_enable_telemetry_unauthenticated_metrics_access ? "EC2" : "ELB"
-  health_check_type     = var.vault_allow_replication || (var.vault_enable_telemetry && !var.vault_enable_telemetry_unauthenticated_metrics_access) ? "EC2" : "ELB"
-  max_instance_lifetime = var.vault_asg_instance_lifetime
-  max_size              = local.amount + 1
-  min_size              = local.amount - 1
+  health_check_type         = var.vault_allow_replication || (var.vault_enable_telemetry && !var.vault_enable_telemetry_unauthenticated_metrics_access) ? "EC2" : "ELB"
+  # health_check_grace_period = var.vault_asg_warmup_seconds
+  max_instance_lifetime     = var.vault_asg_instance_lifetime
+  max_size                  = local.amount + 1
+  min_size                  = local.amount - 1
   mixed_instances_policy {
     launch_template {
       launch_template_specification {
@@ -155,15 +155,16 @@ resource "aws_autoscaling_group" "default" {
       }
     }
   }
-  name            = var.vault_name
+  name            = local.name
   placement_group = aws_placement_group.default.id
   tag {
     key                 = "Name"
     propagate_at_launch = true
     value               = local.instance_name
   }
-  target_group_arns   = local.target_group_arns
-  vpc_zone_identifier = local.private_subnet_ids
+  target_group_arns    = local.target_group_arns
+  termination_policies = ["OldestInstance"]
+  vpc_zone_identifier  = local.private_subnet_ids
   instance_refresh {
     preferences {
       instance_warmup        = var.vault_asg_warmup_seconds

@@ -58,6 +58,7 @@ resource "aws_instance" "grafana" {
   tags = {
     Name = "grafana"
   }
+  depends_on = [aws_instance.prometheus]
 }
 
 # Give the grafana instance time to run cloud-init.

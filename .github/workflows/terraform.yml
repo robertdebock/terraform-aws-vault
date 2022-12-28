@@ -35,7 +35,7 @@ jobs:
           ./vault-tls.sh
       - name: Check file existence
         id: check_files
-        uses: andstor/file-existence-action@v1
+        uses: andstor/file-existence-action@v2
         with:
           files: "./examples/${{ matrix.config.name }}/prerequisites"
       - name: terraform prerequisites init
@@ -44,6 +44,7 @@ jobs:
           directory: ./examples//${{ matrix.config.name }}/prerequisites  
         if: steps.check_files.outputs.files_exists == 'true'
       - name: terraform prerequisites apply
+        id: terraform_prerequisites_apply
         uses: robertdebock/terraform-action@1.1.4
         with:
           action: apply
@@ -72,6 +73,7 @@ jobs:
           directory: ./examples/${{ matrix.config.name }}
         env:
           TF_CLI_ARGS: "-input=false -auto-approve"
+        continue-on-error: true
       - name: terraform destroy
         uses: robertdebock/terraform-action@1.1.4
         with:
@@ -84,8 +86,7 @@ jobs:
         uses: robertdebock/terraform-action@1.1.4
         with:
           action: destroy
-          directory: ./examples//${{ matrix.config.name }}/prerequisites
+          directory: ./examples/${{ matrix.config.name }}/prerequisites
         env:
           TF_CLI_ARGS: "-input=false -auto-approve"
-        if: steps.check_files.outputs.files_exists == 'true'
-
+        if: steps.terraform_prerequisites_apply.outcome != 'skipped'

@@ -14,7 +14,7 @@ resource "aws_key_pair" "default" {
 
 # Make a certificate.
 resource "aws_acm_certificate" "default" {
-  domain_name = "custom.meinit.nl"
+  domain_name = "custom.${var.domain}"
   # After a deployment, this value (`domain_name`) can't be changed because the certificate is bound to the load balancer listener.
   validation_method = "DNS"
   tags = {
@@ -24,7 +24,7 @@ resource "aws_acm_certificate" "default" {
 
 # Lookup DNS zone.
 data "aws_route53_zone" "default" {
-  name = "meinit.nl"
+  name = var.domain
 }
 
 # Add validation details to the DNS zone.
@@ -61,11 +61,13 @@ module "vault" {
   vault_custom_script_s3_bucket_arn         = data.terraform_remote_state.default.outputs.custom_script_s3_bucket_arn
   vault_bastion_custom_script_s3_url        = data.terraform_remote_state.default.outputs.vault_bastion_custom_script_s3_url
   vault_bastion_custom_script_s3_bucket_arn = data.terraform_remote_state.default.outputs.custom_script_s3_bucket_arn
+  vault_bastion_public_ip                   = false
   vault_extra_security_group_ids            = data.terraform_remote_state.default.outputs.security_group_ids
   vault_name                                = "cstm"
   vault_prometheus_disable_hostname         = true
   vault_prometheus_retention_time           = "30m"
   vault_private_subnet_ids                  = data.terraform_remote_state.default.outputs.private_subnet_ids
+  vault_public_subnet_ids                   = data.terraform_remote_state.default.outputs.public_subnet_ids
   vault_size                                = "custom"
   vault_volume_size                         = 64
   vault_volume_type                         = "gp2"

@@ -14,7 +14,7 @@ variable "vault_name" {
 variable "vault_version" {
   description = "The version of Vault to install."
   type        = string
-  default     = "1.12.1"
+  default     = "1.12.2"
   validation {
     condition     = can(regex("^1\\.", var.vault_version))
     error_message = "Please use a SemVer version, where the major version is \"1\". Use \"1.2.7\" or newer."
@@ -477,6 +477,12 @@ variable "vault_bastion_custom_script_s3_url" {
 
 variable "vault_bastion_create_s3_bucket" {
   description = "Should an S3 bucket be create that the bastion host can use for backups?"
+  type        = bool
+  default     = true
+}
+
+variable "vault_bastion_public_ip" {
+  description = "Assign a public IP to the bastion host."
   type        = bool
   default     = true
 }

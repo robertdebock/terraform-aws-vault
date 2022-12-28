@@ -96,12 +96,26 @@ Because a single bastion host is used for each region, please be aware that you 
 1. Enable PR primary on vault-eu-0 `vault write -f sys/replication/performance/primary/enable primary_cluster_addr=https://replication-eu-0.${var.domain}:8201`
 2. Create a PR token on vault-eu-0: `vault write -f sys/replication/performance/primary/secondary-token id=vault-us-0`
 3. Enable PR secondary on vault-us-0: `vault write sys/replication/performance/secondary/enable token=WRAPPING_TOKEN`.
-4. Enable DR primary on vault-eu-0: `vault write -f sys/replication/dr/primary/enable primary_cluster_addr=https://replication-eu-0.${var.domain}:8201`.
-5. Enable DR primary on vault-us-0: `unset VAULT_TOKEN && vault login -method=userpass username=tester && vault write -f sys/replication/dr/primary/enable primary_cluster_addr=https://replication-us-0.${var.domain}:8201`
-6. Create a DR token on vault-eu-0: `vault write sys/replication/dr/primary/secondary-token id="vault-eu-1"`
-7. Create a DR token on vault-us-0: `vault write sys/replication/dr/primary/secondary-token id="vault-us-1"`
-8. Enable DR secondary on vault-eu-1: `vault write sys/replication/dr/secondary/enable token=WRAPPING_TOKEN`
-9. Enable DR secondary on vault-us-1: `vault write sys/replication/dr/secondary/enable token=WRAPPING_TOKEN`
+4. Re-enable autopilot on vault-us-0: `unset VAULT_TOKEN && vault login -method=userpass username=tester && vault operator raft autopilot set-config -min-quorum=5 -cleanup-dead-servers=true -dead-server-last-contact-threshold=120`
+5. Enable DR primary on vault-eu-0: `vault write -f sys/replication/dr/primary/enable primary_cluster_addr=https://replication-eu-0.${var.domain}:8201`.
+6. Enable DR primary on vault-us-0: `vault write -f sys/replication/dr/primary/enable primary_cluster_addr=https://replication-us-0.${var.domain}:8201`
+7. Create a DR token on vault-eu-0: `vault write sys/replication/dr/primary/secondary-token id="vault-eu-1"`
+8. Create a DR token on vault-us-0: `vault write sys/replication/dr/primary/secondary-token id="vault-us-1"`
+9. Enable DR secondary on vault-eu-1: `vault write sys/replication/dr/secondary/enable token=WRAPPING_TOKEN_FROM_EU_0`
+10. Enable DR secondary on vault-us-1: `vault write sys/replication/dr/secondary/enable token=WRAPPING_TOKEN_FROM_US_0`
+
+> NOTE: The replication status may become "disconnected" for brief moments. The state will become "connected" again after a couple of moments.
+
+### Status in the lifecycle of Vault PR + DR
+
+| Stage                         | Comment                                     |
+|-------------------------------|---------------------------------------------|
+| Before `vault operator init`. | All nodes unhealthy.                        |
+| After `vault operator init`.  | Leader of each cluster healthy.             |
+| After PR setup.               | Leader of each cluster healthy.             |
+| After DR setup.               | DR Secondary clusters: all nodes unhealthy. |
+
+> During the setup of DR, the nodes of the DR secondaries will be replaced by the ASG.
 
 ### Performance Replication parameters
 
