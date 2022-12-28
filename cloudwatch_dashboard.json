@@ -8,7 +8,7 @@
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ { "expression": "SELECT MAX(CPUUtilization) FROM SCHEMA(\"AWS/EC2\", AutoScalingGroupName) WHERE AutoScalingGroupName = '${vault_name}' GROUP BY AutoScalingGroupName", "label": "CPU (%) utilization ASG", "id": "q1", "region": "${aws_region}", "period": 60, "color": "#17becf" } ]
+                    [ { "expression": "SELECT MAX(CPUUtilization) FROM SCHEMA(\"AWS/EC2\", AutoScalingGroupName) WHERE AutoScalingGroupName = '${asg_name}' GROUP BY AutoScalingGroupName", "label": "CPU (%) utilization ASG", "id": "q1", "region": "${aws_region}", "period": 60, "color": "#17becf" } ]
                 ],
                 "view": "timeSeries",
                 "stacked": true,
@@ -39,7 +39,7 @@
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ { "expression": "SELECT MAX(disk_used_percent) FROM SCHEMA(\"${vault_cloudwatch_namespace}\", AutoScalingGroupName,InstanceId,device,fstype,path) WHERE AutoScalingGroupName = '${vault_name}' AND path = '${vault_data_path}' GROUP BY InstanceId", "label": "", "id": "q1", "region": "${aws_region}" } ]
+                    [ { "expression": "SELECT MAX(disk_used_percent) FROM SCHEMA(\"${vault_cloudwatch_namespace}\", AutoScalingGroupName,InstanceId,device,fstype,path) WHERE AutoScalingGroupName = '${asg_name}' AND path = '${vault_data_path}' GROUP BY InstanceId", "label": "", "id": "q1", "region": "${aws_region}" } ]
                 ],
                 "view": "timeSeries",
                 "stacked": false,
@@ -70,7 +70,7 @@
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ { "expression": "SELECT MAX(disk_used_percent) FROM SCHEMA(\"${vault_cloudwatch_namespace}\", AutoScalingGroupName,InstanceId,device,fstype,path) WHERE AutoScalingGroupName = '${vault_name}' AND path = '/' GROUP BY InstanceId", "label": "", "id": "q1", "period": 60, "region": "${aws_region}" } ]
+                    [ { "expression": "SELECT MAX(disk_used_percent) FROM SCHEMA(\"${vault_cloudwatch_namespace}\", AutoScalingGroupName,InstanceId,device,fstype,path) WHERE AutoScalingGroupName = '${asg_name}' AND path = '/' GROUP BY InstanceId", "label": "", "id": "q1", "period": 60, "region": "${aws_region}" } ]
                 ],
                 "view": "timeSeries",
                 "stacked": false,
@@ -102,7 +102,7 @@
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ "AWS/AutoScaling", "GroupInServiceInstances", "AutoScalingGroupName", "${vault_name}", { "color": "#7f7f7f" } ]
+                    [ "AWS/AutoScaling", "GroupInServiceInstances", "AutoScalingGroupName", "${asg_name}", { "color": "#7f7f7f" } ]
                 ],
                 "view": "timeSeries",
                 "stacked": true,
@@ -131,7 +131,7 @@
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ "AWS/AutoScaling", "GroupTerminatingInstances", "AutoScalingGroupName", "${vault_name}", { "color": "#d62728" } ]
+                    [ "AWS/AutoScaling", "GroupTerminatingInstances", "AutoScalingGroupName", "${asg_name}", { "color": "#d62728" } ]
                 ],
                 "view": "timeSeries",
                 "stacked": true,
@@ -160,8 +160,8 @@
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ { "expression": "SELECT AVG(NetworkIn) FROM SCHEMA(\"AWS/EC2\", AutoScalingGroupName) WHERE AutoScalingGroupName = '${vault_name}'", "label": "Netwerk In (Bytes)", "id": "q1", "region": "${aws_region}", "color": "#9467bd" } ],
-                    [ "AWS/EC2", "NetworkIn", "AutoScalingGroupName", "${vault_name}", { "id": "m1", "visible": false } ]
+                    [ { "expression": "SELECT AVG(NetworkIn) FROM SCHEMA(\"AWS/EC2\", AutoScalingGroupName) WHERE AutoScalingGroupName = '${asg_name}'", "label": "Netwerk In (Bytes)", "id": "q1", "region": "${aws_region}", "color": "#9467bd" } ],
+                    [ "AWS/EC2", "NetworkIn", "AutoScalingGroupName", "${asg_name}", { "id": "m1", "visible": false } ]
                 ],
                 "view": "timeSeries",
                 "stacked": false,
@@ -190,7 +190,7 @@
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ "AWS/EC2", "NetworkOut", "AutoScalingGroupName", "${vault_name}", { "color": "#9467bd", "label": "Network Out (Bytes)" } ]
+                    [ "AWS/EC2", "NetworkOut", "AutoScalingGroupName", "${asg_name}", { "color": "#9467bd", "label": "Network Out (Bytes)" } ]
                 ],
                 "view": "timeSeries",
                 "stacked": false,
@@ -219,7 +219,7 @@
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ { "expression": "SELECT MAX(mem_used_percent) FROM SCHEMA(\"${vault_cloudwatch_namespace}\", AutoScalingGroupName,InstanceId) WHERE AutoScalingGroupName = '${vault_name}' GROUP BY InstanceId", "label": "", "id": "q1", "period": 60, "region": "${aws_region}" } ],
+                    [ { "expression": "SELECT MAX(mem_used_percent) FROM SCHEMA(\"${vault_cloudwatch_namespace}\", AutoScalingGroupName,InstanceId) WHERE AutoScalingGroupName = '${asg_name}' GROUP BY InstanceId", "label": "", "id": "q1", "period": 60, "region": "${aws_region}" } ],
                     [ "CWAgent", "mem_used_percent", "InstanceId", "i-0add6009056a2d366", "AutoScalingGroupName", "watch", { "id": "m1", "visible": false } ]
                 ],
                 "view": "timeSeries",
@@ -251,7 +251,7 @@
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ "AWS/AutoScaling", "GroupDesiredCapacity", "AutoScalingGroupName", "${vault_name}", { "color": "#7f7f7f" } ]
+                    [ "AWS/AutoScaling", "GroupDesiredCapacity", "AutoScalingGroupName", "${asg_name}", { "color": "#7f7f7f" } ]
                 ],
                 "view": "timeSeries",
                 "stacked": true,

@@ -16,7 +16,7 @@ resource "aws_cloudwatch_dashboard" "default" {
   count          = var.vault_enable_cloudwatch ? 1 : 0
   dashboard_body = "${templatefile("${path.module}/cloudwatch_dashboard.json", {
     aws_region                  = "${data.aws_region.default.name}",
-    vault_name                  = "${local.name}",
+    asg_name                    = "${aws_autoscaling_group.default.name}",
     vault_cloudwatch_namespace  = "${local.vault_cloudwatch_namespace}",
     vault_data_path             = "${var.vault_data_path}",
     amount                      = local.amount,
