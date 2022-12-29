@@ -2,3 +2,7 @@
 
 vault_cluster_name: vault-us-0
 vault_addr: "https://{{ vault_cluster_name }}.aws.adfinis.cloud:8200"
+
+vault_cluster_addr: "https://replication-us-0.aws.adfinis.cloud:8201"
+
+vault_dr_secondary_token_id: vault-us-1

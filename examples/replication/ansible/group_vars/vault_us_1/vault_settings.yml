@@ -2,3 +2,5 @@
 
 vault_cluster_name: vault-us-1
 vault_addr: "https://{{ vault_cluster_name }}.aws.adfinis.cloud:8200"
+
+vault_dr_partner: vault-us-0.aws.adfinis.cloud
