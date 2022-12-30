@@ -200,26 +200,24 @@ usermod -G vault ec2-user
 
 # Place an AWS EC2 health check script.
 cat << EOF >> /usr/local/bin/aws_health.sh
-#!/bin/sh
+!/bin/bash
 
-# This script checks that status of Vault and reports that status to the ASG.
-# If Vault fails, the instance is replaced.
+# Set variables
+VAULT_STATUS_URL="https://$${my_ipaddress}:8200/v1/sys/health"
+TIMEOUT=5
 
-# Tell Vault how to connect.
-export VAULT_ADDR=https://$${my_ipaddress}:8200
-export VAULT_CACERT="${vault_data_path}/tls/vault_ca.crt"
+# Perform the health check
+response=\$(curl -k -m \$TIMEOUT -s -o /dev/null -w "%%{http_code}" \$VAULT_STATUS_URL)
 
-# Get the status of Vault and report to AWS ASG.
-# TODO: This check is not sufficient; 0 is returned in many cases.
-if vault status > /dev/null 2>&1 ; then
-  aws --region $${my_region} autoscaling set-instance-health --instance-id $${my_instance_id} --health-status Healthy
-else
-  # Randominze the moment when to set the instance to unhealthy. This helps gradually replacing unhealthy instances.
-  # For example; a cluster that is configured as a replication secondary has all followers set to unhealthy, risking
-  # loosing quorum.
-  sleep $((RANDOM % 60))
-  aws --region $${my_region} autoscaling set-instance-health --instance-id $${my_instance_id} --health-status Unhealthy
-fi
+# Check the response code
+case \$response in
+  200|429|472|473)
+    aws --region $${my_region} autoscaling set-instance-health --instance-id $${my_instance_id} --health-status Healthy
+  ;;
+  *)
+    aws --region $${my_region} autoscaling set-instance-health --instance-id $${my_instance_id} --health-status Unhealthy
+  ;;
+esac
 EOF
 
 # Make the AWS EC2 health check script executable.
