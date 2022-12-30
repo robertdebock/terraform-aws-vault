@@ -1,0 +1,34 @@
+---
+
+- name: Get Configuration
+  ansible.builtin.uri:
+    url: "{{ vault_addr }}/v1/sys/storage/raft/autopilot/configuration"
+    headers:
+      X-Vault-Token: "{{ vault_token }}"
+  register: get_configuration
+  until: get_configuration is succeeded
+  retries: 9
+  delegate_to: localhost
+
+- name: Set Configuration
+  ansible.builtin.uri:
+    url: "{{ vault_addr }}/v1/sys/storage/raft/autopilot/configuration"
+    method: POST
+    headers:
+      X-Vault-Token: "{{ vault_token }}"
+    body_format: json
+    body:
+      cleanup_dead_servers: true
+      dead_server_last_contact_threshold: 2m
+      min_quorum: 5
+    status_code:
+      - 204
+  register: set_configuration
+  until: set_configuration is succeeded 
+  retries: 9
+  delegate_to: localhost
+  changed_when: yes
+  when:
+    - not get_configuration.json.data.cleanup_dead_servers or
+      not get_configuration.json.data.dead_server_last_contact_threshold == "2m0s" or
+      not get_configuration.json.data.min_quorum == 5

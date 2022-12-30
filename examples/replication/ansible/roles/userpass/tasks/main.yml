@@ -1,0 +1,49 @@
+---
+
+- name: Enable Auth Method userpass
+  ansible.builtin.uri:
+    url: "{{ vault_addr }}/v1/sys/auth/userpass"
+    method: POST
+    headers:
+      X-Vault-Token: "{{ vault_token }}"
+    body_format: json
+    body:
+      type: userpass
+      description: "The username/password authentication engine."
+    status_code:
+      - 204
+      - 400
+  register: enable_auth_method_userpass
+  changed_when:
+    - enable_auth_method_userpass.status == 204
+  delegate_to: localhost
+
+- name: Create/Update Policy
+  ansible.builtin.uri:
+    url: "{{ vault_addr }}/v1/sys/policies/acl/superuser"
+    method: POST
+    headers:
+      X-Vault-Token: "{{ vault_token }}"
+    body_format: json
+    body:
+      policy: '{ "path": { "*": { "capabilities": ["create", "read", "update", "delete", "list", "sudo"] } } }'
+    status_code:
+      - 204
+  changed_when: yes
+  delegate_to: localhost
+
+- name: Create/Update User
+  ansible.builtin.uri:
+    url: "{{ vault_addr }}/v1/auth/userpass/users/{{ pr_username }}"
+    method: POST
+    headers:
+      X-Vault-Token: "{{ vault_token }}"
+    body_format: json
+    body:
+      password: "{{ pr_password }}"
+      policies: 
+        - "superuser"
+    status_code:
+      - 204
+  changed_when: yes
+  delegate_to: localhost

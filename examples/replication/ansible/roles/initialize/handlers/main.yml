@@ -1,0 +1,16 @@
+---
+
+- name: Save token
+  ansible.builtin.template:
+    src: group_vars.yml.tpl
+    dest: group_vars/{{ vault_cluster_name | replace('-', '_') }}/vault.yml
+    mode: "0640"
+  delegate_to: localhost
+
+- name: Set token
+  ansible.builtin.set_fact:
+    vault_token: "{{ start_initialization.json.root_token }}"
+
+- name: Wait for unhealthy nodes to be thrown out of the target group
+  ansible.builtin.pause:
+    minutes: 1

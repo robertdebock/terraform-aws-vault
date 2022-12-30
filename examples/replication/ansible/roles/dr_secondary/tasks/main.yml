@@ -1,0 +1,21 @@
+---
+
+- name: Enable DR Secondary
+  ansible.builtin.uri:
+    url: "{{ vault_addr }}/v1/sys/replication/dr/secondary/enable"
+    method: POST
+    headers:
+      X-Vault-Token: "{{ vault_token }}"
+    body_format: json
+    body:
+      token: "{{ dr_secondary_token }}"
+  register: enable_dr_secondary
+  until: enable_dr_secondary is succeeded
+  retries: 9
+  changed_when:
+    - enable_dr_secondary.status == 200
+  when:
+    # Enable PR when there is a token.
+    # This means re-doing requires the secondary token to be revoked.
+    - dr_secondary_token | length > 0
+  delegate_to: localhost
