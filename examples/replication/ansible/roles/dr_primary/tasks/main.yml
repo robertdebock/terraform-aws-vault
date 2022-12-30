@@ -8,10 +8,6 @@
   register: check_dr_status
   delegate_to: localhost
 
-- name: Show shit
-  debug:
-    msg: "{{ check_dr_status }}"
-
 - name: Enable DR Primary Replication
   ansible.builtin.uri:
     url: "{{ vault_addr }}/v1/sys/replication/dr/primary/enable"

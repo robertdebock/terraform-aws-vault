@@ -31,10 +31,6 @@
       ansible.builtin.set_fact:
         performance_secondary_token: "{{ hostvars['vault-eu-0.aws.adfinis.cloud'].generate_pr_secondary_token.json.wrap_info.token | default('') }}"
 
-    - name: Show shit performance_secondary_token
-      debug:
-        msg: "{{ performance_secondary_token }}"
-
   roles:
     - name: performance_secondary
 
@@ -93,8 +89,5 @@
       ansible.builtin.set_fact:
         dr_secondary_token: "{{ hostvars[vault_dr_partner].generate_dr_secondary_token.json.wrap_info.token | default('') }}"
 
-    - name: Show shit
-      debug:
-        msg: "{{ dr_secondary_token }}"
   roles:
     - name: dr_secondary
