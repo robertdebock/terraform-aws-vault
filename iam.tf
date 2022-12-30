@@ -256,8 +256,6 @@ resource "aws_iam_role_policy" "lambda" {
 
 data "aws_partition" "current" {}
 
-data "aws_region" "current" {}
-
 data "aws_caller_identity" "current" {}
 
 data "aws_iam_policy_document" "lambda" {
@@ -280,8 +278,8 @@ data "aws_iam_policy_document" "lambda" {
       "logs:DescribeLogGroups"
     ]
     resources = [
-      "arn:${data.aws_partition.current.partition}:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.id}:log-group:*",
-      "arn:${data.aws_partition.current.partition}:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.id}:log-group:*:log-stream:*"
+      "arn:${data.aws_partition.current.partition}:logs:${data.aws_region.default.name}:${data.aws_caller_identity.current.id}:log-group:*",
+      "arn:${data.aws_partition.current.partition}:logs:${data.aws_region.default.name}:${data.aws_caller_identity.current.id}:log-group:*:log-stream:*"
     ]
   }
   statement {
@@ -290,7 +288,7 @@ data "aws_iam_policy_document" "lambda" {
       "logs:PutLogEvents"
     ]
     resources = [
-      "arn:${data.aws_partition.current.partition}:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.id}:log-group:*:log-stream:*",
+      "arn:${data.aws_partition.current.partition}:logs:${data.aws_region.default.name}:${data.aws_caller_identity.current.id}:log-group:*:log-stream:*",
     ]
   }
   statement {
@@ -311,7 +309,7 @@ data "aws_iam_policy_document" "lambda" {
       "cloudwatch:PutMetricAlarm"
     ]
     resources = [
-      "arn:${data.aws_partition.current.partition}:cloudwatch:${data.aws_region.current.name}:${data.aws_caller_identity.current.id}:alarm:AutoAlarm-*"
+      "arn:${data.aws_partition.current.partition}:cloudwatch:${data.aws_region.default.name}:${data.aws_caller_identity.current.id}:alarm:AutoAlarm-*"
     ]
   }
   statement {
@@ -329,7 +327,7 @@ data "aws_iam_policy_document" "lambda" {
       "ec2:CreateTags"
     ]
     resources = [
-      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.id}:instance/*"
+      "arn:${data.aws_partition.current.partition}:ec2:${data.aws_region.default.name}:${data.aws_caller_identity.current.id}:instance/*"
     ]
   }
 }
