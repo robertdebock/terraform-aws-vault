@@ -5,15 +5,11 @@ You can enable telemetry in Vault by setting the variable `vault_enable_telemetr
 Enabling this has a couple of effects:
 
 - The `vault.hcl` is changed to include a telemetry stanza.
-- The `vault.hcl` is changed to include
-- The health check on the target group only allows the leader to be healthy.
-- The auto-scale-group bases the health of instances on "EC2", which is a check based on a script.
-
-These limitation are required, because only the leader can be used to request telemetry data on.
+- The `vault.hcl` is changed to include configuration for (un)authenticated access to the metrics endpoint in the listener stanza.
 
 Vault has a policy that prevents unauthenticated access to "/v1/sys/metrics". Setting `vault_enable_telemetry_unauthenticated_metrics_access` to `true`, allows anybody to access metrics on any Vault node. The side-effect is that any node will be used in the load balancing configuration, and ELB health checks can be used again for the auto-scaling group.
 
-## Heath endpoint
+## Health endpoint HTTP return codes
 
 The vault health endpoint will return these values under these conditions:
 
