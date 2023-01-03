@@ -42,7 +42,12 @@ resource "aws_lb_target_group" "api" {
     interval = 5
     # If vault_allow_replication is on: Only the leader must receive traffic. (Otherwise the health_check on the route53 record will return non-healthy nodes.)
     # If telemetry is on: See TELEMETRY.md for an explanation
-    matcher  = var.vault_allow_replication ? "200" : var.vault_enable_telemetry && var.vault_enable_telemetry_unauthenticated_metrics_access ? "200,429,472,473" : "200,472,473"
+
+    # 
+    # TODO var.vault_enable_telemetry should be removed AFTER a pre/post-condition has been implemented that enforces this variable to be TRUE when unauthenticated metrics is configured.
+    # TODO test if how 472 nodes behave (DR secondary) and modify http success return codes acoordingly.
+    matcher  = var.vault_enable_telemetry && var.vault_enable_telemetry_unauthenticated_metrics_access ? "200,429,472,473" : "200,472,473"
+    # waarom hier alleen 200 als replication? (423,473 erbij waarschijnlijk) de 473 nodes antwoorden op 8200? 423 weghalen en switchen naar EC+script klopt volgens mij wel. var.telemetry opnemen lijkt overbodig?
     path     = "/v1/sys/health"
     protocol = "HTTPS"
     timeout  = 2
