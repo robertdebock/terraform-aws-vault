@@ -26,7 +26,6 @@ resource "aws_lb" "replication" {
   tags               = local.replication_tags
   lifecycle {
     precondition {
-      # Condition is the passing condition.
       condition     = var.vault_type == "enterprise" && var.vault_allow_replication == true
       error_message = "Replication (\"vault_allow_replication\") is only possible with \"vault_type\" \"enterprise\"."
     }
