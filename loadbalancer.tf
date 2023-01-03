@@ -24,6 +24,13 @@ resource "aws_lb" "replication" {
   name               = "${var.vault_name}-replication-${random_string.default.result}"
   subnets            = var.vault_aws_lb_availability == "internal" ? local.private_subnet_ids : local.public_subnet_ids
   tags               = local.replication_tags
+  lifecycle {
+    precondition {
+      # Condition is the passing condition.
+      condition     = var.vault_type == "enterprise" && var.vault_allow_replication == true
+      error_message = "Replication (\"vault_allow_replication\") is only possible with \"vault_type\" \"enterprise\"."
+    }
+  }
 }
 
 # Create a load balancer target group for the API/UI.
