@@ -153,9 +153,11 @@ listener "tcp" {
   tls_key_file                   = "${vault_data_path}/tls/vault.pem"
   tls_cert_file                  = "${vault_data_path}/tls/vault.crt"
   tls_client_ca_file             = "${vault_data_path}/tls/vault_ca.crt"
+%{ if telemetry == true ~}
   telemetry {
     unauthenticated_metrics_access = ${unauthenticated_metrics_access}
   }
+%{ endif ~}
 }
 
 seal "awskms" {
