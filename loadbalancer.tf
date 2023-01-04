@@ -46,9 +46,9 @@ resource "aws_lb_target_group" "api" {
   vpc_id = local.vpc_id
   health_check {
     interval = 5
-    # If vault_allow_replication is on: Only the leader must receive traffic. (Otherwise the health_check on the route53 record will return non-healthy nodes.)
-    # If telemetry is on: See TELEMETRY.md for an explanation
-    matcher  = var.vault_allow_replication ? "200" : var.vault_enable_telemetry && var.vault_enable_telemetry_unauthenticated_metrics_access ? "200,429,472,473" : "200,472,473"
+    # Do not route traffic to standby (429) nodes when unauthenticated metrics access is disabled. Regular standby nodes do not answer or forward (!) /sys/metrics requests.
+    # TODO test if how 472 nodes behave (DR secondary) and modify http success return codes acoordingly.
+    matcher  = var.vault_enable_telemetry_unauthenticated_metrics_access ? "200,429,472,473" : "200,472,473"
     path     = "/v1/sys/health"
     protocol = "HTTPS"
     timeout  = 2
