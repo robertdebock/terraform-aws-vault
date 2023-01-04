@@ -113,7 +113,7 @@ resource "aws_launch_template" "default" {
   lifecycle {
     create_before_destroy = true
     precondition {
-      condition     = var.vault_enable_telemetry == false && var.vault_enable_telemetry_unauthenticated_metrics_access == false
+      condition     = var.vault_enable_telemetry == true || (var.vault_enable_telemetry == true && var.vault_enable_telemetry_unauthenticated_metrics_access == false)
       error_message = "It is not possible to enable vault_enable_telemetry_unauthenticated_metrics_access while vault_enable_telemetry is disabled."
     }
   }
