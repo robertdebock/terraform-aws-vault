@@ -131,7 +131,7 @@ resource "aws_autoscaling_group" "default" {
   # - var.vault_replication is enabled.
   # Otherwise, use "ELB", which is stronger, but not always applicable..
   # health_check_type   = var.telemetry && !var.telemetry_unauthenticated_metrics_access ? "EC2" : "ELB"
-  health_check_type     = var.vault_replication || (var.telemetry && !var.telemetry_unauthenticated_metrics_access) ? "EC2" : "ELB"
+  health_check_type     = var.vault_allow_replication || (var.vault_type == "opensource" && !var.vault_enable_telemetry_unauthenticated_metrics_access) ? "EC2" : "ELB"
   max_instance_lifetime = var.max_instance_lifetime
   max_size              = local.amount + 1
   min_size              = local.amount - 1
