@@ -174,4 +174,7 @@ resource "aws_autoscaling_group" "default" {
   timeouts {
     delete = "15m"
   }
+  depends_on = [
+    time_sleep.cloudwatch_alarm_cleanup_timer
+    ]
 }
