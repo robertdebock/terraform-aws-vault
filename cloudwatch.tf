@@ -61,6 +61,7 @@ resource "aws_lambda_function" "CloudWatchAutoAlarms" {
   source_code_hash = filebase64sha256("${path.module}/scripts/cloudwatch_alarms/amazon-cloudwatch-auto-alarms.zip")
   runtime          = "python3.8"
   memory_size      = 128
+  timeout          = 10
 
   environment {
     variables = {
