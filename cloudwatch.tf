@@ -92,7 +92,7 @@ resource "time_sleep" "cloudwatch_alarm_cleanup_timer" {
     aws_iam_role.lambda[0]
     ]
 
-  destroy_duration = "60s" # The lambda function needs some time to be trigger and clean up the alarms.
+  destroy_duration = "40s" # The lambda function needs some time to be trigger and clean up the alarms.
 }
 
 resource "aws_cloudwatch_event_rule" "ec2_alarms" {
