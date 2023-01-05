@@ -1,13 +1,19 @@
 # Cloudwatch logs feature
 resource "aws_cloudwatch_log_group" "cloudinitlog" {
   count             = var.vault_enable_cloudwatch ? 1 : 0
-  name              = "cloudinitlog-${var.vault_name}-${random_string.default.result}"
+  name              = "cloudinitlog-${var.vault_name}-${random_string.default.result}" # Needs to match the log-group name configured for the Cloudwatch-agent in cloudwatch.sh
   retention_in_days = 7
 }
 
 resource "aws_cloudwatch_log_group" "vaultlog" {
   count             = var.vault_enable_cloudwatch ? 1 : 0
-  name              = "vaultlog-${var.vault_name}-${random_string.default.result}"
+  name              = "vaultlog-${var.vault_name}-${random_string.default.result}" # Needs to match the log-group name configured for the Cloudwatch-agent in cloudwatch.sh
+  retention_in_days = 7
+}
+
+resource "aws_cloudwatch_log_group" "lambda" {
+  count             = var.vault_enable_cloudwatch ? 1 : 0
+  name              = "/aws/lambda/${aws_lambda_function.CloudWatchAutoAlarms[0].function_name}"
   retention_in_days = 7
 }
 
@@ -89,6 +95,7 @@ resource "time_sleep" "cloudwatch_alarm_cleanup_timer" {
     aws_cloudwatch_event_rule.lambda,
     aws_lambda_permission.lambda_cloudwatch,
     aws_iam_role_policy.lambda[0],
+    aws_cloudwatch_log_group.lambda,
     aws_iam_role.lambda[0]
     ]
 
