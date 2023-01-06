@@ -1,0 +1,33 @@
+---
+
+- name: Check Performance Status
+  ansible.builtin.uri:
+    url: "{{ vault_addr }}/v1/sys/replication/performance/status"
+    headers:
+      X-Vault-Token: "{{ vault_token }}"
+  register: check_performance_status
+  delegate_to: localhost
+
+- name: Enable Performance Primary Replication
+  ansible.builtin.uri:
+    url: "{{ vault_addr }}/v1/sys/replication/performance/primary/enable"
+    method: POST
+    headers:
+      X-Vault-Token: "{{ vault_token }}"
+    body_format: json
+    body:
+      primary_cluster_addr: "{{ vault_cluster_addr }}"
+    status_code:
+      - 200
+      - 204
+  register: enable_pr_primary
+  changed_when:
+    - enable_pr_primary.status == 200
+  when:
+    - check_performance_status.json.data.mode != "primary"
+  delegate_to: localhost
+  notify:
+    - Generate Performance Secondary Token
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers

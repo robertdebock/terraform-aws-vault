@@ -1,16 +1,16 @@
 # Make a certificate.
 resource "aws_acm_certificate" "default" {
-  domain_name = "dev.meinit.nl"
+  domain_name = "dev.${var.domain}"
   # After a deployment, this value (`domain_name`) can't be changed because the certificate is bound to the load balancer listener.
   validation_method = "DNS"
   tags = {
-    owner = "robertdebock"
+    owner = "Robert de Bock"
   }
 }
 
 # Lookup DNS zone.
 data "aws_route53_zone" "default" {
-  name = "meinit.nl"
+  name = var.domain
 }
 
 # Add validation details to the DNS zone.
@@ -32,18 +32,19 @@ resource "aws_route53_record" "validation" {
 
 # Call the module.
 module "vault" {
-  allow_ssh         = true
-  api_addr          = "https://dev.meinit.nl:8200"
-  certificate_arn   = aws_acm_certificate.default.arn
-  default_lease_ttl = "24h"
-  key_filename      = "id_rsa.pub"
-  log_level         = "debug"
-  max_lease_ttl     = "168h"
-  name              = "dvlpm"
-  size              = "development"
-  source            = "../../"
-  tags = {
-    owner = "robertdebock"
+  source                    = "../../"
+  vault_allow_ssh           = true
+  vault_api_addr            = "https://dev.meinit.nl:8200"
+  vault_audit_device        = true
+  vault_aws_certificate_arn = aws_acm_certificate.default.arn
+  vault_default_lease_time  = "24h"
+  vault_keyfile_path        = "id_rsa.pub"
+  vault_log_level           = "debug"
+  vault_max_lease_time      = "168h"
+  vault_name                = "dvlpm"
+  vault_size                = "development"
+  vault_tags = {
+    owner = "Robert de Bock"
   }
 }
 

@@ -4,10 +4,10 @@
 yum update -y
 
 # Make a directory for Raft, certificates and init information.
-mkdir -p "${vault_path}"
+mkdir -p "${vault_data_path}"
 mkfs.ext4 /dev/sda1
-mount /dev/sda1 "${vault_path}"
-chmod 750 "${vault_path}"
+mount /dev/sda1 "${vault_data_path}"
+chmod 750 "${vault_data_path}"
 
 # Make a directory for audit logs.
 if [ "${audit_device}" = "true" ] ; then
@@ -17,6 +17,24 @@ if [ "${audit_device}" = "true" ] ; then
   chmod 750 "${audit_device_path}"
 fi
 
+# 169.254.169.254 is an Amazon service to provide information about itself.
+my_hostname="$(curl http://169.254.169.254/latest/meta-data/hostname)"
+my_ipaddress="$(curl http://169.254.169.254/latest/meta-data/local-ipv4)"
+my_instance_id="$(curl http://169.254.169.254/latest/meta-data/instance-id)"
+my_region="$(curl http://169.254.169.254/latest/dynamic/instance-identity/document | grep region | cut -d\" -f4)"
+
+# Run a custom, user-provided script.
+if [ "${vault_custom_script_s3_url}" != "" ] ; then
+  aws s3 cp "${vault_custom_script_s3_url}" /custom.sh
+  sh /custom.sh
+fi
+
+# Install, configure and initialize the AWS Cloudwatch agent
+if [ "${cloudwatch_monitoring}" = "true" ] ; then
+  aws s3 cp "s3://vault-scripts-${random_string}/cloudwatch.sh" /cloudwatch.sh
+  sh /cloudwatch.sh -n "${vault_name}" -N "$${my_hostname}" -i "$${my_instance_id}" -r "${random_string}" -p "${vault_data_path}" -s "${vault_cloudwatch_namespace}"
+fi
+
 # Add the HashiCorp RPM repository.
 yum install -y yum-utils
 yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
@@ -24,8 +42,15 @@ yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/has
 # Install a specific version of Vault.
 yum install -y "${vault_package}"
 
-# Change ownership for the `vault_path``.
-chown vault:vault "${vault_path}"
+# Change ownership for the `vault_data_path``.
+chown vault:vault "${vault_data_path}"
+
+# Create and configure the Vault data folder when it is different from the default path created by the rpm.
+if [ "${vault_data_path}" != "/opt/vault" ] ; then
+  mkdir ${vault_data_path}/data
+  chown vault:vault ${vault_data_path}/data
+  chmod 755 ${vault_data_path}/data
+fi
 
 # Optionally change ownership for `audit_device_path`.
 if [ -d "${audit_device_path}" ] ; then
@@ -43,25 +68,19 @@ echo '* hard core 0' >> /etc/security/limits.d/vault.conf
 echo '* soft core 0' >> /etc/security/limits.d/vault.conf
 ulimit -c 0
 
-# 169.254.169.254 is an Amazon service to provide information about itself.
-my_hostname="$(curl http://169.254.169.254/latest/meta-data/hostname)"
-my_ipaddress="$(curl http://169.254.169.254/latest/meta-data/local-ipv4)"
-my_instance_id="$(curl http://169.254.169.254/latest/meta-data/instance-id)"
-my_region="$(curl http://169.254.169.254/latest/dynamic/instance-identity/document | grep region | cut -d\" -f4)"
-
 # Place CA key and certificate.
-test -d "${vault_path}/tls" || mkdir "${vault_path}/tls"
-chmod 0755 "${vault_path}/tls"
-chown vault:vault "${vault_path}/tls"
-echo "${vault_ca_key}" > "${vault_path}/tls/vault_ca.pem"
-echo "${vault_ca_cert}" > "${vault_path}/tls/vault_ca.crt"
-chmod 0600 "${vault_path}/tls/vault_ca.pem"
-chown root:root "${vault_path}/tls/vault_ca.pem"
-chmod 0644 "${vault_path}/tls/vault_ca.crt"
-chown root:root "${vault_path}/tls/vault_ca.crt"
+test -d "${vault_data_path}/tls" || mkdir "${vault_data_path}/tls"
+chmod 0755 "${vault_data_path}/tls"
+chown vault:vault "${vault_data_path}/tls"
+echo "${vault_ca_key}" > "${vault_data_path}/tls/vault_ca.pem"
+echo "${vault_ca_cert}" > "${vault_data_path}/tls/vault_ca.crt"
+chmod 0600 "${vault_data_path}/tls/vault_ca.pem"
+chown root:root "${vault_data_path}/tls/vault_ca.pem"
+chmod 0644 "${vault_data_path}/tls/vault_ca.crt"
+chown root:root "${vault_data_path}/tls/vault_ca.crt"
 
 # Place request.cfg.
-cat << EOF > "${vault_path}/tls/request.cfg"
+cat << EOF > "${vault_data_path}/tls/request.cfg"
 [req]
 distinguished_name = dn
 req_extensions     = ext
@@ -84,26 +103,32 @@ DNS.1 = $${my_hostname}
 EOF
 
 # Create a private key and certificate signing request for this instance.
-openssl req -config "${vault_path}/tls/request.cfg" -new -newkey rsa:2048 -nodes -keyout "${vault_path}/tls/vault.pem" -extensions ext -out "${vault_path}/tls/vault.csr"
-chmod 0640 "${vault_path}/tls/vault.pem"
-chown root:vault "${vault_path}/tls/vault.pem"
+openssl req -config "${vault_data_path}/tls/request.cfg" -new -newkey rsa:2048 -nodes -keyout "${vault_data_path}/tls/vault.pem" -extensions ext -out "${vault_data_path}/tls/vault.csr"
+chmod 0640 "${vault_data_path}/tls/vault.pem"
+chown root:vault "${vault_data_path}/tls/vault.pem"
 
 # Sign the certificate signing request using the distributed CA.
-openssl x509 -extfile "${vault_path}/tls/request.cfg" -extensions ext -req -in "${vault_path}/tls/vault.csr" -CA "${vault_path}/tls/vault_ca.crt" -CAkey "${vault_path}/tls/vault_ca.pem" -CAcreateserial -out "${vault_path}/tls/vault.crt" -days 7300
-chmod 0644 "${vault_path}/tls/vault.crt"
-chown root:root "${vault_path}/tls/vault.crt"
+openssl x509 -extfile "${vault_data_path}/tls/request.cfg" -extensions ext -req -in "${vault_data_path}/tls/vault.csr" -CA "${vault_data_path}/tls/vault_ca.crt" -CAkey "${vault_data_path}/tls/vault_ca.pem" -CAcreateserial -out "${vault_data_path}/tls/vault.crt" -days 7300
+chmod 0644 "${vault_data_path}/tls/vault.crt"
+chown root:root "${vault_data_path}/tls/vault.crt"
 
 # Concatenate CA and server certificate.
-cat "${vault_path}/tls/vault_ca.crt" >> "${vault_path}/tls/vault.crt"
+cat "${vault_data_path}/tls/vault_ca.crt" >> "${vault_data_path}/tls/vault.crt"
+
+# Store Amazon CA, required to bootstrap through loadbalancer.
+curl https://www.amazontrust.com/repository/AmazonRootCA1.pem --output "${vault_data_path}/tls/amazon_ca.crt"
+
+# Append the Amazon CA to Vault's CA.
+cat "${vault_data_path}/tls/amazon_ca.crt" >> "${vault_data_path}/tls/vault_ca.crt"
 
 # A single "$": passed from Terraform.
 # A double "$$": determined in the runtime of this script.
 
 # Place the Vault configuration.
 cat << EOF > /etc/vault.d/vault.hcl
-cluster_name      = "${name}"
+cluster_name      = "${vault_name}"
 disable_mlock     = true
-ui                = ${vault_ui}
+ui                = ${vault_enable_ui}
 api_addr          = "${api_addr}"
 cluster_addr      = "https://$${my_ipaddress}:8201"
 log_level         = "${log_level}"
@@ -111,26 +136,28 @@ max_lease_ttl     = "${max_lease_ttl}"
 default_lease_ttl = "${default_lease_ttl}"
 
 storage "raft" {
-  path    = "${vault_path}/data"
+  path    = "${vault_data_path}/data"
   node_id = "$${my_instance_id}"
   retry_join {
     auto_join               = "provider=aws tag_key=Name tag_value=${instance_name} addr_type=private_v4 region=${region}"
     auto_join_scheme        = "https"
-    leader_ca_cert_file     = "${vault_path}/tls/vault_ca.crt"
-    leader_client_cert_file = "${vault_path}/tls/vault.crt"
-    leader_client_key_file  = "${vault_path}/tls/vault.pem"
+    leader_ca_cert_file     = "${vault_data_path}/tls/vault_ca.crt"
+    leader_client_cert_file = "${vault_data_path}/tls/vault.crt"
+    leader_client_key_file  = "${vault_data_path}/tls/vault.pem"
   }
 }
 
 listener "tcp" {
   address                        = "$${my_ipaddress}:8200"
   cluster_address                = "$${my_ipaddress}:8201"
-  tls_key_file                   = "${vault_path}/tls/vault.pem"
-  tls_cert_file                  = "${vault_path}/tls/vault.crt"
-  tls_client_ca_file             = "${vault_path}/tls/vault_ca.crt"
+  tls_key_file                   = "${vault_data_path}/tls/vault.pem"
+  tls_cert_file                  = "${vault_data_path}/tls/vault.crt"
+  tls_client_ca_file             = "${vault_data_path}/tls/vault_ca.crt"
+%{ if telemetry == true ~}
   telemetry {
     unauthenticated_metrics_access = ${unauthenticated_metrics_access}
   }
+%{ endif ~}
 }
 
 seal "awskms" {
@@ -158,26 +185,14 @@ fi
 systemctl --now enable vault
 
 # Setup logrotate if the audit_device is enabled.
-if [ "${audit_device}" = "true" ] ; then
-  cat << EOF > /etc/logrotate.d/vault
-${audit_device_path}/*.log {
-  rotate $[${audit_device_size}*4]
-  missingok
-  compress
-  size 512M
-  postrotate
-    /usr/bin/systemctl reload vault 2> /dev/null || true
-  endscript
-}
-EOF
+if [[ "${audit_device}" = "true" || "${cloudwatch_monitoring}" = "true" ]] ; then
+  aws s3 cp "s3://vault-scripts-${random_string}/setup_logrotate.sh" /setup_logrotate.sh
+  sh /setup_logrotate.sh -a "${audit_device_path}" -s "$[${audit_device_size}*4]"
 fi
-
-# Run logrotate hourly.
-cp /etc/cron.daily/logrotate /etc/cron.hourly/logrotate
 
 # Allow users to use `vault`.
 echo "export VAULT_ADDR=https://$${my_ipaddress}:8200" >> /etc/profile.d/vault.sh
-echo "export VAULT_CACERT=${vault_path}/tls/vault_ca.crt" >> /etc/profile.d/vault.sh
+echo "export VAULT_CACERT=${vault_data_path}/tls/vault_ca.crt" >> /etc/profile.d/vault.sh
 
 # Set the history to ignore all commands that start with vault.
 echo "export HISTIGNORE=\"&:vault*\"" >> /etc/profile.d/vault.sh
@@ -187,21 +202,24 @@ usermod -G vault ec2-user
 
 # Place an AWS EC2 health check script.
 cat << EOF >> /usr/local/bin/aws_health.sh
-#!/bin/sh
+!/bin/bash
 
-# This script checks that status of Vault and reports that status to the ASG.
-# If vault fails, the instance is replaced.
+# Set variables
+VAULT_STATUS_URL="https://$${my_ipaddress}:8200/v1/sys/health"
+TIMEOUT=5
 
-# Tell vault how to connect.
-export VAULT_ADDR=https://$${my_ipaddress}:8200
-export VAULT_CACERT="${vault_path}/tls/vault_ca.crt"
+# Perform the health check
+response=\$(curl -k -m \$TIMEOUT -s -o /dev/null -w "%%{http_code}" \$VAULT_STATUS_URL)
 
-# Get the status of Vault and report to AWS ASG.
-if vault status > /dev/null 2>&1 ; then
-  aws --region $${my_region} autoscaling set-instance-health --instance-id $${my_instance_id} --health-status Healthy
-else
-  aws --region $${my_region} autoscaling set-instance-health --instance-id $${my_instance_id} --health-status Unhealthy
-fi
+# Check the response code
+case \$response in
+  200|429|472|473)
+    aws --region $${my_region} autoscaling set-instance-health --instance-id $${my_instance_id} --health-status Healthy
+  ;;
+  *)
+    aws --region $${my_region} autoscaling set-instance-health --instance-id $${my_instance_id} --health-status Unhealthy
+  ;;
+esac
 EOF
 
 # Make the AWS EC2 health check script executable.

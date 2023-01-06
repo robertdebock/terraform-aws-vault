@@ -1,0 +1,93 @@
+#!/usr/bin/env ansible-playbook
+---
+- name: Initialize Vault
+  hosts: vault
+  become: no
+  gather_facts: no
+  any_errors_fatal: yes
+
+  roles:
+    - name: initialize
+    - name: autopilot
+
+- name: Setup Performance Primary Replication
+  hosts: vault_eu_0
+  become: no
+  gather_facts: no
+  any_errors_fatal: yes
+
+  roles:
+    - name: userpass
+    - name: performance_primary
+
+- name: Setup Performance Secondary Replication
+  hosts: vault_us_0
+  become: no
+  gather_facts: no
+  any_errors_fatal: yes
+
+  pre_tasks:
+    - name: Save the performance_secondary_token from the primary
+      ansible.builtin.set_fact:
+        performance_secondary_token: "{{ hostvars['vault-eu-0.aws.adfinis.cloud'].generate_pr_secondary_token.json.wrap_info.token | default('') }}"
+
+  roles:
+    - name: performance_secondary
+
+- name: Setup autpilot on Performance Secondary
+  hosts: vault_us_0
+  become: no
+  gather_facts: no
+  any_errors_fatal: yes
+
+  pre_tasks:
+    - name: Generate a new authentication token using the userpass method
+      ansible.builtin.uri:
+        url: "{{ vault_addr }}/v1/auth/userpass/login/{{ pr_username }}"
+        method: POST
+        body_format: json
+        body:
+          password: "{{ pr_password }}"
+      register: userpass_tester
+      delegate_to: localhost
+      retries: 2
+      until: userpass_tester is not failed
+      delay: 3
+
+    - name: Save token
+      ansible.builtin.template:
+        src: group_vars.yml.tpl
+        dest: group_vars/{{ vault_cluster_name | replace('-', '_') }}/vault.yml
+        mode: "0640"
+      delegate_to: localhost
+
+    - name: Set token
+      ansible.builtin.set_fact:
+        vault_token: "{{ userpass_tester.json.auth.client_token }}"
+
+  roles:
+    - name: autopilot
+
+# NEW:
+
+- name: Setup DR Primary
+  hosts: vault_eu_0:vault_us_0
+  become: no
+  gather_facts: no
+  any_errors_fatal: yes
+
+  roles:
+    - name: dr_primary
+
+- name: Setup DR Secondary
+  hosts: vault_eu_1:vault_us_1
+  become: no
+  gather_facts: no
+
+  pre_tasks:
+    - name: Save the pr_secondary_token from the primary
+      ansible.builtin.set_fact:
+        dr_secondary_token: "{{ hostvars[vault_dr_partner].generate_dr_secondary_token.json.wrap_info.token | default('') }}"
+
+  roles:
+    - name: dr_secondary

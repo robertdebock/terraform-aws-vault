@@ -56,7 +56,7 @@ The Vault nodes are not ready to service requests.
 
 ### Solution 3
 
-The solution is to wait a minute and retry.
+The solution is to wait a minute and retry. It can be the Vault did not start up properly, for example an incorrect license was used.
 
 ## Vault is sealed
 
@@ -85,3 +85,21 @@ The certificate has not been validated. This validation process takes a minute o
 ### Solution 5
 
 The solution is to retry the deployment.
+
+## No raft cluster configuration found
+### Situation 6
+
+After `vault operator init`, `vault operator raft list-peers` shows: `No raft cluster configuration found` or `local node not active but active cluster node not found`.
+
+### Cause
+
+Quorum was lost.
+
+#### Solution
+
+Replace the cluster. For example, to destroy the second ("1") European ("eu") cluster:
+
+```shell
+terraform destroy -target=module.vault_eu[1].aws_autoscaling_group.default
+terrafrom apply
+```

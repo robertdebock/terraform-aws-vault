@@ -1,0 +1,34 @@
+---
+
+- name: Read Initialization Status
+  ansible.builtin.uri:
+    url: "{{ vault_addr }}/v1/sys/init"
+    return_content: yes
+  register: initialization_status
+  until: initialization_status is succeeded
+  retries: 9
+  delegate_to: localhost
+
+- name: Start Initialization
+  ansible.builtin.uri:
+    url: "{{ vault_addr }}/v1/sys/init"
+    method: POST
+    body:
+      recovery_shares: 5
+      recovery_threshold: 3
+    body_format: json
+    return_content: yes
+  register: start_initialization
+  until: start_initialization is succeeded
+  retries: 9
+  changed_when: start_initialization.status == 200
+  delegate_to: localhost
+  when:
+    - not initialization_status.json.initialized
+  notify:
+    - Save token
+    - Set token
+    - Wait for unhealthy nodes to be thrown out of the target group
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers

@@ -5,7 +5,14 @@
 */terraform.tfstate.backup
 */id_rsa
 */id_rsa.pub
-*/tls
-*/user_data_bastion.sh
-*/user_data_vault.sh
+*/prerequisites/.terraform
+*/prerequisites/.terraform.lock.hcl
+*/prerequisites/.terraform.tfstate.lock.info
+*/prerequisites/terraform.tfstate
+*/prerequisites/terraform.tfstate.backup
+*/prerequisites/id_rsa
+*/prerequisites/id_rsa.pub
 */init.txt
+*/tls/*
+*.crt
+*.pem

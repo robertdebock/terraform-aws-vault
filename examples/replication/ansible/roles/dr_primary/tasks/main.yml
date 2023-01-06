@@ -1,0 +1,33 @@
+---
+
+- name: Check DR Status
+  ansible.builtin.uri:
+    url: "{{ vault_addr }}/v1/sys/replication/dr/status"
+    headers:
+      X-Vault-Token: "{{ vault_token }}"
+  register: check_dr_status
+  delegate_to: localhost
+
+- name: Enable DR Primary Replication
+  ansible.builtin.uri:
+    url: "{{ vault_addr }}/v1/sys/replication/dr/primary/enable"
+    method: POST
+    headers:
+      X-Vault-Token: "{{ vault_token }}"
+    body_format: json
+    body:
+      primary_cluster_addr: "{{ vault_cluster_addr }}"
+    status_code:
+      - 200
+      - 204
+  register: enable_dr_primary_replication
+  changed_when:
+    - enable_dr_primary_replication.status == 200
+  when:
+    - check_dr_status.json.data.mode != "primary"
+  delegate_to: localhost
+  notify:
+    - Generate DR Secondary Token
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers

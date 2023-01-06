@@ -1,17 +1,3 @@
-# Write user_data.sh for the Bastion instance.
-resource "local_file" "prometheus" {
-  directory_permission = "0755"
-  file_permission      = "0640"
-  filename             = "user_data_prometheus.sh"
-  content = templatefile("${path.module}/user_data_prometheus.sh.tpl",
-    {
-      # You don't know the `credenial` before initializing Vault.
-      credenial = "hvs.lkFuVPHlbLlHRq0x5Sahp5Cz"
-      target    = aws_route53_record.default.fqdn
-    }
-  )
-}
-
 # Find amis for the Prometheus and Grafana instances.
 data "aws_ami" "default" {
   most_recent = true
@@ -76,7 +62,11 @@ resource "aws_instance" "prometheus" {
   key_name                    = aws_key_pair.default.key_name
   monitoring                  = true
   subnet_id                   = module.vault.bastion_subnet_id
-  user_data                   = local_file.prometheus.content
+  user_data = base64encode(templatefile("${path.module}/user_data_prometheus.sh.tpl",
+    {
+      credenial = "hvs.OBFUSCATEDOBFUSCATEDOBFU"
+      target    = aws_route53_record.default.fqdn
+    }))
   user_data_replace_on_change = true
   vpc_security_group_ids      = [aws_security_group.prometheus.id]
   root_block_device {
@@ -89,15 +79,3 @@ resource "aws_instance" "prometheus" {
     Name = "prometheus"
   }
 }
-
-# # Show the Prometheus public IP.
-# output "prometheus_public_ip" {
-#   description = "The Prometheus public IP address."
-#   value       = aws_instance.prometheus.public_ip
-# }
-#
-# # Show the Prometheus private IP.
-# output "prometheus_private_ip" {
-#   description = "The Prometheus private IP address."
-#   value       = aws_instance.prometheus.private_ip
-# }

@@ -1,16 +1,16 @@
 # Make a certificate.
 resource "aws_acm_certificate" "default" {
-  domain_name = "telemetry.meinit.nl"
+  domain_name = "telemetry.${var.domain}"
   # After a deployment, this value (`domain_name`) can't be changed because the certificate is bound to the load balancer listener.
   validation_method = "DNS"
   tags = {
-    owner = "robertdebock"
+    owner = "Robert de Bock"
   }
 }
 
 # Lookup DNS zone.
 data "aws_route53_zone" "default" {
-  name = "meinit.nl"
+  name = var.domain
 }
 
 # Add validation details to the DNS zone.
@@ -32,21 +32,21 @@ resource "aws_route53_record" "validation" {
 
 # Call the module.
 module "vault" {
-  certificate_arn = aws_acm_certificate.default.arn
-  name            = "tlmt"
-  source          = "../../"
-  telemetry       = true
-  key_filename    = "id_rsa.pub"
-  tags = {
-    owner = "robertdebock"
+  source                    = "../../"
+  vault_aws_certificate_arn = aws_acm_certificate.default.arn
+  vault_enable_telemetry    = true
+  vault_keyfile_path        = "id_rsa.pub"
+  vault_name                = "tlmtr"
+  vault_tags = {
+    owner = "Robert de Bock"
   }
 }
 
 # Add a loadbalancer record to DNS zone.
 resource "aws_route53_record" "default" {
   name    = "telemetry"
-  type    = "CNAME"
-  ttl     = 300
   records = [module.vault.aws_lb_dns_name]
+  ttl     = 300
+  type    = "CNAME"
   zone_id = data.aws_route53_zone.default.id
 }

@@ -10,7 +10,9 @@ output "aws_lb_zone_id" {
 
 output "bastion_host_public_ip" {
   description = "The IP address of the bastion host."
-  value       = try(aws_instance.bastion[0].public_ip, "No bastion host created.")
+  # value       = coalesce(try(aws_instance.bastion[0].public_ip), "No bastion host created.")
+  # value       = try(aws_instance.bastion[0].public_ip, "No bastion host created.")
+  value       = coalesce(try(aws_instance.bastion[0].public_ip, "No bastion host created."), "No public IP configured for bastion.")
 }
 
 output "instructions" {
@@ -19,7 +21,7 @@ output "instructions" {
   1. Run: ssh ec2-user@${try(aws_instance.bastion[0].public_ip, "some-host-you-already-have")}
   2. Run: vault operator init
   3. Run: vault login
-  4. Run: vault operator raft autopilot set-config -min-quorum=${local.amount} -cleanup-dead-servers=true -dead-server-last-contact-threshold=${var.cooldown / 2.5}
+  4. Run: vault operator raft autopilot set-config -min-quorum=${local.amount} -cleanup-dead-servers=true -dead-server-last-contact-threshold=${var.vault_asg_cooldown_seconds / 2.5}
 EOF
 }
 
@@ -41,4 +43,9 @@ output "vpc_id" {
 output "aws_lb_api_arn" {
   description = "The ARN of the API load balancer."
   value       = aws_lb.api.arn
+}
+
+output "aws_s3_bucket_bastion_arn" {
+  description = "The ARN of the AWS S3 bucket to use for backups."
+  value       = try(aws_s3_bucket.bastion.arn, "The varialbe vault_bastion_create_s3_bucket is false, no S3 bucket created.")
 }

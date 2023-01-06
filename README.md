@@ -38,9 +38,9 @@ This code spins up a HashiCorp Vault cluster:
 
 These (most important) variables can be used.
 
-- `name` - default: `"unset"`.
-- `certificate_arn` - The AWS certificate ARN that can be installed on the load balancer.
-- `key_name` - The key to use to login. (Conflicts wiht `key_filename`. Use either, not both.)
+- `vault_name` - default: `"unset"`.
+- `vault_aws_certificate_arn` - The AWS certificate ARN that can be installed on the load balancer.
+- `vault_aws_key_name` - The key to use to login. (Conflicts with `vault_keyfile_path`. Use either, not both.)
 
 More variables can be found in [variables.tf](variables.tf).
 
@@ -68,9 +68,9 @@ vault operator raft autopilot set-config \
 
 ## Network
 
-You can **not** specify a `vpc_id`. In that case, this module will create all required network resources.
+You can **not** specify a `vault_aws_vpc_id`. In that case, this module will create all required network resources.
 
-If you **do** specify a `vpc_id`, you will need to have:
+If you **do** specify a `vault_aws_vpc_id`, you will need to have:
 
 - `aws_vpc`
 - `aws_internet_gateway`
@@ -93,6 +93,37 @@ To restore a snapshot, run:
 vault operator raft snapshot restore FILE
 ```
 
+## Logging, monitoring and alerting
+
+Currently logging, monitoring and alerting are available with AWS native tools by setting the `vault_enable_cloudwatch` boolean to `true`, see also: `examples/cloudwatch`.
+
+> Known bug: `terraform destroy` will not clean up Cloudwatch Alarms, the lambda function that is ment to clean the alarms is destroyed before it has a chance to clean the alarms.
+
+- TODO something about where to send the alerts to, mail,mobile,slack ?
+
+By default the following logs and metrics are being collected by the Cloudwatch agent:
+
+- Metrics:
+  - memory_used_percent
+  - disk_used_percent - /opt/vault
+  - disk_used_percent - /
+- Logs:
+  - /var/log/vault/vault.log
+  - /var/log/cloud-init-output.log
+
+By default the following alarms are created:
+
+- Alarms:
+  - at 80% - memory_used_percent
+  - at 80% - disk_used_percent - /opt/vault
+  - at 80% - disk_used_percent - /
+
+Metrics dashboard preview:  
+![Cloudwatch dashboard preview.](./README.d/Cloudwatch_dashboard_preview.png)
+
+Logging dashboard preview:
+![Cloudwatch logging preview.](./README.d/Cloudwatch_logging_preview.png)
+
 ## Cost
 
 To understand the cost for this service, you can use cost.modules.tf:
@@ -102,23 +133,23 @@ terraform apply
 terraform state pull | curl -s -X POST -H "Content-Type: application/json" -d @- https://cost.modules.tf/
 ```
 
-Here is a table relating `size` to a monthly price. (Date: Feb 2022)
+Here is a table relating `vault_size` to a monthly price. (Date: Feb 2022)
 
-| Size (`size`) | Monthly price x86_64 ($) | Monthly price arm64 ($) |
-|---------------|--------------------------|-------------------------|
-| `custom`      | Varies: 223.34 *         | Varies: +- 193.00 **    |
-| `development` | 50.98                    | `size` != `custom` ***  |
-| `minimum`     | 257.47                   | `size` != `custom` ***  |
-| **`small`**   | 488.59                   | `size` != `custom` ***  |
-| `large`       | 950.83                   | `size` != `custom` ***  |
-| `maximum`     | 1875.31                  | `size` != `custom` ***  |
+| Size (`vault_size`) | Monthly price x86_64 ($) | Monthly price arm64 ($)       |
+|---------------------|--------------------------|-------------------------------|
+| `custom`            | Varies: 223.34 *         | Varies: +- 193.00 **          |
+| `development`       | 50.98                    | `vault_size` != `custom` ***  |
+| `minimum`           | 257.47                   | `vault_size` != `custom` ***  |
+| **`small`**         | 488.59                   | `vault_size` != `custom` ***  |
+| `large`             | 950.83                   | `vault_size` != `custom` ***  |
+| `maximum`           | 1875.31                  | `vault_size` != `custom` ***  |
 
-When `size` is set to `custom`, these parameters determine the price:
+When `vault_size` is set to `custom`, these parameters determine the price:
 
-- `volume_iops`
-- `volume_size`
-- `volume_type`
+- `vault_volume_iops`
+- `vault_volume_size`
+- `vault_volume_type`
 
-(*) The price for `size = "custom"` in the table above is based on the settings in `examples/custom`.
+(*) The price for `vault_size = "custom"` in the table above is based on the settings in `examples/custom`.
 (**) The [cost analysis tool](https://cost.modules.tf/) does not support Graviton, so the price was analysed manually.
-(***) The Graviton types can only be used when `size` is set to `custom`.
+(***) The Graviton types can only be used when `vault_size` is set to `custom`.

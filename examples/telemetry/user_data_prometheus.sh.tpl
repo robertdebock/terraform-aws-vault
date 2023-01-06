@@ -1,17 +1,17 @@
 #!/bin/sh
 
 # Install prometheus
-sudo useradd --no-create-home --shell /bin/false prometheus
-sudo mkdir /etc/prometheus
-sudo mkdir /var/lib/prometheus
-sudo chown prometheus:prometheus /var/lib/prometheus
+useradd --no-create-home --shell /bin/false prometheus
+mkdir /etc/prometheus
+mkdir /var/lib/prometheus
+chown prometheus:prometheus /var/lib/prometheus
 cd /tmp/
 wget https://github.com/prometheus/prometheus/releases/download/v2.35.0/prometheus-2.35.0.linux-armv7.tar.gz
 tar -xvf prometheus-2.35.0.linux-armv7.tar.gz
 cd prometheus-2.35.0.linux-armv7
-sudo mv console* /etc/prometheus
-sudo mv prometheus /usr/local/bin/
-sudo chown prometheus:prometheus /usr/local/bin/prometheus
+mv console* /etc/prometheus
+mv prometheus /usr/local/bin/
+chown prometheus:prometheus /usr/local/bin/prometheus
 
 # Place a token.
 echo "${credenial}" > /etc/prometheus/prometheus-vault-token
@@ -39,7 +39,7 @@ rule_files:
 # A scrape configuration containing exactly one endpoint to scrape:
 # Here it's Prometheus itself.
 scrape_configs:
-  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  # The job name is added as a label 'job=<job_name>'' to any timeseries scraped from this config.
   - job_name: "prometheus"
 
     # metrics_path defaults to '/metrics'

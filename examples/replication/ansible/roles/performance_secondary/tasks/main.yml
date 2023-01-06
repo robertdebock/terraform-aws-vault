@@ -1,0 +1,28 @@
+---
+
+- name: Check Performance Status
+  ansible.builtin.uri:
+    url: "{{ vault_addr }}/v1/sys/replication/performance/status"
+    headers:
+      X-Vault-Token: "{{ vault_token }}"
+  register: check_performance_status
+  delegate_to: localhost
+
+- name: Enable Performance Secondary
+  ansible.builtin.uri:
+    url: "{{ vault_addr }}/v1/sys/replication/performance/secondary/enable"
+    method: POST
+    headers:
+      X-Vault-Token: "{{ vault_token }}"
+    body_format: json
+    body:
+      token: "{{ performance_secondary_token }}"
+  register: enable_performance_secondary
+  until: enable_performance_secondary is succeeded
+  retries: 9
+  changed_when:
+    - enable_performance_secondary.status == 200
+  when:
+    - check_performance_status.json.data.mode == "disabled"
+    - performance_secondary_token | length > 0
+  delegate_to: localhost

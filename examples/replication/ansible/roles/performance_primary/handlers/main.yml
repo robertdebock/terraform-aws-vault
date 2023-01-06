@@ -1,0 +1,16 @@
+---
+
+- name: Generate Performance Secondary Token
+  ansible.builtin.uri:
+    url: "{{ vault_addr }}/v1/sys/replication/performance/primary/secondary-token"
+    method: POST
+    headers:
+      X-Vault-Token: "{{ vault_token }}"
+    body_format: json
+    body:
+      id: "{{ vault_performance_secondary_token_id }}"
+  register: generate_pr_secondary_token
+  until: generate_pr_secondary_token is succeeded
+  retries: 9
+  changed_when: yes
+  delegate_to: localhost

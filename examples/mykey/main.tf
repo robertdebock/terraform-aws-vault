@@ -1,7 +1,6 @@
 # Read the prerequisites details.
 data "terraform_remote_state" "default" {
   backend = "local"
-
   config = {
     path = "./prerequisites/terraform.tfstate"
   }
@@ -9,17 +8,17 @@ data "terraform_remote_state" "default" {
 
 # Make a certificate.
 resource "aws_acm_certificate" "default" {
-  domain_name = "mykey.meinit.nl"
+  domain_name = "mykey.${var.domain}"
   # After a deployment, this value (`domain_name`) can't be changed because the certificate is bound to the load balancer listener.
   validation_method = "DNS"
   tags = {
-    owner = "robertdebock"
+    owner = "Robert de Bock"
   }
 }
 
 # Lookup DNS zone.
 data "aws_route53_zone" "default" {
-  name = "meinit.nl"
+  name = var.domain
 }
 
 # Add validation details to the DNS zone.
@@ -41,22 +40,22 @@ resource "aws_route53_record" "validation" {
 
 # Call the module.
 module "vault" {
-  api_addr        = "https://mykey.meinit.nl:8200"
-  certificate_arn = aws_acm_certificate.default.arn
-  key_filename    = "id_rsa.pub"
-  aws_kms_key_id  = data.terraform_remote_state.default.outputs.aws_kms_key_id
-  name            = "mykey"
-  source          = "../../"
-  tags = {
-    owner = "robertdebock"
+  vault_api_addr            = "https://mykey.meinit.nl:8200"
+  vault_aws_certificate_arn = aws_acm_certificate.default.arn
+  vault_aws_kms_key_id      = data.terraform_remote_state.default.outputs.aws_kms_key_id
+  vault_keyfile_path        = "id_rsa.pub"
+  vault_name                = "myky"
+  source                    = "../../"
+  vault_tags = {
+    owner = "Robert de Bock"
   }
 }
 
 # Add a loadbalancer record to DNS zone.
 resource "aws_route53_record" "default" {
   name    = "mykey"
-  type    = "CNAME"
-  ttl     = 300
   records = [module.vault.aws_lb_dns_name]
+  ttl     = 300
+  type    = "CNAME"
   zone_id = data.aws_route53_zone.default.id
 }

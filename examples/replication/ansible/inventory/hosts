@@ -1,0 +1,17 @@
+[vault_eu_0]
+vault-eu-0.aws.adfinis.cloud
+
+[vault_eu_1]
+vault-eu-1.aws.adfinis.cloud
+
+[vault_us_0]
+vault-us-0.aws.adfinis.cloud
+
+[vault_us_1]
+vault-us-1.aws.adfinis.cloud
+
+[vault:children]
+vault_eu_0
+vault_eu_1
+vault_us_0
+vault_us_1
