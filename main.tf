@@ -138,7 +138,7 @@ resource "aws_autoscaling_group" "default" {
   # Otherwise, use "ELB", which is more native, but not always applicable.
   # 
   health_check_type     = var.vault_type == "enterpise" || (var.vault_type == "opensource" && !var.vault_enable_telemetry_unauthenticated_metrics_access) ? "EC2" : "ELB"
-  max_instance_lifetime = var.max_instance_lifetime
+  max_instance_lifetime = var.vault_asg_instance_lifetime
   max_size              = local.amount + 1
   min_size              = local.amount - 1
   mixed_instances_policy {
