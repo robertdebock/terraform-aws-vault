@@ -9,5 +9,6 @@ variable "region" {
 }
 
 variable "license" {
+  default     = "provide-a-license"
   description = "Vault Enterprise license"
 }
