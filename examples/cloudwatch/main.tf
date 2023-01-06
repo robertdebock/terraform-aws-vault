@@ -32,13 +32,17 @@ resource "aws_route53_record" "validation" {
 
 # Call the module.
 module "vault" {
-  source                    = "../../"
-  vault_allow_ssh           = true
-  vault_aws_certificate_arn = aws_acm_certificate.default.arn
-  vault_enable_cloudwatch   = true
-  vault_keyfile_path        = "id_rsa.pub"
-  vault_name                = "cldwt"
-  vault_size                = "development"
+  source                                                = "../../"
+  vault_allow_ssh                                       = true
+  vault_aws_certificate_arn                             = aws_acm_certificate.default.arn
+  vault_enable_telemetry                                = true
+  vault_enable_cloudwatch                               = true
+  vault_keyfile_path                                    = "id_rsa.pub"
+  vault_name                                            = "cldwt"
+  vault_enable_telemetry_unauthenticated_metrics_access = false
+  vault_type                                            = "enterprise"
+  vault_license                                         = var.license
+  vault_size                                            = "development"
   vault_tags = {
     owner = "Robert de Bock"
   }

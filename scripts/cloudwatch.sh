@@ -117,13 +117,13 @@ cat << EOF > /opt/aws/amazon-cloudwatch-agent/bin/config.json
         "collect_list": [
           {
             "file_path": "/var/log/cloud-init-output.log",
-            "log_group_name": "${vault_name}-cloudinitlog",
+            "log_group_name": "cloudinitlog-${vault_name}-${random_string}",
             "log_stream_name": "${instance_id}",
             "retention_in_days": 7
           },
           {
             "file_path": "/var/log/vault/vault.log",
-            "log_group_name": "${vault_name}-vaultlog",
+            "log_group_name": "vaultlog-${vault_name}-${random_string}",
             "log_stream_name": "${instance_id}",
             "retention_in_days": 7
           }

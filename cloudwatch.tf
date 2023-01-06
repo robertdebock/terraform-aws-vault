@@ -1,13 +1,19 @@
 # Cloudwatch logs feature
 resource "aws_cloudwatch_log_group" "cloudinitlog" {
   count             = var.vault_enable_cloudwatch ? 1 : 0
-  name              = "cloudinitlog-${var.vault_name}-${random_string.default.result}"
+  name              = "cloudinitlog-${var.vault_name}-${random_string.default.result}" # Needs to match the log-group name configured for the Cloudwatch-agent in cloudwatch.sh
   retention_in_days = 7
 }
 
 resource "aws_cloudwatch_log_group" "vaultlog" {
   count             = var.vault_enable_cloudwatch ? 1 : 0
-  name              = "vaultlog-${var.vault_name}-${random_string.default.result}"
+  name              = "vaultlog-${var.vault_name}-${random_string.default.result}" # Needs to match the log-group name configured for the Cloudwatch-agent in cloudwatch.sh
+  retention_in_days = 7
+}
+
+resource "aws_cloudwatch_log_group" "lambda" {
+  count             = var.vault_enable_cloudwatch ? 1 : 0
+  name              = "/aws/lambda/${aws_lambda_function.CloudWatchAutoAlarms[0].function_name}"
   retention_in_days = 7
 }
 
@@ -61,6 +67,7 @@ resource "aws_lambda_function" "CloudWatchAutoAlarms" {
   source_code_hash = filebase64sha256("${path.module}/scripts/cloudwatch_alarms/amazon-cloudwatch-auto-alarms.zip")
   runtime          = "python3.8"
   memory_size      = 128
+  timeout          = 10
 
   environment {
     variables = {
@@ -76,6 +83,23 @@ resource "aws_lambda_function" "CloudWatchAutoAlarms" {
       VAULT_PATH = var.vault_data_path
     }
   }
+}
+
+resource "time_sleep" "cloudwatch_alarm_cleanup_timer" {
+  depends_on = [
+    aws_lambda_function.CloudWatchAutoAlarms,
+    aws_cloudwatch_event_target.ec2_alarms,
+    aws_cloudwatch_event_rule.ec2_alarms,
+    aws_lambda_permission.ec2_alarms,
+    aws_cloudwatch_event_target.lambda,
+    aws_cloudwatch_event_rule.lambda,
+    aws_lambda_permission.lambda_cloudwatch,
+    aws_iam_role_policy.lambda[0],
+    aws_cloudwatch_log_group.lambda,
+    aws_iam_role.lambda[0]
+    ]
+
+  destroy_duration = "40s" # The lambda function needs some time to be trigger and clean up the alarms.
 }
 
 resource "aws_cloudwatch_event_rule" "ec2_alarms" {
