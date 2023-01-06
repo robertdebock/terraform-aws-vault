@@ -15,7 +15,7 @@
                 "region": "${aws_region}",
                 "stat": "Average",
                 "period": 60,
-                "title": "ASG - CPU (%) utilisation",
+                "title": "ASG - CPU utilisation (%)",
                 "yAxis": {
                     "left": {
                         "min": 0,
@@ -46,7 +46,7 @@
                 "region": "${aws_region}",
                 "stat": "Average",
                 "period": 60,
-                "title": "(%) Disk used per node - ${vault_data_path}",
+                "title": "Disk usage per node (%) - ${vault_data_path}",
                 "yAxis": {
                     "left": {
                         "min": 0,
@@ -77,7 +77,7 @@
                 "region": "${aws_region}",
                 "stat": "Average",
                 "period": 60,
-                "title": "(%) Disk used per node - /",
+                "title": "Disk usage per node (%) - /",
                 "yAxis": {
                     "left": {
                         "min": 0,
@@ -240,7 +240,7 @@
                 "legend": {
                     "position": "hidden"
                 },
-                "title": "(%) Memory used per node"
+                "title": "Memory used per node (%)"
             }
         },
         {
@@ -255,7 +255,7 @@
                 ],
                 "view": "timeSeries",
                 "stacked": true,
-                "title": "Desired Capacity (Count)",
+                "title": "ASG - Desired Capacity (Count)",
                 "region": "${aws_region}",
                 "period": 60,
                 "stat": "Average",
@@ -322,7 +322,7 @@
                         "max": 100
                     }
                 },
-                "title": "Max used disk - /"
+                "title": "Highest disk usage (in cluster) - /"
             }
         },
         {
@@ -345,7 +345,7 @@
                         "max": 100
                     }
                 },
-                "title": "Max used disk - ${vault_data_path}",
+                "title": "Highest disk usage (in cluster) - ${vault_data_path}",
                 "stacked": false
             }
         },
@@ -369,7 +369,7 @@
                         "max": 100
                     }
                 },
-                "title": "Max memory used",
+                "title": "Highest memory usage (in cluster)",
                 "stacked": false
             }
         },
@@ -388,7 +388,7 @@
                 "period": 60,
                 "region": "${aws_region}",
                 "stat": "Average",
-                "title": "Healthy Hosts",
+                "title": "Healthy Hosts - ELB (port 8200)",
                 "yAxis": {
                     "left": {
                         "min": 0,
@@ -417,7 +417,7 @@
                 "period": 60,
                 "region": "${aws_region}",
                 "stat": "Average",
-                "title": "Unhealthy Hosts",
+                "title": "Unhealthy Hosts - ELB (port 8200)",
                 "yAxis": {
                     "left": {
                         "min": 0,
