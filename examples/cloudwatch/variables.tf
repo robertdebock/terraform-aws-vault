@@ -4,7 +4,6 @@ variable "domain" {
 }
 
 variable "region" {
-  default     = "eu-west-1"
   description = "The region to use for the deployment."
 }
 
