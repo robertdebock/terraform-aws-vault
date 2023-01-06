@@ -310,7 +310,7 @@
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ { "expression": "SELECT MAX(disk_used_percent) FROM SCHEMA(\"${vault_cloudwatch_namespace}\", AutoScalingGroupName,InstanceId,device,fstype,path) WHERE path = '/'", "label": "Max used disk - /", "id": "q1", "region": "${aws_region}", "period": 60, "color": "#2ca02c" } ]
+                    [ { "expression": "SELECT MAX(disk_used_percent) FROM SCHEMA(\"${vault_cloudwatch_namespace}\", AutoScalingGroupName,InstanceId,device,fstype,path) WHERE path = '/'", "label": "disk usage - /", "id": "q1", "region": "${aws_region}", "period": 60, "color": "#2ca02c" } ]
                 ],
                 "view": "gauge",
                 "region": "${aws_region}",
@@ -333,7 +333,7 @@
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ { "expression": "SELECT MAX(disk_used_percent) FROM SCHEMA(\"${vault_cloudwatch_namespace}\", AutoScalingGroupName,InstanceId,device,fstype,path) WHERE path = '${vault_data_path}'", "label": "Max used disk - ${vault_data_path}", "id": "q1", "region": "${aws_region}", "period": 60, "color": "#2ca02c" } ]
+                    [ { "expression": "SELECT MAX(disk_used_percent) FROM SCHEMA(\"${vault_cloudwatch_namespace}\", AutoScalingGroupName,InstanceId,device,fstype,path) WHERE path = '${vault_data_path}'", "label": "disk usage - ${vault_data_path}", "id": "q1", "region": "${aws_region}", "period": 60, "color": "#2ca02c" } ]
                 ],
                 "view": "gauge",
                 "region": "${aws_region}",
@@ -357,7 +357,7 @@
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ { "expression": "SELECT MAX(mem_used_percent) FROM SCHEMA(\"${vault_cloudwatch_namespace}\", AutoScalingGroupName,InstanceId)", "label": "Max memory used", "id": "q1", "region": "${aws_region}", "period": 60, "color": "#2ca02c" } ]
+                    [ { "expression": "SELECT MAX(mem_used_percent) FROM SCHEMA(\"${vault_cloudwatch_namespace}\", AutoScalingGroupName,InstanceId)", "label": "memory usage", "id": "q1", "region": "${aws_region}", "period": 60, "color": "#2ca02c" } ]
                 ],
                 "view": "gauge",
                 "region": "${aws_region}",
