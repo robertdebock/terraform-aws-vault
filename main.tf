@@ -180,5 +180,5 @@ resource "aws_autoscaling_group" "default" {
   }
   depends_on = [
     time_sleep.cloudwatch_alarm_cleanup_timer
-    ]
+  ]
 }
