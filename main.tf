@@ -132,12 +132,15 @@ resource "aws_autoscaling_group" "default" {
   default_cooldown = var.vault_asg_cooldown_seconds
   desired_capacity = local.amount
   enabled_metrics  = ["GroupDesiredCapacity", "GroupInServiceCapacity", "GroupPendingCapacity", "GroupMinSize", "GroupMaxSize", "GroupInServiceInstances", "GroupPendingInstances", "GroupStandbyInstances", "GroupStandbyCapacity", "GroupTerminatingCapacity", "GroupTerminatingInstances", "GroupTotalCapacity", "GroupTotalInstances"]
-  # Base the health check on "EC2" + aws_health.sh script if replication is enabled OR if unauthenticated metrics access is disabled. Else the default is "ELB" based health checking. See `TELEMETRY.md` for more information.
-  health_check_type         = var.vault_allow_replication || !var.vault_enable_telemetry_unauthenticated_metrics_access ? "EC2" : "ELB"
-  # health_check_grace_period = var.vault_asg_warmup_seconds
-  max_instance_lifetime     = var.vault_asg_instance_lifetime
-  max_size                  = local.amount + 1
-  min_size                  = local.amount - 1
+  # Base the health check on weaker "EC2" if:
+  # - var.vault_allow_replication is true (OR)
+  # - var.vault_type is "opensource" AND var.vault_enable_telemetry_unauthenticated_metrics_access is false.
+  # Otherwise, use "ELB", which is more native, but not always applicable.
+  # 
+  health_check_type     = var.vault_type == "enterpise" || (var.vault_type == "opensource" && !var.vault_enable_telemetry_unauthenticated_metrics_access) ? "EC2" : "ELB"
+  max_instance_lifetime = var.max_instance_lifetime
+  max_size              = local.amount + 1
+  min_size              = local.amount - 1
   mixed_instances_policy {
     launch_template {
       launch_template_specification {
