@@ -20,10 +20,10 @@ data "aws_region" "default" {}
 
 # Place an SSH key.
 resource "aws_key_pair" "default" {
-  count      = var.vault_keyfile_path == "" ? 0 : 1
-  key_name   = local.name
-  public_key = file(var.vault_keyfile_path)
-  tags       = local.tags
+  count           = var.vault_keyfile_path == "" ? 0 : 1
+  key_name_prefix = "${var.vault_name}-"
+  public_key      = file(var.vault_keyfile_path)
+  tags            = var.vault_tags
 }
 
 # Find amis for the Vault instances.
@@ -159,7 +159,7 @@ resource "aws_autoscaling_group" "default" {
       }
     }
   }
-  name            = local.name
+  name_prefix     = "${var.vault_name}-"
   placement_group = aws_placement_group.default.id
   tag {
     key                 = "Name"

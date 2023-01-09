@@ -9,7 +9,7 @@ resource "aws_placement_group" "default" {
 # Add a load balancer for the API/UI.
 resource "aws_lb" "api" {
   internal        = var.vault_aws_lb_availability == "internal" ? true : false
-  name            = "${var.vault_name}-api-${random_string.default.result}"
+  name_prefix     = "${substr(var.vault_name, 0, 3)}-a-"
   security_groups = concat([try(aws_security_group.public[0].id, ""), aws_security_group.private.id], var.vault_extra_security_group_ids)
   subnets         = var.vault_aws_lb_availability == "internal" ? local.private_subnet_ids : local.public_subnet_ids
   tags            = local.api_tags
@@ -20,7 +20,7 @@ resource "aws_lb" "replication" {
   count              = var.vault_allow_replication ? 1 : 0
   internal           = var.vault_aws_lb_availability == "internal" ? true : false
   load_balancer_type = "network"
-  name               = "${var.vault_name}-replication-${random_string.default.result}"
+  name_prefix        = "${substr(var.vault_name, 0, 3)}-r-"
   subnets            = var.vault_aws_lb_availability == "internal" ? local.private_subnet_ids : local.public_subnet_ids
   tags               = local.replication_tags
   lifecycle {

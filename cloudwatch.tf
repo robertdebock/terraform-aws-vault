@@ -36,7 +36,7 @@ resource "aws_cloudwatch_dashboard" "default" {
 # Cloudwatch alerting feature
 resource "aws_sns_topic" "alerts" {
   count           = var.vault_enable_cloudwatch ? 1 : 0
-  name            = "CloudWatchAutoAlarmsSNSTopic-${random_string.default.result}"
+  name_prefix     = "CloudWatchAutoAlarmsSNSTopic-"
   delivery_policy = <<EOF
 {
   "http": {
@@ -104,7 +104,7 @@ resource "time_sleep" "cloudwatch_alarm_cleanup_timer" {
 
 resource "aws_cloudwatch_event_rule" "ec2_alarms" {
   count       = var.vault_enable_cloudwatch ? 1 : 0
-  name        = "Initiate-CloudWatchAutoAlarmsEC2-${random_string.default.result}"
+  name_prefix = "Initiate-CloudWatchAutoAlarmsEC2-"
   description = "Creates CloudWatch alarms on instance start via Lambda CloudWatchAutoAlarms and deletes them on instance termination."
   event_pattern = <<EOF
 {
