@@ -24,7 +24,7 @@ resource "aws_security_group_rule" "bastion-ssh" {
 
 # Allow internet access.
 resource "aws_security_group_rule" "bastion-internet" {
-  count             = var.vault_create_bastionhost && var.vault_bastion_public_ip ? 1 : 0
+  count             = var.vault_create_bastionhost ? 1 : 0
   cidr_blocks       = ["0.0.0.0/0"]
   description       = "internet"
   from_port         = 0
