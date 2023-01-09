@@ -8,10 +8,9 @@ resource "aws_placement_group" "default" {
 
 # Add a load balancer for the API/UI.
 resource "aws_lb" "api" {
-  # TODO: Read more on what "internal=true" means.
   internal        = var.vault_aws_lb_availability == "internal" ? true : false
   name            = "${var.vault_name}-api-${random_string.default.result}"
-  security_groups = concat([aws_security_group.public.id, aws_security_group.private.id], var.vault_extra_security_group_ids)
+  security_groups = concat([try(aws_security_group.public[0].id, ""), aws_security_group.private.id], var.vault_extra_security_group_ids)
   subnets         = var.vault_aws_lb_availability == "internal" ? local.private_subnet_ids : local.public_subnet_ids
   tags            = local.api_tags
 }
