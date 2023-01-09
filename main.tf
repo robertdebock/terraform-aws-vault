@@ -3,9 +3,10 @@
 
 # Make a key for unsealing.
 resource "aws_kms_key" "default" {
-  count       = var.vault_aws_kms_key_id == "" ? 1 : 0
-  description = "Vault unseal key - ${var.vault_name}"
-  tags        = local.tags
+  count                   = var.vault_aws_kms_key_id == "" ? 1 : 0
+  deletion_window_in_days = 7
+  description             = "Vault unseal key - ${var.vault_name}"
+  tags                    = local.tags
 }
 
 # Find the key for unsealing.
