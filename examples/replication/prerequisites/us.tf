@@ -2,7 +2,7 @@
 resource "aws_kms_key" "default_us" {
   deletion_window_in_days = 7
   description             = "Vault unseal key"
-  provider                 = aws.us-east-1
+  provider                = aws.us-east-1
   tags = {
     Name  = "replication-us"
     owner = "robertdebock"
