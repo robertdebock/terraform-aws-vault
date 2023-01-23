@@ -47,7 +47,7 @@ output "aws_lb_api_arn" {
 
 output "aws_s3_bucket_bastion_arn" {
   description = "The ARN of the AWS S3 bucket to use for backups."
-  value       = try(aws_s3_bucket.bastion.arn, "The varialbe vault_bastion_create_s3_bucket is false, no S3 bucket created.")
+  value       = try(aws_s3_bucket.bastion.arn, "The variable vault_bastion_create_s3_bucket is false, no S3 bucket created.")
 }
 
 output "cloudwatch_sns_topic_arn" {
