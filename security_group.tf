@@ -57,7 +57,7 @@ resource "aws_security_group" "private" {
   }
 }
 
-# Allow the Vault API to be accessed from clients.
+# Allow the Vault API to be accessed from vault node to vault node.
 resource "aws_security_group_rule" "api_private" {
   description              = "Vault API/UI"
   from_port                = 8200
