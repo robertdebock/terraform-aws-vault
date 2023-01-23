@@ -86,7 +86,7 @@ resource "aws_launch_template" "default" {
       vault_license                  = try(var.vault_license, null)
       warmup                         = var.vault_asg_warmup_seconds
     }))
-  vpc_security_group_ids = [aws_security_group.private.id, try(aws_security_group.public[0].id, "")]
+  vpc_security_group_ids = compact([aws_security_group.private.id, try(aws_security_group.public[0].id, "")])
   dynamic "block_device_mappings" {
     for_each = var.vault_audit_device ? local.disks_with_audit : local.disks_without_audit
     content {

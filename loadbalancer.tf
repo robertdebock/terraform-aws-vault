@@ -10,7 +10,7 @@ resource "aws_placement_group" "default" {
 resource "aws_lb" "api" {
   internal        = var.vault_aws_lb_availability == "internal" ? true : false
   name_prefix     = "${substr(var.vault_name, 0, 3)}-a-"
-  security_groups = concat([try(aws_security_group.public[0].id, ""), aws_security_group.private.id], var.vault_extra_security_group_ids)
+  security_groups = compact(concat([try(aws_security_group.public[0].id, ""), aws_security_group.private.id], var.vault_extra_security_group_ids))
   subnets         = var.vault_aws_lb_availability == "internal" ? local.private_subnet_ids : local.public_subnet_ids
   tags            = local.api_tags
 }
