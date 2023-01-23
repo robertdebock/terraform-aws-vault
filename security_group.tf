@@ -68,6 +68,31 @@ resource "aws_security_group_rule" "api_private" {
   type                     = "ingress"
 }
 
+# Allow the Vault API to be accessed from the bastion node on port 443.
+resource "aws_security_group_rule" "api_bastion" {
+  count                    = length(aws_security_group.bastion)
+  description              = "Vault API/UI"
+  from_port                = var.vault_api_port
+  protocol                 = "TCP"
+  security_group_id        = aws_security_group.private.id
+  source_security_group_id = aws_security_group.bastion[count.index].id
+  to_port                  = var.vault_api_port
+  type                     = "ingress"
+}
+
+# Allow the Vault API to be accessed from the bastion node on port 80. (Redirecting)
+resource "aws_security_group_rule" "api_bastion_http" {
+  count                    = length(aws_security_group.bastion)
+  description              = "Vault API/UI"
+  from_port                = 80
+  protocol                 = "TCP"
+  security_group_id        = aws_security_group.private.id
+  source_security_group_id = aws_security_group.bastion[count.index].id
+  to_port                  = 80
+  type                     = "ingress"
+}
+
+
 # Allow instances to use Raft.
 resource "aws_security_group_rule" "raft" {
   description              = "Vault Raft"
