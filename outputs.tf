@@ -52,5 +52,5 @@ output "aws_s3_bucket_bastion_arn" {
 
 output "cloudwatch_sns_topic_arn" {
   description = "ARN of the SNS Topic used for the Cloudwatch Alarms."
-  value       = aws_sns_topic.alerts[0].arn
+  value       = try(aws_sns_topic.alerts[0].arn, "No SNS topic created.")
 }
