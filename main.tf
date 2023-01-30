@@ -55,6 +55,11 @@ resource "aws_launch_template" "default" {
   key_name               = local.vault_aws_key_name
   name_prefix            = "${var.vault_name}-"
   update_default_version = true
+  metadata_options {
+    http_endpoint          = "enabled"
+    http_tokens            = "required"
+    instance_metadata_tags = "enabled"
+  }
   user_data = base64encode(templatefile("${path.module}/user_data_vault.sh.tpl",
     {
       api_addr                       = local.api_addr

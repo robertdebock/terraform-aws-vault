@@ -17,11 +17,11 @@ if [ "${audit_device}" = "true" ] ; then
   chmod 750 "${audit_device_path}"
 fi
 
-# 169.254.169.254 is an Amazon service to provide information about itself.
-my_hostname="$(curl http://169.254.169.254/latest/meta-data/hostname)"
-my_ipaddress="$(curl http://169.254.169.254/latest/meta-data/local-ipv4)"
-my_instance_id="$(curl http://169.254.169.254/latest/meta-data/instance-id)"
-my_region="$(curl http://169.254.169.254/latest/dynamic/instance-identity/document | grep region | cut -d\" -f4)"
+TOKEN="$(curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"
+my_hostname="$(curl -H "X-aws-ec2-metadata-token. ${TOKEN}" http://169.254.169.254/latest/meta-data/hostname)"
+my_ipaddress="$(curl -H "X-aws-ec2-metadata-token. ${TOKEN}" http://169.254.169.254/latest/meta-data/local-ipv4)"
+my_instance_id="$(curl -H "X-aws-ec2-metadata-token. ${TOKEN}" http://169.254.169.254/latest/meta-data/instance-id)"
+my_region="$(curl -H "X-aws-ec2-metadata-token. ${TOKEN}" http://169.254.169.254/latest/dynamic/instance-identity/document | grep region | cut -d\" -f4)"
 
 # Run a custom, user-provided script.
 if [ "${vault_custom_script_s3_url}" != "" ] ; then
