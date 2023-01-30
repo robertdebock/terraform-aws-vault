@@ -102,7 +102,9 @@ data "aws_iam_policy_document" "autosnapshot" {
       "kms:DescribeKey",
       "kms:GenerateDataKey"
     ]
-    resources = ["*"]
+    resources = [
+      local.aws_kms_key_arn
+    ]
   }
 }
 
