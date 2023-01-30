@@ -17,11 +17,10 @@ if [ "${audit_device}" = "true" ] ; then
   chmod 750 "${audit_device_path}"
 fi
 
-TOKEN="$(curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"
-my_hostname="$(curl -H "X-aws-ec2-metadata-token. ${TOKEN}" http://169.254.169.254/latest/meta-data/hostname)"
-my_ipaddress="$(curl -H "X-aws-ec2-metadata-token. ${TOKEN}" http://169.254.169.254/latest/meta-data/local-ipv4)"
-my_instance_id="$(curl -H "X-aws-ec2-metadata-token. ${TOKEN}" http://169.254.169.254/latest/meta-data/instance-id)"
-my_region="$(curl -H "X-aws-ec2-metadata-token. ${TOKEN}" http://169.254.169.254/latest/dynamic/instance-identity/document | grep region | cut -d\" -f4)"
+TOKEN=$(curl -X PUT http://169.254.169.254/latest/api/token -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
+my_hostname=$(curl -H "X-aws-ec2-metadata-token: $${TOKEN}" http://169.254.169.254/latest/meta-data/hostname)
+my_ipaddress=$(curl -H "X-aws-ec2-metadata-token: $${TOKEN}" http://169.254.169.254/latest/meta-data/local-ipv4)
+my_instance_id=$(curl -H "X-aws-ec2-metadata-token: $${TOKEN}" http://169.254.169.254/latest/meta-data/instance-id)
 
 # Run a custom, user-provided script.
 if [ "${vault_custom_script_s3_url}" != "" ] ; then
@@ -214,10 +213,10 @@ response=\$(curl -k -m \$TIMEOUT -s -o /dev/null -w "%%{http_code}" \$VAULT_STAT
 # Check the response code
 case \$response in
   200|429|472|473)
-    aws --region $${my_region} autoscaling set-instance-health --instance-id $${my_instance_id} --health-status Healthy
+    aws --region ${region} autoscaling set-instance-health --instance-id $${my_instance_id} --health-status Healthy
   ;;
   *)
-    aws --region $${my_region} autoscaling set-instance-health --instance-id $${my_instance_id} --health-status Unhealthy
+    aws --region ${region} autoscaling set-instance-health --instance-id $${my_instance_id} --health-status Unhealthy
   ;;
 esac
 EOF
