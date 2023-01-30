@@ -22,6 +22,32 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "default" {
   }
 }
 
+resource "aws_s3_bucket_policy" "AlLowSSLRequestsOnlyScriptBucket" {
+  bucket = aws_s3_bucket.default.id
+  policy = <<EOF
+  {
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Sid": "AllowSSLRequestsOnly",
+        "Effect": "Deny",
+        "Principal": "*",
+        "Action": "S3:*",
+        "Resource": [
+          "${aws_s3_bucket.default.arn}",
+          "${aws_s3_bucket.default.arn}/*"
+        ],
+        "Condition": {
+          "Bool": {
+            "aws:SecureTransport": "false"
+          }
+        }
+      }
+    ]
+  }
+EOF
+}
+
 # Add the cloudwatch script to the bucket.
 resource "aws_s3_object" "cloudwatch" {
   bucket = aws_s3_bucket.default.id
