@@ -108,28 +108,10 @@ resource "aws_lambda_permission" "ec2_alarms" {
 }
 
 resource "aws_cloudwatch_event_rule" "lambda" {
-  count       = var.vault_enable_cloudwatch ? 1 : 0
-  name        = "Initiate-CloudWatchAutoAlarmsLambda-${random_string.default.result}"
-  description = "Creates CloudWatch alarms on for lambda functions with the CloudWatchAutoAlarms activation tag"
-  event_pattern = <<EOF
-{
-  "source": [
-    "aws.lambda"
-  ],
-  "detail-type": [
-    "AWS API Call via CloudTrail"
-  ],
-  "detail": {
-    "eventSource": [
-      "lambda.amazonaws.com"
-    ],
-    "eventName": [
-      "TagResource20170331v2",
-      "DeleteFunction20150331"
-    ]
-  }
-}
-EOF
+  count         = var.vault_enable_cloudwatch ? 1 : 0
+  name          = "Initiate-CloudWatchAutoAlarmsLambda-${random_string.default.result}"
+  description   = "Creates CloudWatch alarms on for lambda functions with the CloudWatchAutoAlarms activation tag"
+  event_pattern = file("${path.module}/templates/cloudwatch_lambda_event_pattern.json")
 }
 
 resource "aws_cloudwatch_event_target" "lambda" {
