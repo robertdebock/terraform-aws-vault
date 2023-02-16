@@ -54,7 +54,7 @@ resource "aws_launch_template" "default" {
   key_name               = local.vault_aws_key_name
   name_prefix            = "${var.vault_name}-"
   update_default_version = true
-  user_data = base64encode(templatefile("${path.module}/user_data_vault.sh.tpl",
+  user_data = base64encode(templatefile("${path.module}/templates/user_data_vault.sh.tpl",
     {
       api_addr                       = local.api_addr
       audit_device                   = var.vault_audit_device
