@@ -37,25 +37,7 @@ resource "aws_cloudwatch_dashboard" "default" {
 resource "aws_sns_topic" "alerts" {
   count           = var.vault_enable_cloudwatch ? 1 : 0
   name            = "CloudWatchAutoAlarmsSNSTopic-${random_string.default.result}"
-  delivery_policy = <<EOF
-{
-  "http": {
-    "defaultHealthyRetryPolicy": {
-      "minDelayTarget": 20,
-      "maxDelayTarget": 20,
-      "numRetries": 3,
-      "numMaxDelayRetries": 0,
-      "numNoDelayRetries": 0,
-      "numMinDelayRetries": 0,
-      "backoffFunction": "linear"
-    },
-    "disableSubscriptionOverrides": false,
-    "defaultThrottlePolicy": {
-      "maxReceivesPerSecond": 1
-    }
-  }
-}
-EOF
+  delivery_policy = file("${path.module}/templates/aws_sns_topic_alerts_delivery_policy.json")
 }
 
 resource "aws_lambda_function" "CloudWatchAutoAlarms" {
