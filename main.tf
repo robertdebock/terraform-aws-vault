@@ -3,9 +3,10 @@
 
 # Make a key for unsealing.
 resource "aws_kms_key" "default" {
-  count       = var.vault_aws_kms_key_id == "" ? 1 : 0
-  description = "Vault unseal key - ${var.vault_name}"
-  tags        = local.tags
+  count                   = var.vault_aws_kms_key_id == "" ? 1 : 0
+  deletion_window_in_days = 7
+  description             = "Vault unseal key - ${var.vault_name}"
+  tags                    = local.tags
 }
 
 # Find the key for unsealing.
@@ -19,10 +20,10 @@ data "aws_region" "default" {}
 
 # Place an SSH key.
 resource "aws_key_pair" "default" {
-  count      = var.vault_keyfile_path == "" ? 0 : 1
-  key_name   = local.name
-  public_key = file(var.vault_keyfile_path)
-  tags       = local.tags
+  count           = var.vault_keyfile_path == "" ? 0 : 1
+  key_name_prefix = "${var.vault_name}-"
+  public_key      = file(var.vault_keyfile_path)
+  tags            = var.vault_tags
 }
 
 # Find amis for the Vault instances.
@@ -85,7 +86,7 @@ resource "aws_launch_template" "default" {
       vault_license                  = try(var.vault_license, null)
       warmup                         = var.vault_asg_warmup_seconds
     }))
-  vpc_security_group_ids = [aws_security_group.private.id, aws_security_group.public.id]
+  vpc_security_group_ids = compact([aws_security_group.private.id, try(aws_security_group.public[0].id, "")])
   dynamic "block_device_mappings" {
     for_each = var.vault_audit_device ? local.disks_with_audit : local.disks_without_audit
     content {
@@ -158,7 +159,7 @@ resource "aws_autoscaling_group" "default" {
       }
     }
   }
-  name            = local.name
+  name_prefix     = "${var.vault_name}-"
   placement_group = aws_placement_group.default.id
   tag {
     key                 = "Name"

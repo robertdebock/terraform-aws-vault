@@ -37,6 +37,7 @@ resource "aws_cloudwatch_dashboard" "default" {
 resource "aws_sns_topic" "alerts" {
   count           = var.vault_enable_cloudwatch ? 1 : 0
   name            = "CloudWatchAutoAlarmsSNSTopic-${random_string.default.result}"
+  name_prefix     = "CloudWatchAutoAlarmsSNSTopic-"
   delivery_policy = file("${path.module}/templates/aws_sns_topic_alerts_delivery_policy.json")
 }
 

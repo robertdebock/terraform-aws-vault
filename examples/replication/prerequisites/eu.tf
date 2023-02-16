@@ -1,6 +1,7 @@
 # Make a key for unsealing.
 resource "aws_kms_key" "default_eu" {
-  description = "Vault unseal key"
+  deletion_window_in_days = 7
+  description             = "Vault unseal key"
   tags = {
     Name  = "replication-eu"
     owner = "robertdebock"

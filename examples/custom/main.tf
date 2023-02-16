@@ -48,7 +48,7 @@ resource "aws_route53_record" "validation" {
 module "vault" {
   source                                    = "../../"
   vault_allow_ssh                           = true
-  vault_api_addr                            = "https://custom.meinit.nl"
+  vault_api_addr                            = "https://custom.${var.domain}"
   vault_api_port                            = 443
   vault_asg_cpu_manufacturer                = "amazon-web-services"
   vault_asg_instance_lifetime               = 604800

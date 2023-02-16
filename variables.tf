@@ -419,7 +419,7 @@ variable "vault_asg_cpu_manufacturer" {
   default     = "amazon-web-services"
   validation {
     condition     = contains(["amazon-web-services", "amd", "intel"], var.vault_asg_cpu_manufacturer)
-    error_message = "Please choosse from \"amazon-web-services\", \"amd\" or \"intel\"."
+    error_message = "Please choose from \"amazon-web-services\", \"amd\" or \"intel\"."
   }
 }
 

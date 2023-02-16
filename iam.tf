@@ -156,7 +156,7 @@ data "aws_iam_policy_document" "custom_scripts" {
 resource "aws_iam_role" "default" {
   assume_role_policy = data.aws_iam_policy_document.assumerole.json
   description        = "Vault role - ${var.vault_name}"
-  name               = local.name
+  name_prefix        = "${var.vault_name}-"
   tags               = local.tags
 }
 
@@ -221,15 +221,17 @@ resource "aws_iam_role_policy_attachment" "cloudwatch_agent" {
 
 # Make an iam instance profile
 resource "aws_iam_instance_profile" "default" {
-  name = local.name
-  role = aws_iam_role.default.name
-  tags = local.tags
+  name_prefix = "vault-${var.vault_name}"
+  role        = aws_iam_role.default.name
+  tags        = local.tags
 }
 
 # Create a role with attached policies for Lambda function that automatically creates Cloudwatch alarms for newly created ASG instances
 resource "aws_iam_role" "lambda" {
   count              = var.vault_enable_cloudwatch ? 1 : 0
   name               = "${var.vault_name}-lambda-${random_string.default.result}"
+  description        = "Vault role Lambda - ${var.vault_name}"
+  name_prefix        = "${var.vault_name}-lambda-"
   assume_role_policy = file("${path.module}/templates/aws_iam_role_lambda_assume_role_policy.json")
 }
 
