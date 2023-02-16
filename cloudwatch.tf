@@ -85,25 +85,10 @@ resource "time_sleep" "cloudwatch_alarm_cleanup_timer" {
 }
 
 resource "aws_cloudwatch_event_rule" "ec2_alarms" {
-  count       = var.vault_enable_cloudwatch ? 1 : 0
-  name        = "Initiate-CloudWatchAutoAlarmsEC2-${random_string.default.result}"
-  description = "Creates CloudWatch alarms on instance start via Lambda CloudWatchAutoAlarms and deletes them on instance termination."
-  event_pattern = <<EOF
-{
-  "source": [
-    "aws.ec2"
-  ],
-  "detail-type": [
-    "EC2 Instance State-change Notification"
-  ],
-  "detail": {
-    "state": [
-      "running",
-      "terminated"
-    ]
-  }
-}
-EOF
+  count         = var.vault_enable_cloudwatch ? 1 : 0
+  name          = "Initiate-CloudWatchAutoAlarmsEC2-${random_string.default.result}"
+  description   = "Creates CloudWatch alarms on instance start via Lambda CloudWatchAutoAlarms and deletes them on instance termination."
+  event_pattern = file("${path.module}/templates/cloudwatch_ec2_alarms_event_pattern.json")
 }
 
 resource "aws_cloudwatch_event_target" "ec2_alarms" {
