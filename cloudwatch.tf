@@ -20,7 +20,7 @@ resource "aws_cloudwatch_log_group" "lambda" {
 # Cloudwatch metrics dashboard feature
 resource "aws_cloudwatch_dashboard" "default" {
   count          = var.vault_enable_cloudwatch ? 1 : 0
-  dashboard_body = "${templatefile("${path.module}/templates/cloudwatch_dashboard.json", {
+  dashboard_body = "${templatefile("${path.module}/templates/cloudwatch_dashboard.json.tpl", {
     aws_region                  = "${data.aws_region.default.name}",
     asg_name                    = "${aws_autoscaling_group.default.name}",
     vault_cloudwatch_namespace  = "${local.vault_cloudwatch_namespace}",
