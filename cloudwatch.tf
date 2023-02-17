@@ -20,7 +20,7 @@ resource "aws_cloudwatch_log_group" "lambda" {
 # Cloudwatch metrics dashboard feature
 resource "aws_cloudwatch_dashboard" "default" {
   count          = var.vault_enable_cloudwatch ? 1 : 0
-  dashboard_body = "${templatefile("${path.module}/cloudwatch_dashboard.json", {
+  dashboard_body = "${templatefile("${path.module}/templates/cloudwatch_dashboard.json.tpl", {
     aws_region                  = "${data.aws_region.default.name}",
     asg_name                    = "${aws_autoscaling_group.default.name}",
     vault_cloudwatch_namespace  = "${local.vault_cloudwatch_namespace}",
@@ -37,25 +37,7 @@ resource "aws_cloudwatch_dashboard" "default" {
 resource "aws_sns_topic" "alerts" {
   count           = var.vault_enable_cloudwatch ? 1 : 0
   name_prefix     = "CloudWatchAutoAlarmsSNSTopic-"
-  delivery_policy = <<EOF
-{
-  "http": {
-    "defaultHealthyRetryPolicy": {
-      "minDelayTarget": 20,
-      "maxDelayTarget": 20,
-      "numRetries": 3,
-      "numMaxDelayRetries": 0,
-      "numNoDelayRetries": 0,
-      "numMinDelayRetries": 0,
-      "backoffFunction": "linear"
-    },
-    "disableSubscriptionOverrides": false,
-    "defaultThrottlePolicy": {
-      "maxReceivesPerSecond": 1
-    }
-  }
-}
-EOF
+  delivery_policy = file("${path.module}/templates/aws_sns_topic_alerts_delivery_policy.json")
 }
 
 resource "aws_lambda_function" "CloudWatchAutoAlarms" {
@@ -103,25 +85,10 @@ resource "time_sleep" "cloudwatch_alarm_cleanup_timer" {
 }
 
 resource "aws_cloudwatch_event_rule" "ec2_alarms" {
-  count       = var.vault_enable_cloudwatch ? 1 : 0
-  name_prefix = "Initiate-CloudWatchAutoAlarmsEC2-"
-  description = "Creates CloudWatch alarms on instance start via Lambda CloudWatchAutoAlarms and deletes them on instance termination."
-  event_pattern = <<EOF
-{
-  "source": [
-    "aws.ec2"
-  ],
-  "detail-type": [
-    "EC2 Instance State-change Notification"
-  ],
-  "detail": {
-    "state": [
-      "running",
-      "terminated"
-    ]
-  }
-}
-EOF
+  count         = var.vault_enable_cloudwatch ? 1 : 0
+  name_prefix   = "Initiate-CloudWatchAutoAlarmsEC2-"
+  description   = "Creates CloudWatch alarms on instance start via Lambda CloudWatchAutoAlarms and deletes them on instance termination."
+  event_pattern = file("${path.module}/templates/cloudwatch_ec2_alarms_event_pattern.json")
 }
 
 resource "aws_cloudwatch_event_target" "ec2_alarms" {
@@ -141,28 +108,10 @@ resource "aws_lambda_permission" "ec2_alarms" {
 }
 
 resource "aws_cloudwatch_event_rule" "lambda" {
-  count       = var.vault_enable_cloudwatch ? 1 : 0
-  name        = "Initiate-CloudWatchAutoAlarmsLambda-${random_string.default.result}"
-  description = "Creates CloudWatch alarms on for lambda functions with the CloudWatchAutoAlarms activation tag"
-  event_pattern = <<EOF
-{
-  "source": [
-    "aws.lambda"
-  ],
-  "detail-type": [
-    "AWS API Call via CloudTrail"
-  ],
-  "detail": {
-    "eventSource": [
-      "lambda.amazonaws.com"
-    ],
-    "eventName": [
-      "TagResource20170331v2",
-      "DeleteFunction20150331"
-    ]
-  }
-}
-EOF
+  count         = var.vault_enable_cloudwatch ? 1 : 0
+  name          = "Initiate-CloudWatchAutoAlarmsLambda-${random_string.default.result}"
+  description   = "Creates CloudWatch alarms on for lambda functions with the CloudWatchAutoAlarms activation tag"
+  event_pattern = file("${path.module}/templates/cloudwatch_lambda_event_pattern.json")
 }
 
 resource "aws_cloudwatch_event_target" "lambda" {

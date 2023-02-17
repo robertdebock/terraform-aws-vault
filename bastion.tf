@@ -86,7 +86,7 @@ resource "aws_instance" "bastion" {
   key_name                    = local.vault_aws_key_name
   subnet_id                   = aws_subnet.bastion[0].id
   tags                        = local.bastion_tags
-  user_data = templatefile("${path.module}/user_data_bastion.sh.tpl",
+  user_data = templatefile("${path.module}/templates/user_data_bastion.sh.tpl",
     {
       api_addr                           = local.api_addr
       vault_ca_cert_path                 = file("tls/vault_ca.crt")
