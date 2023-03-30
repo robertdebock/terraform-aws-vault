@@ -60,7 +60,7 @@ resource "aws_launch_template" "default" {
     http_tokens            = "required"
     instance_metadata_tags = "enabled"
   }
-  user_data = base64encode(templatefile("${path.module}/user_data_vault.sh.tpl",
+  user_data = base64encode(templatefile("${path.module}/templates/user_data_vault.sh.tpl",
     {
       api_addr                       = local.api_addr
       audit_device                   = var.vault_audit_device
