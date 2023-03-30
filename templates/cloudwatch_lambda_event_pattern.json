@@ -1,0 +1,17 @@
+{
+  "source": [
+    "aws.lambda"
+  ],
+  "detail-type": [
+    "AWS API Call via CloudTrail"
+  ],
+  "detail": {
+    "eventSource": [
+      "lambda.amazonaws.com"
+    ],
+    "eventName": [
+      "TagResource20170331v2",
+      "DeleteFunction20150331"
+    ]
+  }
+}
