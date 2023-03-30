@@ -9,10 +9,10 @@ locals {
   private_tags     = merge({ Name = "private-${var.vault_name}-${random_string.default.result}" }, var.vault_tags)
   public_tags      = merge({ Name = "public-${var.vault_name}-${random_string.default.result}" }, var.vault_tags)
   replication_tags = merge({ Name = "replication-${var.vault_name}-${random_string.default.result}" }, var.vault_tags)
-  scripts_tags     = merge({ Name = "scripts-${var.vault_name}-${random_string.default.result}" },  var.vault_tags)
-  vpc_tags         = merge({ Name = "vpc-${var.vault_name}-${random_string.default.result}" },  var.vault_tags)
+  scripts_tags     = merge({ Name = "scripts-${var.vault_name}-${random_string.default.result}" }, var.vault_tags)
+  vpc_tags         = merge({ Name = "vpc-${var.vault_name}-${random_string.default.result}" }, var.vault_tags)
   tags             = merge({ Name = "${var.vault_name}-${random_string.default.result}" }, var.vault_tags)
-  
+
   # Compose the name of the instances.
   instance_name = "vault-${var.vault_name}-${random_string.default.result}"
 
@@ -166,9 +166,9 @@ locals {
     }
   ]
 
-# The AWS Cloudwatch namespace where all metrics of the Vault deployment are collected. 
-# Do not use dashes "-" in the namespace or automatic alarm functionality will break.
-vault_cloudwatch_namespace = "vault_${var.vault_name}_${random_string.default.result}_cwagent"
+  # The AWS Cloudwatch namespace where all metrics of the Vault deployment are collected. 
+  # Do not use dashes "-" in the namespace or automatic alarm functionality will break.
+  vault_cloudwatch_namespace = "vault_${var.vault_name}_${random_string.default.result}_cwagent"
 
 }
 

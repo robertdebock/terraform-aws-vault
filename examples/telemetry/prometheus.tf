@@ -62,11 +62,10 @@ resource "aws_instance" "prometheus" {
   key_name                    = aws_key_pair.default.key_name
   monitoring                  = true
   subnet_id                   = module.vault.bastion_subnet_id
-  user_data = base64encode(templatefile("${path.module}/user_data_prometheus.sh.tpl",
-    {
-      credenial = "hvs.OBFUSCATEDOBFUSCATEDOBFU"
-      target    = aws_route53_record.default.fqdn
-    }))
+  user_data = base64encode(templatefile("${path.module}/user_data_prometheus.sh.tpl", {
+    credenial = "hvs.OBFUSCATEDOBFUSCATEDOBFU"
+    target    = aws_route53_record.default.fqdn
+  }))
   user_data_replace_on_change = true
   vpc_security_group_ids      = [aws_security_group.prometheus.id]
   root_block_device {

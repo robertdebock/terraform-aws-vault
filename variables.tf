@@ -434,7 +434,7 @@ variable "vault_custom_script_s3_url" {
   type        = string
   default     = ""
   validation {
-    condition = can(regex("^s3://", var.vault_custom_script_s3_url)) || var.vault_custom_script_s3_url == ""
+    condition     = can(regex("^s3://", var.vault_custom_script_s3_url)) || var.vault_custom_script_s3_url == ""
     error_message = "Please use an s3 URL, starting with \"s3://\"."
   }
 }
@@ -470,7 +470,7 @@ variable "vault_bastion_custom_script_s3_url" {
   type        = string
   default     = ""
   validation {
-    condition = can(regex("^s3://", var.vault_bastion_custom_script_s3_url)) || var.vault_bastion_custom_script_s3_url == ""
+    condition     = can(regex("^s3://", var.vault_bastion_custom_script_s3_url)) || var.vault_bastion_custom_script_s3_url == ""
     error_message = "Please use an s3 URL, starting with \"s3://\"."
   }
 }

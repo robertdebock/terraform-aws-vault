@@ -110,7 +110,7 @@ data "aws_iam_policy_document" "autosnapshot" {
 
 # Make a policy to allow downloading vault scripts from S3.
 data "aws_iam_policy_document" "scripts" {
-  count = var.vault_enable_cloudwatch || var.vault_audit_device? 1 : 0
+  count = var.vault_enable_cloudwatch || var.vault_audit_device ? 1 : 0
   statement {
     effect = "Allow"
     actions = [
@@ -262,18 +262,18 @@ data "aws_partition" "current" {}
 data "aws_caller_identity" "current" {}
 
 data "aws_iam_policy_document" "lambda" {
-  count  = var.vault_enable_cloudwatch ? 1 : 0
+  count = var.vault_enable_cloudwatch ? 1 : 0
   statement {
-    effect  = "Allow"
+    effect = "Allow"
     actions = [
       "cloudwatch:PutMetricData"
     ]
     resources = [
-    "*"
+      "*"
     ]
   }
   statement {
-    effect  = "Allow"
+    effect = "Allow"
     actions = [
       "logs:CreateLogGroup",
       "logs:CreateLogStream",
@@ -286,7 +286,7 @@ data "aws_iam_policy_document" "lambda" {
     ]
   }
   statement {
-    effect  = "Allow"
+    effect = "Allow"
     actions = [
       "logs:PutLogEvents"
     ]
@@ -295,7 +295,7 @@ data "aws_iam_policy_document" "lambda" {
     ]
   }
   statement {
-    effect  = "Allow"
+    effect = "Allow"
     actions = [
       "ec2:DescribeInstances",
       "ec2:DescribeImages"
@@ -305,7 +305,7 @@ data "aws_iam_policy_document" "lambda" {
     ]
   }
   statement {
-    effect  = "Allow"
+    effect = "Allow"
     actions = [
       "cloudwatch:DescribeAlarms",
       "cloudwatch:DeleteAlarms",
@@ -316,16 +316,16 @@ data "aws_iam_policy_document" "lambda" {
     ]
   }
   statement {
-    effect  = "Allow"
+    effect = "Allow"
     actions = [
       "cloudwatch:DescribeAlarms"
     ]
     resources = [
-    "*"
+      "*"
     ]
   }
   statement {
-    effect  = "Allow"
+    effect = "Allow"
     actions = [
       "ec2:CreateTags"
     ]

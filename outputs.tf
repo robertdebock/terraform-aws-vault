@@ -10,8 +10,6 @@ output "aws_lb_zone_id" {
 
 output "bastion_host_public_ip" {
   description = "The IP address of the bastion host."
-  # value       = coalesce(try(aws_instance.bastion[0].public_ip), "No bastion host created.")
-  # value       = try(aws_instance.bastion[0].public_ip, "No bastion host created.")
   value       = coalesce(try(aws_instance.bastion[0].public_ip, "No bastion host created."), "No public IP configured for bastion.")
 }
 
