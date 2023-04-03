@@ -201,14 +201,33 @@ usermod -G vault ec2-user
 
 # Place an AWS EC2 health check script.
 cat << EOF >> /usr/local/bin/aws_health.sh
-!/bin/bash
+#!/bin/bash
 
-# Set variables
-VAULT_STATUS_URL="https://$${my_ipaddress}:8200/v1/sys/health"
-TIMEOUT=5
+# Create a retry function.
+function retry_curl {
+  retries=\$1
+  url=\$2
+  http_status=0
+  count=0
 
-# Perform the health check
-response=\$(curl -k -m \$TIMEOUT -s -o /dev/null -w "%%{http_code}" \$VAULT_STATUS_URL)
+  while [ "\$count" -lt "\$retries" ] ; do
+    http_status=\$(curl -k -m 1 -s -o /dev/null -w "%%{http_code}" "\$url")
+    case "\$http_status" in
+      200|429|472|473)
+        echo "\$http_status"
+        return
+        ;;
+      *)
+        ((count++))
+        sleep 10
+        ;;
+    esac
+  done
+  echo "\$http_status"
+}
+
+# Perform the health check. Retry 29 times.
+response="\$(retry_curl 29 https://$${my_ipaddress}:8200/v1/sys/health)"
 
 # Check the response code
 case \$response in
@@ -224,8 +243,8 @@ EOF
 # Make the AWS EC2 health check script executable.
 chmod 754 /usr/local/bin/aws_health.sh
 
-# Run the AWS EC2 health check every minute, 5 minutes after provisioning.
-sleep "${warmup}" && crontab -l | { cat; echo "* * * * * /usr/local/bin/aws_health.sh"; } | crontab -
+# Run the AWS EC2 health check every 5 minutes, minutes after provisioning, including warmup time.
+sleep "${warmup}" && crontab -l | { cat; echo "*/5 * * * * /usr/local/bin/aws_health.sh"; } | crontab -
 
 # Place a script to discover if this instance is terminated.
 cat << EOF >> /usr/local/bin/aws_deregister.sh
