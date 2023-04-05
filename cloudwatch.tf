@@ -19,17 +19,17 @@ resource "aws_cloudwatch_log_group" "lambda" {
 
 # Cloudwatch metrics dashboard feature
 resource "aws_cloudwatch_dashboard" "default" {
-  count          = var.vault_enable_cloudwatch ? 1 : 0
-  dashboard_body = "${templatefile("${path.module}/templates/cloudwatch_dashboard.json.tpl", {
-    aws_region                  = "${data.aws_region.default.name}",
-    asg_name                    = "${aws_autoscaling_group.default.name}",
-    vault_cloudwatch_namespace  = "${local.vault_cloudwatch_namespace}",
-    vault_data_path             = "${var.vault_data_path}",
-    amount                      = local.amount,
-    aws_lb_target_group_name    = "${aws_lb_target_group.api.name}",
-    aws_lb_target_group_arn     = "${aws_lb_target_group.api.arn_suffix}",
-    aws_lb_api_arn              = "${aws_lb.api.arn_suffix}",
-    })}"
+  count = var.vault_enable_cloudwatch ? 1 : 0
+  dashboard_body = (templatefile("${path.module}/templates/cloudwatch_dashboard.json.tpl", {
+    aws_region                 = "${data.aws_region.default.name}",
+    asg_name                   = "${aws_autoscaling_group.default.name}",
+    vault_cloudwatch_namespace = "${local.vault_cloudwatch_namespace}",
+    vault_data_path            = "${var.vault_data_path}",
+    amount                     = local.amount,
+    aws_lb_target_group_name   = "${aws_lb_target_group.api.name}",
+    aws_lb_target_group_arn    = "${aws_lb_target_group.api.arn_suffix}",
+    aws_lb_api_arn             = "${aws_lb.api.arn_suffix}",
+  }))
   dashboard_name = "vault-${var.vault_name}-${random_string.default.result}"
 }
 
