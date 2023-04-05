@@ -9,8 +9,9 @@ data "terraform_remote_state" "default" {
 
 # Make a certificate for EU.
 resource "aws_acm_certificate" "default_eu" {
-  count       = 2
-  domain_name = "vault-eu-${count.index}.${var.domain}"
+  count                     = 2
+  domain_name               = "vault-eu-${count.index}.${var.domain}"
+  subject_alternative_names = ["vault.${var.domain}"]
   # After a deployment, this value (`domain_name`) can't be changed because the certificate is bound to the load balancer listener.
   provider          = aws.eu-west-1
   validation_method = "DNS"
@@ -21,8 +22,9 @@ resource "aws_acm_certificate" "default_eu" {
 
 # Make a certificate for US.
 resource "aws_acm_certificate" "default_us" {
-  count       = 2
-  domain_name = "vault-us-${count.index}.${var.domain}"
+  count                     = 2
+  domain_name               = "vault-us-${count.index}.${var.domain}"
+  subject_alternative_names = ["vault.${var.domain}"]
   # After a deployment, this value (`domain_name`) can't be changed because the certificate is bound to the load balancer listener.
   validation_method = "DNS"
   tags = {
