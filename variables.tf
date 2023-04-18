@@ -486,3 +486,15 @@ variable "vault_bastion_public_ip" {
   type        = bool
   default     = true
 }
+
+variable "vault_http_read_timeout" {
+  description = "The read timeout for the HTTP API."
+  type        = string
+  default     = "30s"
+}
+
+variable "vault_http_write_timeout" {
+  description = "The write timeout for the HTTP API."
+  type        = string
+  default     = "30s"
+}

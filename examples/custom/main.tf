@@ -73,6 +73,8 @@ module "vault" {
   vault_volume_type                         = "gp2"
   vault_vpc_cidr_block_start                = "10.70"
   vault_aws_vpc_id                          = data.terraform_remote_state.default.outputs.vpc_id
+  vault_http_read_timeout                   = "5m"
+  vault_http_write_timeout                  = "5m"
   vault_tags = {
     owner = "Robert de Bock"
   }

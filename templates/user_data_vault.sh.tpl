@@ -157,6 +157,8 @@ listener "tcp" {
     unauthenticated_metrics_access = ${unauthenticated_metrics_access}
   }
 %{ endif ~}
+  http_read_timeout              = "${vault_http_read_timeout}"
+  http_write_timeout             = "${vault_http_write_timeout}"
 }
 
 seal "awskms" {
