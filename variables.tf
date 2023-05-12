@@ -211,8 +211,8 @@ variable "vault_license" {
   type        = string
   default     = ""
   validation {
-    condition     = length(var.vault_license) == 1201 || length(var.vault_license) == 0
-    error_message = "The license should contain 1201 characters."
+    condition     = length(var.vault_license) > 1024 || length(var.vault_license) == 0
+    error_message = "The license should contain more than 1024 characters."
   }
 }
 
