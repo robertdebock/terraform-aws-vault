@@ -91,6 +91,7 @@ resource "aws_launch_template" "default" {
       vault_version                  = var.vault_version
       vault_package                  = local.vault_package
       vault_license                  = try(var.vault_license, null)
+      vault_type                     = var.vault_type
       warmup                         = var.vault_asg_warmup_seconds
   }))
   vpc_security_group_ids = compact([aws_security_group.private.id, try(aws_security_group.public[0].id, "")])

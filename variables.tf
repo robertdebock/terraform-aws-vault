@@ -14,10 +14,14 @@ variable "vault_name" {
 variable "vault_version" {
   description = "The version of Vault to install."
   type        = string
-  default     = "1.13.1"
+  default     = "1.13.2"
   validation {
-    condition     = can(regex("^1\\.", var.vault_version))
-    error_message = "Please use a SemVer version, where the major version is \"1\". Use \"1.2.7\" or newer."
+    condition     = split(".", var.vault_version)[0] == "1"
+    error_message = "Please use major version 1 of Vault, for example \"1.13.2\"."
+  }
+  validation {
+     condition     = split(".", var.vault_version)[1] >= "11"
+     error_message = "Please use minor version 11 or newer, for example  \"1.13.2\"."
   }
 }
 

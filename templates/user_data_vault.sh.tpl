@@ -135,8 +135,11 @@ max_lease_ttl     = "${max_lease_ttl}"
 default_lease_ttl = "${default_lease_ttl}"
 
 storage "raft" {
-  path    = "${vault_data_path}/data"
-  node_id = "$${my_instance_id}"
+  path                      = "${vault_data_path}/data"
+  node_id                   = "$${my_instance_id}"
+%{ if vault_type == "vault_enterprise" ~}
+  autopilot_upgrade_version = "${vault_version}"
+%{ endif ~}
   retry_join {
     auto_join               = "provider=aws tag_key=Name tag_value=${instance_name} addr_type=private_v4 region=${region}"
     auto_join_scheme        = "https"
