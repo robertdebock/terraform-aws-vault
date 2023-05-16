@@ -6,8 +6,12 @@ variable "vault_name" {
   type        = string
   default     = "unset"
   validation {
-    condition     = length(var.vault_name) >= 3 && length(var.vault_name) <= 5 && var.vault_name != "default"
-    error_message = "Please use a minimum of 3 and a maximum of 5 characters. \"default\" can't be used because it is reserved."
+    condition     = length(var.vault_name) >= 3 && length(var.vault_name) <= 5
+    error_message = "Please use a minimum of 3 and a maximum of 5 characters."
+  }
+  validation {
+    condition     = var.vault_name != "default"
+    error_message = "Please do not use \"default\" as this is reserved."
   }
 }
 
@@ -164,7 +168,7 @@ variable "vault_default_lease_time" {
   default     = "768h"
   validation {
     condition     = can(regex("^[1-9][0-9]*(s|m|h)", var.vault_default_lease_time))
-    error_message = "Please use a positive number, followed by the duration indicator."
+    error_message = "Please use a positive number, followed by the duration indicator as \"s\", \"m\" or \"h\"."
   }
 }
 
@@ -174,7 +178,7 @@ variable "vault_max_lease_time" {
   default     = "768h"
   validation {
     condition     = can(regex("^[1-9][0-9]*(s|m|h)$", var.vault_max_lease_time))
-    error_message = "Please use a positive number, followed by the duration indicator."
+    error_message = "Please use a positive number, followed by the duration indicator as \"s\", \"m\" or \"h\"."
   }
 }
 
@@ -216,7 +220,7 @@ variable "vault_license" {
   default     = ""
   validation {
     condition     = length(var.vault_license) > 1024 || length(var.vault_license) == 0
-    error_message = "The license should contain more than 1024 characters."
+    error_message = "The license should contain more than 1024 characters, or set the value to \"\"."
   }
 }
 
@@ -226,7 +230,7 @@ variable "vault_api_addr" {
   default     = ""
   validation {
     condition     = can(regex("^http", var.vault_api_addr)) || length(var.vault_api_addr) == 0
-    error_message = "Please use a URL like: \"https://vault.example.com:8200\"."
+    error_message = "Please use a URL like: \"https://vault.example.com:8200\", or set the value to \"\"."
   }
 }
 
@@ -305,7 +309,7 @@ variable "vault_aws_kms_key_id" {
   default     = ""
   validation {
     condition     = var.vault_aws_kms_key_id == "" || length(var.vault_aws_kms_key_id) >= 30
-    error_message = "Please specify an AWS KMS key with a length of 30 or more."
+    error_message = "Please specify an AWS KMS key with a length of 30 or more, or set the value to \"\"."
   }
 }
 
@@ -345,7 +349,7 @@ variable "vault_aws_s3_snapshots_bucket_name" {
   default     = ""
   validation {
     condition     = (length(var.vault_aws_s3_snapshots_bucket_name) >= 3 && length(var.vault_aws_s3_snapshots_bucket_name) <= 63) || var.vault_aws_s3_snapshots_bucket_name == ""
-    error_message = "Please use a bucket name between 3 and 63 characters."
+    error_message = "Please use a bucket name between 3 and 63 characters, or set the value to \"\"."
   }
 }
 
@@ -387,7 +391,7 @@ variable "vault_audit_device_path" {
   default     = "/var/log/vault"
   validation {
     condition     = can(regex("^/", var.vault_audit_device_path))
-    error_message = "Please specify an absolute path."
+    error_message = "Please specify an absolute path, starting with a \"/\"."
   }
 }
 
@@ -398,12 +402,12 @@ variable "vault_allow_ssh" {
 }
 
 variable "vault_asg_minimum_required_memory" {
-  description = "When using a custom size, the minimum amount of memory (in megabytes) can be set."
+  description = "When using a custom size, the minimum amount of memory (in MB) can be set."
   type        = number
   default     = 8192
   validation {
     condition     = var.vault_asg_minimum_required_memory >= 512
-    error_message = "Please use 512 (megabytes) or more."
+    error_message = "Please use 512 (MB) or more."
   }
 }
 
@@ -495,10 +499,18 @@ variable "vault_http_read_timeout" {
   description = "The read timeout for the HTTP API."
   type        = string
   default     = "30s"
+  validation {
+    condition     = can(regex("^[1-9][0-9]*(s|m|h)", var.vault_http_read_timeout))
+    error_message = "Please use a positive number, followed by the duration indicator as \"s\", \"m\" or \"h\"."
+  }
 }
 
 variable "vault_http_write_timeout" {
   description = "The write timeout for the HTTP API."
   type        = string
   default     = "30s"
+  validation {
+    condition     = can(regex("^[1-9][0-9]*(s|m|h)", var.vault_http_write_timeout))
+    error_message = "Please use a positive number, followed by the duration indicator as \"s\", \"m\" or \"h\"."
+  }
 }
