@@ -484,7 +484,7 @@ variable "vault_bastion_custom_script_s3_url" {
 }
 
 variable "vault_bastion_create_s3_bucket" {
-  description = "Should an S3 bucket be create that the bastion host can use for backups?"
+  description = "Should an S3 bucket be created that the bastion host can utilize for backup purposes?"
   type        = bool
   default     = true
 }
