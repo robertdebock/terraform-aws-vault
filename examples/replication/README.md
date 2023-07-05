@@ -11,8 +11,8 @@ The intent of these clusters is as follows:
         |                                  |
         V                                  V
         DR                                 DR
-        |                                 |
-        V                                 V
+        |                                  |
+        V                                  V
 +--- vault-eu-1 ---+              +--- vault-us-1 ----+
 |                  |              |                   |
 +------------------+              +-------------------+
