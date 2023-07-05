@@ -18,7 +18,7 @@ variable "vault_name" {
 variable "vault_version" {
   description = "The version of Vault to install."
   type        = string
-  default     = "1.13.2"
+  default     = "1.14.0"
   validation {
     condition     = split(".", var.vault_version)[0] == "1"
     error_message = "Please use major version 1 of Vault, for example \"1.13.2\"."
