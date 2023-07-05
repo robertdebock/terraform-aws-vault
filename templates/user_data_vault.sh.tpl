@@ -212,37 +212,27 @@ cat << EOF >> /usr/local/bin/aws_health.sh
 function retry_curl {
   retries=\$1
   url=\$2
-  http_status=0
-  count=0
+  attempt=0
 
-  while [ "\$count" -lt "\$retries" ] ; do
-    http_status=\$(curl -k -m 1 -s -o /dev/null -w "%%{http_code}" "\$url")
-    case "\$http_status" in
-      200|429|472|473)
-        echo "\$http_status"
-        return
-        ;;
-      *)
-        ((count++))
-        sleep 10
-        ;;
-    esac
+  while [ \$attempt -lt \$retries ] ; do
+    response=\$(curl --insecure --max-time 1 --silent --output /dev/null "\$url")
+    if [ \$? -eq 0 ]; then
+      aws --region \${region} autoscaling set-instance-health --instance-id $${my_instance_id} --health-status Healthy
+      break
+    else
+      echo "Request to \$url failed, retrying..."
+      sleep 10
+      ((attempt++))
+    fi
   done
-  echo "\$http_status"
+  
+  if [ \$attempt -eq \$retries ] ; then
+    aws --region ${region} autoscaling set-instance-health --instance-id $${my_instance_id} --health-status Unhealthy
+  fi
 }
 
 # Perform the health check. Retry 29 times.
 response="\$(retry_curl 29 https://$${my_ipaddress}:8200/v1/sys/health)"
-
-# Check the response code
-case \$response in
-  200|429|472|473)
-    aws --region ${region} autoscaling set-instance-health --instance-id $${my_instance_id} --health-status Healthy
-  ;;
-  *)
-    aws --region ${region} autoscaling set-instance-health --instance-id $${my_instance_id} --health-status Unhealthy
-  ;;
-esac
 EOF
 
 # Make the AWS EC2 health check script executable.
