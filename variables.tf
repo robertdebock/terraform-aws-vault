@@ -118,11 +118,14 @@ variable "vault_create_bastionhost" {
   default     = true
 }
 
-# TODO: This feels cluncky, try to calculate the cidr block.
-variable "vault_vpc_cidr_block_start" {
-  description = "The first two octets of the VPC cidr."
+variable "vault_cidr_block" {
+  description = "The CIDR block to use for the VPC, between 16 and 24. significant bits."
   type        = string
-  default     = "172.16"
+  default     = "172.16.0.0/16"
+  validation {
+    condition     = cidrsubnet(var.vault_cidr_block, 0, 0) == var.vault_cidr_block
+    error_message = "Please use a valid cidr block, for example \"172.16.0.0/16\"."
+  }
 }
 
 variable "vault_tags" {

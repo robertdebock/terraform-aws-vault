@@ -119,7 +119,7 @@ resource "aws_security_group_rule" "clustertocluster" {
 # Allow access from the bastion host.
 resource "aws_security_group_rule" "ssh" {
   count             = var.vault_allow_ssh ? 1 : 0
-  cidr_blocks       = [local.cidr_block]
+  cidr_blocks       = [var.vault_cidr_block]
   description       = "SSH from bastion"
   from_port         = 22
   protocol          = "TCP"

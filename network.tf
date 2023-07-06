@@ -1,7 +1,7 @@
 # Create a VPC.
 resource "aws_vpc" "default" {
   count      = var.vault_aws_vpc_id == "" ? 1 : 0
-  cidr_block = local.cidr_block
+  cidr_block = var.vault_cidr_block
   tags       = local.vpc_tags
 }
 
@@ -90,7 +90,7 @@ data "aws_availability_zones" "default" {
 resource "aws_subnet" "private" {
   count             = var.vault_aws_vpc_id == "" ? min(length(data.aws_availability_zones.default.names), local.amount) : 0
   availability_zone = data.aws_availability_zones.default.names[count.index]
-  cidr_block        = "${var.vault_vpc_cidr_block_start}.${count.index}.0/24"
+  cidr_block        = cidrsubnet(var.vault_cidr_block, 8, count.index)
   tags              = local.private_tags
   vpc_id            = local.vpc_id
 }
@@ -99,7 +99,7 @@ resource "aws_subnet" "private" {
 resource "aws_subnet" "public" {
   count             = var.vault_aws_vpc_id == "" ? min(length(data.aws_availability_zones.default.names), local.amount) : 0
   availability_zone = data.aws_availability_zones.default.names[count.index]
-  cidr_block        = "${var.vault_vpc_cidr_block_start}.${count.index + 64}.0/24"
+  cidr_block        = cidrsubnet(var.vault_cidr_block, 8, count.index + 64)
   tags              = local.public_tags
   vpc_id            = local.vpc_id
 }

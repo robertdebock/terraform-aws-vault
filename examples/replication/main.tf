@@ -126,7 +126,7 @@ module "vault_eu" {
   vault_public_subnet_ids               = data.terraform_remote_state.default.outputs.public_subnet_ids_eu
   vault_size                            = "minimum"
   vault_type                            = "enterprise"
-  vault_vpc_cidr_block_start            = "10.1"
+  vault_cidr_block                      = "10.1.0.0/16"
   vault_tags = {
     owner = "Robert de Bock"
   }
@@ -152,7 +152,7 @@ module "vault_us" {
   vault_public_subnet_ids               = data.terraform_remote_state.default.outputs.public_subnet_ids_us
   vault_size                            = "minimum"
   vault_type                            = "enterprise"
-  vault_vpc_cidr_block_start            = "10.0"
+  vault_cidr_block                      = "10.0.0.0/16"
   vault_tags = {
     owner = "Robert de Bock"
   }

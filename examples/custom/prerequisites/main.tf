@@ -40,7 +40,6 @@ resource "aws_s3_object" "bastion" {
   source = "${path.module}/scripts/my_script_bastion.sh"
 }
 
-
 # Create a VCP.
 resource "aws_vpc" "default" {
   cidr_block = "10.70.0.0/16"
@@ -93,7 +92,7 @@ resource "aws_eip" "default" {
 resource "aws_subnet" "private" {
   count             = length(data.aws_availability_zones.default.names)
   availability_zone = data.aws_availability_zones.default.names[count.index]
-  cidr_block        = "10.70.${count.index + 64}.0/24"
+  cidr_block        = cidrsubnet(aws_vpc.default.cidr_block, 8, count.index + 64)
   vpc_id            = aws_vpc.default.id
   tags = {
     Name    = "custom-private"
@@ -130,7 +129,7 @@ data "aws_availability_zones" "default" {
 resource "aws_subnet" "public" {
   count             = length(data.aws_availability_zones.default.names)
   availability_zone = data.aws_availability_zones.default.names[count.index]
-  cidr_block        = "10.70.${count.index}.0/24"
+  cidr_block        = cidrsubnet(aws_vpc.default.cidr_block, 8, count.index)
   vpc_id            = aws_vpc.default.id
   tags = {
     Name    = "custom-public"

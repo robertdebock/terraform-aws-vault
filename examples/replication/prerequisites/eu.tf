@@ -60,7 +60,7 @@ resource "aws_eip" "default_eu" {
 resource "aws_subnet" "private_eu" {
   count             = length(data.aws_availability_zones.default_eu.names)
   availability_zone = data.aws_availability_zones.default_eu.names[count.index]
-  cidr_block        = "10.1.${count.index + 64}.0/24"
+  cidr_block        = cidrsubnet(aws_vpc.default_eu.cidr_block, 8, count.index + 64)
   vpc_id            = aws_vpc.default_eu.id
   tags = {
     Name    = "replication-eu-private"
@@ -106,7 +106,7 @@ data "aws_availability_zones" "default_eu" {
 resource "aws_subnet" "public_eu" {
   count             = length(data.aws_availability_zones.default_eu.names)
   availability_zone = data.aws_availability_zones.default_eu.names[count.index]
-  cidr_block        = "10.1.${count.index}.0/24"
+  cidr_block        = cidrsubnet(aws_vpc.default_eu.cidr_block, 8, count.index)
   vpc_id            = aws_vpc.default_eu.id
   tags = {
     Name    = "replication-eu-public"
