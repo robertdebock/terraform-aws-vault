@@ -29,7 +29,7 @@ data "aws_internet_gateway" "default" {
 
 # Reserve external IP addresses. (It's for the NAT gateways.)
 resource "aws_eip" "default" {
-  count = var.vault_aws_vpc_id == "" ? length(aws_nat_gateway.default) : 0
+  count = var.vault_aws_vpc_id == "" ? length(aws_subnet.public) : 0
   tags  = local.tags
   vpc   = true
 }
