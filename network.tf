@@ -29,16 +29,16 @@ data "aws_internet_gateway" "default" {
 
 # Reserve external IP addresses. (It's for the NAT gateways.)
 resource "aws_eip" "default" {
-  count = var.vault_aws_vpc_id == "" ? 1 : 0
+  count = var.vault_aws_vpc_id == "" ? length(aws_nat_gateway.default) : 0
   tags  = local.tags
   vpc   = true
 }
 
-# Make NAT gateway, for the Vault instances to reach the internet.
+# Make NAT gateways, one for each AZ/subnet. For the Vault instances to reach the internet.
 resource "aws_nat_gateway" "default" {
-  count         = var.vault_aws_vpc_id == "" ? 1 : 0
-  allocation_id = aws_eip.default[0].id
-  subnet_id     = aws_subnet.public[0].id
+  count         = var.vault_aws_vpc_id == "" ? length(aws_subnet.public) : 0
+  allocation_id = aws_eip.default[count.index].id
+  subnet_id     = aws_subnet.public[count.index].id
   tags          = local.tags
   depends_on    = [aws_internet_gateway.default]
 }
@@ -49,19 +49,19 @@ data "aws_nat_gateway" "default" {
   subnet_id = var.vault_public_subnet_ids[0]
 }
 
-# Create a routing table for the Vault instances.
+# Create routing tables for the Vault instances.
 resource "aws_route_table" "private" {
-  count  = var.vault_aws_vpc_id == "" ? 1 : 0
+  count  = var.vault_aws_vpc_id == "" ? length(aws_subnet.private) : 0
   tags   = local.private_tags
   vpc_id = local.vpc_id
 }
 
 # Add a route to the routing table for the Vault instances.
 resource "aws_route" "private" {
-  count                  = var.vault_aws_vpc_id == "" ? 1 : 0
+  count                  = var.vault_aws_vpc_id == "" ? length(aws_subnet.private) : 0
   destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id         = aws_nat_gateway.default[0].id
-  route_table_id         = aws_route_table.private[0].id
+  nat_gateway_id         = aws_nat_gateway.default[count.index].id
+  route_table_id         = aws_route_table.private[count.index].id
 }
 
 # Add a route table to pass traffic from "public" subnets to the internet gateway.
