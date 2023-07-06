@@ -71,7 +71,7 @@ module "vault" {
   vault_size                                = "custom"
   vault_volume_size                         = 64
   vault_volume_type                         = "gp2"
-  vault_vpc_cidr_block_start                = "10.70"
+  vault_cidr_block                          = "10.70.0.0/16"
   vault_aws_vpc_id                          = data.terraform_remote_state.default.outputs.vpc_id
   vault_http_read_timeout                   = "5m"
   vault_http_write_timeout                  = "5m"

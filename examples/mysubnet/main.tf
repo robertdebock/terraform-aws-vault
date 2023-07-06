@@ -50,7 +50,8 @@ module "vault" {
   vault_name                     = "mysbn"
   vault_private_subnet_ids       = data.terraform_remote_state.default.outputs.private_subnet_ids
   vault_public_subnet_ids        = data.terraform_remote_state.default.outputs.public_subnet_ids
-  vault_vpc_cidr_block_start     = "192.168"
+  vault_cidr_block               = "192.168.0.0/16"
+
   vault_tags = {
     owner = "Robert de Bock"
   }
