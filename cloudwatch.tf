@@ -68,6 +68,7 @@ resource "aws_lambda_function" "CloudWatchAutoAlarms" {
 }
 
 resource "time_sleep" "cloudwatch_alarm_cleanup_timer" {
+  count      = var.vault_enable_cloudwatch ? 1 : 0
   depends_on = [
     aws_lambda_function.CloudWatchAutoAlarms,
     aws_cloudwatch_event_target.ec2_alarms,
@@ -81,7 +82,7 @@ resource "time_sleep" "cloudwatch_alarm_cleanup_timer" {
     aws_iam_role.lambda[0]
   ]
 
-  destroy_duration = "40s" # The lambda function needs some time to be trigger and clean up the alarms.
+  destroy_duration = "40s" # The lambda function needs some time to trigger and clean up the alarms.
 }
 
 resource "aws_cloudwatch_event_rule" "ec2_alarms" {
