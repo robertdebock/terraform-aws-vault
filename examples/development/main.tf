@@ -50,7 +50,7 @@ module "vault" {
 
 # Add a loadbalancer record to DNS zone.
 resource "aws_route53_record" "default" {
-  name    = "dev"
+  name    = var.vault-name
   type    = "CNAME"
   ttl     = 300
   records = [module.vault.aws_lb_dns_name]
