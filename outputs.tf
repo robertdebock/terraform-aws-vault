@@ -16,10 +16,11 @@ output "bastion_host_public_ip" {
 output "instructions" {
   description = "How to bootstrap Vault."
   value       = <<EOF
-  1. Run: ssh ec2-user@${try(aws_instance.bastion[0].public_ip, "some-host-you-already-have")}
-  2. Run: vault operator init
-  3. Run: vault login
-  4. Run: vault operator raft autopilot set-config -min-quorum=${local.amount} -cleanup-dead-servers=true -dead-server-last-contact-threshold=${var.vault_asg_cooldown_seconds / 2.5}
+  1. Run: ssh-add id_rsa
+  2. Run: ssh ec2-user@${try(aws_instance.bastion[0].public_ip, "some-host-you-already-have")}
+  3. Run: vault operator init
+  4. Run: vault login
+  5. Run: vault operator raft autopilot set-config -min-quorum=${local.amount} -cleanup-dead-servers=true -dead-server-last-contact-threshold=${var.vault_asg_cooldown_seconds / 2.5}
 EOF
 }
 
