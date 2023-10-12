@@ -163,8 +163,8 @@ data "aws_iam_policy_document" "backup" {
       "s3:DeleteObject"
     ]
     resources = [
-      "arn:aws:s3:::${var.vault_aws_s3_snapshots_bucket_name}/*.snap",
-      "arn:aws:s3:::${var.vault_aws_s3_snapshots_bucket_name}/*/*.snap"
+      "arn:aws:s3:::${aws_s3_bucket.bastion.id}/*.snap",
+      "arn:aws:s3:::${aws_s3_bucket.bastion.id}/*/*.snap"
     ]
   }
   statement {
@@ -173,7 +173,7 @@ data "aws_iam_policy_document" "backup" {
       "s3:ListBucketVersions",
       "s3:ListBucket"
     ]
-    resources = ["arn:aws:s3:::${var.vault_aws_s3_snapshots_bucket_name}"]
+    resources = ["arn:aws:s3:::${aws_s3_bucket.bastion.id}"]
   }
   statement {
     effect = "Allow"
@@ -182,8 +182,8 @@ data "aws_iam_policy_document" "backup" {
       "s3:ListBucket"
     ]
     resources = [
-      "arn:aws:s3:::${var.vault_aws_s3_snapshots_bucket_name}",
-      "arn:aws:s3:::${var.vault_aws_s3_snapshots_bucket_name}/*"
+      "arn:aws:s3:::${aws_s3_bucket.bastion.id}",
+      "arn:aws:s3:::${aws_s3_bucket.bastion.id}/*"
     ]
   }
 }
