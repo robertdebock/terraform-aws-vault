@@ -186,6 +186,15 @@ data "aws_iam_policy_document" "backup" {
       "arn:aws:s3:::${aws_s3_bucket.bastion.id}/*"
     ]
   }
+  statement {
+    effect = "Allow"
+    actions = [
+      "kms:GenerateDataKey"
+    ]
+    resources = [
+      "arn:aws:kms:*:${data.aws_caller_identity.current.account_id}:key/*"
+    ]
+  }
 }
 
 # Link the backup policy to the bastion role.
