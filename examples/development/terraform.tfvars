@@ -1,0 +1,3 @@
+domain     = ""
+owner      = ""
+vault-name = ""

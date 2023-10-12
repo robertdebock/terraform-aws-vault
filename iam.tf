@@ -158,7 +158,7 @@ data "aws_iam_policy_document" "custom_scripts" {
 resource "aws_iam_role" "default" {
   assume_role_policy = data.aws_iam_policy_document.assumerole.json
   description        = "Vault role - ${var.vault_name}"
-  name_prefix        = "${var.vault_name}-"
+  name               = "${var.vault_name}-vault"
   tags               = local.tags
 }
 

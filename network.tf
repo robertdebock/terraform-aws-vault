@@ -29,9 +29,9 @@ data "aws_internet_gateway" "default" {
 
 # Reserve external IP addresses. (It's for the NAT gateways.)
 resource "aws_eip" "default" {
-  count = var.vault_aws_vpc_id == "" ? length(aws_subnet.public) : 0
-  tags  = local.tags
-  vpc   = true
+  count  = var.vault_aws_vpc_id == "" ? length(aws_subnet.public) : 0
+  tags   = local.tags
+  domain = "vpc"
 }
 
 # Make NAT gateways, one for each AZ/subnet. For the Vault instances to reach the internet.
